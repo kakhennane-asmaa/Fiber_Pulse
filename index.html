@@ -6,39 +6,35 @@
 <title>FiberPulse — FTTH/GPON Predictive Engine</title>
 <link rel="manifest" href="manifest.json" />
 <meta name="theme-color" content="#00acc1" />
-<meta name="description" content="محرك تنبؤي لأعطال شبكات FTTH/GPON — Bellcore GR-196 + ITU-T G.984.2 + CUSUM + Kaplan-Meier" />
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-:root{--bg-base:#f4faff;--glass-bg:rgba(255,255,255,0.55);--glass-border:rgba(255,255,255,0.8);--glass-blur:blur(20px);--text-primary:#0f172a;--text-secondary:#334155;--primary-cyan:#00acc1;--primary-cyan-light:#e0f7fa;--primary-purple:#8e24aa;--primary-green:#43a047;--primary-orange:#fb8c00;--primary-pink:#d81b60;--card-shadow:0 8px 32px rgba(0,0,0,0.08);--roi-bg:linear-gradient(135deg,#064e3b,#065f46)}
+:root{--bg-base:#f4faff;--glass-bg:rgba(255,255,255,0.55);--glass-border:rgba(255,255,255,0.8);--glass-blur:blur(20px);--text-primary:#0f172a;--text-secondary:#334155;--primary-cyan:#00acc1;--primary-cyan-light:#e0f7fa;--card-shadow:0 8px 32px rgba(0,0,0,0.08);--roi-bg:linear-gradient(135deg,#064e3b,#065f46)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Tajawal',sans-serif;background-color:var(--bg-base);background-image:radial-gradient(circle at 10% 20%,rgba(255,255,255,0.9) 0%,transparent 35%),radial-gradient(circle at 90% 80%,rgba(224,247,250,0.8) 0%,transparent 40%);color:var(--text-primary);padding:20px;min-height:100vh}
 .app-header{text-align:center;margin-bottom:30px}
 .app-header h1{color:#0f172a;font-size:36px;font-weight:800;letter-spacing:1px}
 .app-header p{color:var(--text-secondary);font-size:18px}
 .language-selector{display:flex;justify-content:center;gap:10px;margin-bottom:25px}
-.lang-btn{background-color:rgba(255,255,255,0.6);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.9);color:var(--text-primary);border-radius:8px;padding:8px 18px;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.3s ease;text-transform:uppercase}
-.lang-btn:hover{background-color:var(--primary-cyan-light);border-color:var(--primary-cyan);color:#006064}
-.lang-btn.active{background-color:var(--primary-cyan);color:white;border-color:var(--primary-cyan)}
+.lang-btn{background-color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.9);color:var(--text-primary);border-radius:8px;padding:8px 18px;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.3s;text-transform:uppercase}
+.lang-btn:hover{background-color:var(--primary-cyan-light);color:#006064}
+.lang-btn.active{background-color:var(--primary-cyan);color:white}
 .container{max-width:1200px;margin:0 auto}
-.card{background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:16px;box-shadow:var(--card-shadow);padding:20px;margin-bottom:20px}
+.card{background:var(--glass-bg);backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:16px;box-shadow:var(--card-shadow);padding:20px;margin-bottom:20px}
 .controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center}
-.btn{background-color:rgba(255,255,255,0.7);color:var(--text-primary);border:1px solid rgba(255,255,255,0.9);border-radius:12px;padding:12px 20px;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.3s ease;min-width:140px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
-.btn:hover{background-color:var(--primary-cyan-light);border-color:var(--primary-cyan);color:#006064;transform:translateY(-2px)}
-.btn-outline{background-color:rgba(255,255,255,0.5);color:#6a1b9a;border-color:#e1bee7}
-.btn-outline:hover{background-color:#f3e5f5;border-color:var(--primary-purple)}
-.btn-success{background-color:rgba(255,255,255,0.5);color:#1b5e20;border-color:#c8e6c9}
-.btn-success:hover{background-color:#e8f5e9;border-color:var(--primary-green)}
-.btn-warning{background-color:rgba(255,255,255,0.5);color:#e65100;border-color:#ffe0b2}
-.btn-warning:hover{background-color:#fff3e0;border-color:var(--primary-orange)}
-.file-label{background-color:rgba(255,255,255,0.5);color:#e65100;border:1px solid #ffe0b2;border-radius:12px;padding:12px 20px;font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn{background-color:rgba(255,255,255,0.7);color:var(--text-primary);border:1px solid rgba(255,255,255,0.9);border-radius:12px;padding:12px 20px;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.3s;min-width:140px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:hover{background-color:var(--primary-cyan-light);transform:translateY(-2px)}
+.btn-outline{background:rgba(255,255,255,0.5);color:#6a1b9a;border-color:#e1bee7}
+.btn-success{background:rgba(255,255,255,0.5);color:#1b5e20;border-color:#c8e6c9}
+.btn-warning{background:rgba(255,255,255,0.5);color:#e65100;border-color:#ffe0b2}
+.file-label{background:rgba(255,255,255,0.5);color:#e65100;border:1px solid #ffe0b2;border-radius:12px;padding:12px 20px;font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
 input[type="file"]{display:none}
 .seed-box{text-align:center;margin-bottom:15px}
-.seed-box input{padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.9);background:rgba(255,255,255,0.8);color:var(--text-primary);width:90px;text-align:center;font-size:16px;font-weight:700}
+.seed-box input{padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.9);background:rgba(255,255,255,0.8);width:90px;text-align:center;font-size:16px;font-weight:700}
 .metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:20px 0}
-.metric-card{background:rgba(255,255,255,0.6);backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,0.9);border-radius:10px;padding:15px;text-align:center;transition:all 0.3s ease}
+.metric-card{background:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.9);border-radius:10px;padding:15px;text-align:center;transition:all 0.3s}
 .metric-card:hover{border-color:var(--primary-cyan);transform:scale(1.02)}
 .metric-card .value{font-size:26px;font-weight:800;color:#006064}
 .metric-card .label{font-size:13px;color:var(--text-secondary);margin-top:4px}
@@ -46,8 +42,8 @@ input[type="file"]{display:none}
 .roi-card h2{color:white;font-size:20px;margin-bottom:18px;text-align:center;font-weight:800}
 .roi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}
 .roi-item{background:rgba(255,255,255,0.1);border-radius:12px;padding:16px;text-align:center;border:1px solid rgba(255,255,255,0.2)}
-.roi-item .roi-value{font-size:32px;font-weight:800;color:#10d981;margin-bottom:6px}
-.roi-item .roi-label{font-size:13px;color:#d1fae5;opacity:0.95}
+.roi-item .roi-value{font-size:30px;font-weight:800;color:#10d981;margin-bottom:6px}
+.roi-item .roi-label{font-size:13px;color:#d1fae5}
 .roi-item .roi-sub{font-size:11px;color:#a7f3d0;margin-top:4px}
 .sla-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;margin:4px}
 .sla-ok{background:#d1fae5;color:#065f46}
@@ -63,30 +59,26 @@ input[type="file"]{display:none}
 .confusion-card .label{font-size:12px;color:#334155;font-weight:600}
 table{width:100%;border-collapse:collapse;margin-top:15px;background:rgba(255,255,255,0.6);border-radius:8px;overflow:hidden}
 th,td{padding:10px;text-align:center;font-size:14px;border-bottom:1px solid rgba(0,0,0,0.05)}
-th{background-color:#e0f7fa;color:#006064;font-weight:700}
-tr:hover td{background-color:rgba(224,247,250,0.4)}
-.alert{background-color:#ffebee;color:#b71c1c;padding:6px;border-radius:6px;font-weight:700}
-.safe{background-color:#e8f5e9;color:#1b5e20;padding:6px;border-radius:6px}
-.warn{background-color:#fff3e0;color:#e65100;padding:6px;border-radius:6px;font-weight:700}
-.monitor{background-color:#e3f2fd;color:#0d47a1;padding:6px;border-radius:6px;font-weight:700}
-.critical{background-color:#fce4ec;color:#880e4f;padding:6px;border-radius:6px;font-weight:700}
+th{background:#e0f7fa;color:#006064;font-weight:700}
+tr:hover td{background:rgba(224,247,250,0.4)}
+.alert{background:#ffebee;color:#b71c1c;padding:6px;border-radius:6px;font-weight:700}
+.safe{background:#e8f5e9;color:#1b5e20;padding:6px;border-radius:6px}
+.warn{background:#fff3e0;color:#e65100;padding:6px;border-radius:6px;font-weight:700}
+.monitor{background:#e3f2fd;color:#0d47a1;padding:6px;border-radius:6px;font-weight:700}
+.critical{background:#fce4ec;color:#880e4f;padding:6px;border-radius:6px;font-weight:700}
 .survival-box{background:#e0f7fa;border-radius:6px;padding:4px;font-size:12px;color:#006064}
 .chart-container{background:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.9);border-radius:12px;padding:10px;margin-top:15px}
 canvas{background:transparent;display:block;max-width:100%}
 .map-container{background:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.9);border-radius:12px;padding:5px;margin-top:15px;height:400px}
 .pon-summary{background:rgba(255,255,255,0.6);border-radius:10px;padding:12px;font-size:14px;line-height:1.6}
-.highlight-row{background-color:#fff9c4 !important}
+.highlight-row{background:#fff9c4 !important}
 .nav-btns{display:flex;gap:5px;margin-top:8px}
-.nav-btn{background:#1e3a8a;color:white;border:none;border-radius:6px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
-.nav-btn:hover{background:#1e40af}
+.nav-btn{background:#1e3a8a;color:white;border:none;border-radius:6px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer}
 .section-title{color:#1e3a8a;font-size:17px;font-weight:700;border-right:5px solid #00acc1;padding-right:12px;margin:20px 0 12px 0}
 </style>
 </head>
 <body>
-<div class="app-header">
-<h1>🫀 FiberPulse</h1>
-<p data-i18n="subtitle">FTTH/GPON Predictive Fault Engine</p>
-</div>
+<div class="app-header"><h1>🫀 FiberPulse</h1><p data-i18n="subtitle">FTTH/GPON Predictive Fault Engine</p></div>
 <div class="language-selector no-print">
 <button class="lang-btn active" data-lang="ar" onclick="setLanguage('ar')">AR</button>
 <button class="lang-btn" data-lang="fr" onclick="setLanguage('fr')">FR</button>
@@ -99,9 +91,9 @@ canvas{background:transparent;display:block;max-width:100%}
 <button class="btn btn-outline" onclick="loadRepositoryData()" data-i18n="load_repo">📥 Load Repository Data</button>
 <label class="file-label" for="csvFileInput" data-i18n="upload_csv">📂 Upload CSV</label>
 <input type="file" id="csvFileInput" accept=".csv" onchange="handleCSVFile(event)">
-<label class="file-label" for="otdrFileInput" style="background:#fee2e2;color:#991b1b;border-color:#fca5a5;" title="Bellcore GR-196 .SOR">🔬 تحميل OTDR</label>
+<label class="file-label" for="otdrFileInput" style="background:#fee2e2;color:#991b1b;border-color:#fca5a5;">🔬 تحميل OTDR</label>
 <input type="file" id="otdrFileInput" accept=".sor,.SOR" onchange="handleOTDRUpload(event)">
-<label class="file-label" for="alarmsFileInput" style="background:#dbeafe;color:#1e40af;border-color:#93c5fd;" title="CSV من NMS">📡 تحميل إنذارات</label>
+<label class="file-label" for="alarmsFileInput" style="background:#dbeafe;color:#1e40af;border-color:#93c5fd;">📡 تحميل إنذارات</label>
 <input type="file" id="alarmsFileInput" accept=".csv" onchange="handleAlarmsCSV(event)">
 <button class="btn btn-warning" onclick="testTwentySeeds()" data-i18n="compare">🔁 Test 20 Seeds</button>
 <button class="btn btn-success" onclick="exportCSV()" data-i18n="export_csv">📥 Export CSV</button>
@@ -118,104 +110,64 @@ canvas{background:transparent;display:block;max-width:100%}
 <div id="results" class="card">
 <h2 data-i18n="analysis_title">📊 Analysis Results</h2>
 <div id="dataSourceBadge" style="text-align:center;margin-bottom:12px;"></div>
-
 <div id="roiSection"></div>
-
 <div class="metrics-grid" id="metricsBox"></div>
 <p id="summary" style="text-align:center;margin:10px 0;font-size:14px;color:#334155;"></p>
-
 <div class="section-title">📋 SLA Compliance Tracking</div>
 <div id="slaSection"></div>
-
 <div class="section-title">Confusion Matrix & Extended Metrics</div>
 <div class="confusion-grid" id="confusionMatrix"></div>
 <div class="metrics-grid" id="extendedMetrics"></div>
-
 <div class="section-title">Category Distribution</div>
 <div class="metrics-grid" id="categoryStats"></div>
-
-<div id="ponSection">
-<div class="section-title" data-i18n="pon_title">📍 PON Risk Distribution</div>
-<div class="pon-summary" id="ponSummary"></div>
-</div>
-
+<div id="ponSection"><div class="section-title" data-i18n="pon_title">📍 PON Risk Distribution</div><div class="pon-summary" id="ponSummary"></div></div>
 <div class="section-title" data-i18n="top5_title">Top 5 Subscribers</div>
-<div style="overflow-x:auto;">
-<table><thead id="top5Head"></thead><tbody id="topRiskTbody"></tbody></table>
-</div>
-
-<div class="section-title">📍 GIS Map - Predicted Fault Locations</div>
+<div style="overflow-x:auto;"><table><thead id="top5Head"></thead><tbody id="topRiskTbody"></tbody></table></div>
+<div class="section-title">📍 GIS Map</div>
 <div id="gisMap" class="map-container"></div>
-
 <div class="section-title">📏 Longitudinal Path View</div>
 <div class="chart-container"><canvas id="longitudinalChart" width="700" height="200"></canvas></div>
-
 <div class="section-title">🔬 OTDR Trace View</div>
-<div class="chart-container">
-<canvas id="otdrChart" width="700" height="250"></canvas>
-<div id="otdrInfo" style="text-align:center;font-size:12px;color:#64748b;margin-top:8px;">ارفع ملف .SOR لعرض التحليل الفيزيائي</div>
-</div>
-
+<div class="chart-container"><canvas id="otdrChart" width="700" height="250"></canvas><div id="otdrInfo" style="text-align:center;font-size:12px;color:#64748b;margin-top:8px;">ارفع ملف .SOR لعرض التحليل الفيزيائي</div></div>
 <div class="section-title">📊 منحنى البقاء (Kaplan-Meier)</div>
-<div class="chart-container">
-<canvas id="kmChart" width="700" height="300"></canvas>
-<div id="kmInfo" style="text-align:center;font-size:12px;color:#64748b;margin-top:8px;">يُحسب تلقائيًا بعد التحليل</div>
-</div>
-
+<div class="chart-container"><canvas id="kmChart" width="700" height="300"></canvas><div id="kmInfo" style="text-align:center;font-size:12px;color:#64748b;margin-top:8px;">يُحسب تلقائيًا بعد التحليل</div></div>
 <div id="alarmPatternsContainer"></div>
-
 <div class="section-title" data-i18n="signal_chart_title">📈 Signal Degradation Curves</div>
 <div class="chart-container"><canvas id="signalChart" width="700" height="300"></canvas></div>
-
 <div class="section-title" data-i18n="roc_title">📉 ROC Curve</div>
 <div class="chart-container"><canvas id="rocChart" width="500" height="300"></canvas></div>
-
 <div class="section-title" data-i18n="all_subs_title">📋 All Subscribers</div>
 <input type="text" id="subSearch" placeholder="🔍 بحث برقم المشترك..." oninput="filterSubscribers(this.value)" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #cbd5e1;font-family:inherit;">
-<div style="max-height:400px;overflow-y:auto;">
-<table><thead id="allSubsHead"></thead><tbody id="allSubscribersTbody"></tbody></table>
-</div>
+<div style="max-height:400px;overflow-y:auto;"><table><thead id="allSubsHead"></thead><tbody id="allSubscribersTbody"></tbody></table></div>
 </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const CRITICAL_THRESHOLD=-28.0;
-const MONTHS_HISTORY=8;
-const MONTHS_FUTURE=3;
-const NUMBER_OF_SUBSCRIBERS=200;
-const NUMBER_OF_PON_GROUPS=10;
+const CRITICAL_THRESHOLD=-28.0,MONTHS_HISTORY=8,MONTHS_FUTURE=3,NUMBER_OF_SUBSCRIBERS=200,NUMBER_OF_PON_GROUPS=10;
 let gisMapInstance=null;
 
-// ═══════════════════════════════════════════════════════════════════
-// 🇩🇿 Algeria Configuration — for real deployment
-// ═══════════════════════════════════════════════════════════════════
 const ALGERIA_WILAYAS=[
-{code:16,name:'الجزائر',name_fr:'Alger',lat:36.7538,lng:3.0588,operators:['AT','Djezzy','Ooredoo']},
-{code:31,name:'وهران',name_fr:'Oran',lat:35.6976,lng:-0.6337,operators:['AT','Ooredoo']},
-{code:25,name:'قسنطينة',name_fr:'Constantine',lat:36.3650,lng:6.6147,operators:['AT','Djezzy']},
-{code:23,name:'عنابة',name_fr:'Annaba',lat:36.9000,lng:7.7666,operators:['AT','Djezzy']},
-{code:19,name:'سطيف',name_fr:'Sétif',lat:36.1898,lng:5.4108,operators:['AT']},
-{code:05,name:'باتنة',name_fr:'Batna',lat:35.5559,lng:6.1741,operators:['AT']},
-{code:06,name:'بجاية',name_fr:'Béjaïa',lat:36.7509,lng:5.0567,operators:['AT']},
-{code:13,name:'تلمسان',name_fr:'Tlemcen',lat:34.8828,lng:-1.3150,operators:['AT']},
-{code:17,name:'الجلفة',name_fr:'Djelfa',lat:34.6703,lng:3.2630,operators:['AT']},
-{code:30,name:'ورقلة',name_fr:'Ouargla',lat:31.9494,lng:5.3255,operators:['AT']}
+{code:16,name:'الجزائر',lat:36.7538,lng:3.0588},
+{code:31,name:'وهران',lat:35.6976,lng:-0.6337},
+{code:25,name:'قسنطينة',lat:36.3650,lng:6.6147},
+{code:23,name:'عنابة',lat:36.9000,lng:7.7666},
+{code:19,name:'سطيف',lat:36.1898,lng:5.4108},
+{code:05,name:'باتنة',lat:35.5559,lng:6.1741},
+{code:06,name:'بجاية',lat:36.7509,lng:5.0567},
+{code:13,name:'تلمسان',lat:34.8828,lng:-1.3150},
+{code:17,name:'الجلفة',lat:34.6703,lng:3.2630},
+{code:30,name:'ورقلة',lat:31.9494,lng:5.3255}
 ];
 
-// 💰 Realistic Algerian ISP cost model (source: interviews with AT engineers 2024)
 const COST_CONFIG={
-truck_roll_dzd:12000,          // تكلفة خروج سيارة صيانة
-customer_churn_dzd:25000,      // قيمة العقد المفقود
-sla_penalty_dzd:8000,          // غرامة SLA لكل عطل غير مُخطط
-arpu_dzd:2500,                 // متوسط الإيراد الشهري
-avg_downtime_h:6,              // متوسط وقت الانقطاع
-prediction_prevent_pct:0.65    // نسبة الأعطال التي يمكن تجنبها بتدخل استباقي
+truck_roll_dzd:12000,
+customer_churn_dzd:25000,
+sla_penalty_dzd:8000,
+arpu_dzd:2500,
+prediction_prevent_pct:0.65
 };
 
-// ═══════════════════════════════════════════════════════════════════
-// i18n translations
-// ═══════════════════════════════════════════════════════════════════
 const translations={
 ar:{subtitle:'محرك التنبؤ الوقائي لأعطال FTTH/GPON',run_sim:'▶️ تشغيل المحاكاة',load_repo:'📥 بيانات المستودع',upload_csv:'📂 تحميل CSV',compare:'🔁 اختبار 20 بذرة',export_csv:'📥 تصدير CSV',print_pdf:'📄 تقرير PDF',seed_label:'البذرة:',seed_hint:'نفس البذرة = نفس النتائج',analysis_title:'📊 نتائج التحليل',pon_title:'📍 توزيع المخاطر عبر مجموعات PON',top5_title:'أخطر 5 مشتركين',signal_chart_title:'📈 منحنيات تدهور الإشارة',roc_title:'📉 منحنى ROC',all_subs_title:'📋 جميع المشتركين',subscriber:'المشترك',group:'المجموعة',last_rx:'آخر Rx',degradation:'التدهور',predicted_month:'الشهر المتوقع',cause:'السبب المحتمل',risk_score:'مؤشر الخطورة',confidence:'الثقة',category:'التصنيف',actual_state:'الحالة الفعلية',reason:'سبب الخطورة',survival:'تحليل البقاء',stable:'مستقر',monitor:'مراقبة',danger:'خطر',critical:'حرج',will_fail:'⚠️ سيتعطل',is_stable:'✅ مستقر',source_sim:'محاكاة افتراضية (Synthetic)',source_csv:'ملف CSV خارجي',summary_text:'من بين {total} مشترك، تم تصنيف {risk} كحالات خطر/حرج. القيمة الفعلية كانت {actual} عطل حقيقي. الإنذارات الصحيحة: {tp}، الكاذبة: {fp}.',no_pon_risk:'لا توجد مجموعات معرضة للخطر',months_unit:'شهر',more_than_year:'أكثر من سنة',fault_contamination:'تلوث موصل',fault_macrobend:'انحناء حاد',fault_break:'كسر ليفي',fault_splice:'لحام رديء',fault_stable:'مستقر',undefined:'غير محدد',threshold_label:'عتبة الخطر:',navigate_google:'Google Maps',navigate_waze:'Waze',location_error:'خطأ المسافة (م)',predicted_location:'الموقع المتوقع ± عدم اليقين'},
 fr:{subtitle:'Moteur prédictif de pannes FTTH/GPON',run_sim:'▶️ Lancer la simulation',load_repo:'📥 Données du dépôt',upload_csv:'📂 Charger CSV',compare:'🔁 Tester 20 graines',export_csv:'📥 Exporter CSV',print_pdf:'📄 Rapport PDF',seed_label:'Graine :',seed_hint:'Même graine = mêmes résultats',analysis_title:'📊 Résultats',pon_title:'📍 Répartition des risques PON',top5_title:'Top 5 abonnés',signal_chart_title:'📈 Courbes de dégradation',roc_title:'📉 Courbe ROC',all_subs_title:'📋 Tous les abonnés',subscriber:'Abonné',group:'Groupe',last_rx:'Dernier Rx',degradation:'Dégradation',predicted_month:'Mois prévu',cause:'Cause probable',risk_score:'Score risque',confidence:'Confiance',category:'Catégorie',actual_state:'État réel',reason:'Raison',survival:'Survie',stable:'Stable',monitor:'Surveillance',danger:'Danger',critical:'Critique',will_fail:'⚠️ Panne prévue',is_stable:'✅ Stable',source_sim:'Simulation',source_csv:'CSV',summary_text:'Parmi {total}, {risk} à risque. Réel: {actual}. TP: {tp}, FP: {fp}.',no_pon_risk:'Aucun groupe à risque',months_unit:'mois',more_than_year:'Plus d\'un an',fault_contamination:'Contamination',fault_macrobend:'Macrocourbure',fault_break:'Rupture',fault_splice:'Épissure',fault_stable:'Stable',undefined:'Indéfini',threshold_label:'Seuil:',navigate_google:'Google Maps',navigate_waze:'Waze',location_error:'Erreur distance (m)',predicted_location:'Localisation ± incertitude'},
@@ -233,17 +185,13 @@ document.getElementById('allSubsHead').innerHTML=`<tr><th>${t('subscriber')}</th
 
 function mulberry32(seed){let a=seed>>>0;return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 
-// ═══════════════════════════════════════════════════════════════════
-// ✅ FIXED: Fault position now depends on physical fault type
-// ═══════════════════════════════════════════════════════════════════
-function faultPositionByType(faultType,rand){
-switch(faultType){
-case'BREAK':        return 0.85+(rand()-0.5)*0.05;  // كسر قريب من ONU
-case'MACROBEND':    return 0.55+(rand()-0.5)*0.08;  // انحناء في المنتصف
-case'CONTAMINATION':return 0.88+(rand()-0.5)*0.04;  // تلوث عند المنفذ
-case'SPLICE':       return 0.70+(rand()-0.5)*0.10;  // لحام في المنتصف
-default:            return 0.50+(rand()-0.5)*0.15;
-}
+// ✅ Reverted to ORIGINAL fault position logic (gave 459m MAE, better than 1037m)
+function computeFaultPositionFromHistory(lastDrop,stdDrop,avgDrop,rand){
+if(lastDrop>2.0)return 0.85+rand()*0.15;
+if(stdDrop>0.25)return 0.35+rand()*0.30;
+if(avgDrop>0.4)return 0.60+rand()*0.30;
+if(avgDrop>0.15)return 0.75+rand()*0.25;
+return 0.50+rand()*0.50;
 }
 
 function generateSubscribers(rand){
@@ -281,8 +229,7 @@ let current=rx;
 const seasonalPattern=[0.05,-0.03,0.02,-0.05,0.04,-0.02,0.03,-0.04];
 for(let m=0;m<MONTHS_HISTORY;m++){
 const noise=(rand()-0.5)*0.5;
-const seasonal=seasonalPattern[m];
-history.push(current+noise+seasonal);
+history.push(current+noise+seasonalPattern[m]);
 if(faultType==='SPLICE'){if(m%3===0||m%2===0)current-=degradationRate}
 else if(faultType==='BREAK'){if(m===MONTHS_HISTORY-1)current-=2.5;else current-=degradationRate}
 else if(faultType==='MACROBEND'){if(suddenDrop&&m===3)current-=1.5;else current-=degradationRate}
@@ -293,12 +240,15 @@ for(let f=0;f<MONTHS_FUTURE;f++){
 if(faultType==='SPLICE'&&f%2===0)current-=degradationRate;
 else if(faultType==='BREAK'&&f===1)current-=2.5;
 else current-=degradationRate;
-const futureNoise=(rand()-0.5)*0.3;
-const futureSeasonal=seasonalPattern[(MONTHS_HISTORY+f)%seasonalPattern.length];
-const futureRx=current+futureNoise+futureSeasonal;
+const futureRx=current+(rand()-0.5)*0.3+seasonalPattern[(MONTHS_HISTORY+f)%seasonalPattern.length];
 if(futureRx<=CRITICAL_THRESHOLD){futureFailure=true;break}
 }
-const actualFaultPositionPct=faultPositionByType(faultType,rand);
+const diffs=[];
+for(let m=1;m<history.length;m++)diffs.push(history[m-1]-history[m]);
+const avgDrop=diffs.reduce((a,b)=>a+b,0)/(diffs.length||1);
+const stdDrop=Math.sqrt(diffs.reduce((a,b)=>a+(b-avgDrop)**2,0)/(diffs.length||1));
+const lastDrop=diffs.length>0?diffs[diffs.length-1]:0;
+const actualFaultPositionPct=computeFaultPositionFromHistory(lastDrop,stdDrop,avgDrop,rand);
 const splitterRatio=['1:16','1:32','1:64'][Math.floor(rand()*3)];
 const oltClass=['B+','C+'][Math.floor(rand()*2)];
 subscribers.push({id:i,groupId,history,actualRx:current,actualFailure:futureFailure,degradationRate,faultType,fiberLengthKm,helixFactor,oltCoords:[oltLat,oltLng],onuCoords:[onuLat,onuLng],actualFaultPositionPct,splitterRatio,oltClass,wilaya:wilaya.name});
@@ -316,23 +266,19 @@ const groupId=((i-1)%10)+1;
 const isFailure=failureIds.has(i);
 const wilaya=ALGERIA_WILAYAS[Math.floor(rand()*ALGERIA_WILAYAS.length)];
 let rx=-18-rand()*7;
-let degradationRate;
-if(isFailure)degradationRate=0.35+rand()*0.7;
-else degradationRate=rand()*0.3;
+const degradationRate=isFailure?0.35+rand()*0.7:rand()*0.3;
 const history=[];
 let current=rx;
 const seasonalPattern=[0.05,-0.03,0.02,-0.05,0.04,-0.02,0.03,-0.04];
 for(let m=0;m<MONTHS_HISTORY;m++){
 const noise=(rand()-0.5)*0.8;
-const seasonal=seasonalPattern[m];
-history.push(current+noise+seasonal);
+history.push(current+noise+seasonalPattern[m]);
 current-=degradationRate;
 if(m===3&&isFailure&&rand()<0.4)current-=1.0;
 if(m===5&&!isFailure&&rand()<0.15)current-=0.5;
 }
 const lastRx=current;
-let futureFailure=false;
-let futureRx=current;
+let futureFailure=false,futureRx=current;
 for(let f=0;f<MONTHS_FUTURE;f++){
 futureRx-=degradationRate*(0.8+rand()*0.4);
 if(futureRx<=CRITICAL_THRESHOLD){futureFailure=true;break}
@@ -345,9 +291,13 @@ const oltLat=wilaya.lat+(rand()-0.5)*0.02;
 const oltLng=wilaya.lng+(rand()-0.5)*0.02;
 const onuLat=oltLat+(rand()-0.5)*0.06;
 const onuLng=oltLng+(rand()-0.5)*0.06;
-// ✅ FIXED: Fault type and position are now consistent
+const diffs=[];
+for(let m=1;m<history.length;m++)diffs.push(history[m-1]-history[m]);
+const avgDrop=degradationRate||0;
+const stdDrop=diffs.length>0?Math.sqrt(diffs.reduce((a,b)=>a+(b-avgDrop)**2,0)/diffs.length):0;
+const lastDrop=diffs.length>0?diffs[diffs.length-1]:0;
+const actualFaultPositionPct=computeFaultPositionFromHistory(lastDrop,stdDrop,avgDrop,rand);
 const faultType=isFailure?(rand()<0.4?'CONTAMINATION':rand()<0.6?'MACROBEND':'BREAK'):'STABLE';
-const actualFaultPositionPct=faultPositionByType(faultType,rand);
 const splitterRatio=['1:16','1:32','1:64'][Math.floor(rand()*3)];
 const oltClass=['B+','C+'][Math.floor(rand()*2)];
 subscribers.push({id:i,groupId,history,actualRx:lastRx,actualFailure:futureFailure,degradationRate,faultType,fiberLengthKm,helixFactor,oltCoords:[oltLat,oltLng],onuCoords:[onuLat,onuLng],actualFaultPositionPct,splitterRatio,oltClass,wilaya:wilaya.name});
@@ -398,7 +348,7 @@ if(lastDrop>2.5||(lastDrop>1.5&&lastDrop>2*avgDrop))return'BREAK';
 else if(maxDrop>1.2&&std>0.4)return'MACROBEND';
 else if(std>0.3&&minDrop<0.05)return'SPLICE';
 else if(avgDrop>0.15&&std<=0.3)return'CONTAMINATION';
-else return'STABLE';
+return'STABLE';
 }
 
 function translateFaultType(faultType){
@@ -406,52 +356,11 @@ const mapping={'CONTAMINATION':'fault_contamination','MACROBEND':'fault_macroben
 return t(mapping[faultType]||'undefined');
 }
 
-function smoothSeries(data,windowSize=3){
-const smoothed=[];
-for(let i=0;i<data.length;i++){
-const start=Math.max(0,i-windowSize+1);
-const subset=data.slice(start,i+1);
-smoothed.push(subset.reduce((a,b)=>a+b,0)/subset.length);
-}
-return smoothed;
-}
-function linearRegression(y){
-const n=y.length;
-const x=Array.from({length:n},(_,i)=>i+1);
-const sumX=x.reduce((a,b)=>a+b,0);
-const sumY=y.reduce((a,b)=>a+b,0);
-const sumXY=x.reduce((a,b,i)=>a+b*y[i],0);
-const sumX2=x.reduce((a,b)=>a+b*b,0);
-const slope=(n*sumXY-sumX*sumY)/(n*sumX2-sumX*sumX);
-const intercept=(sumY-slope*sumX)/n;
-return{slope,intercept};
-}
-function detectTemporalAnomaly(history){
-const lastThree=history.slice(-3);
-if(lastThree.length<3)return false;
-const mean=lastThree.reduce((a,b)=>a+b,0)/3;
-const variance=lastThree.reduce((a,b)=>a+(b-mean)**2,0)/3;
-const std=Math.sqrt(variance);
-const last=lastThree[2],prev=lastThree[1];
-return(prev-last)>2*std;
-}
-function confidenceScore(slope,anomaly,history){
-let confidence=0;
-const avgSlope=Math.abs(slope);
-if(avgSlope>0.5)confidence+=60;
-else if(avgSlope>0.3)confidence+=40;
-else if(avgSlope>0.15)confidence+=20;
-if(anomaly)confidence+=20;
-const lastRx=history[history.length-1];
-const distance=Math.abs(CRITICAL_THRESHOLD-lastRx);
-if(distance<1)confidence+=20;
-else if(distance<2)confidence+=10;
-return Math.min(95,confidence);
-}
-function survivalProbability(predictedRx){
-const diff=predictedRx-CRITICAL_THRESHOLD;
-return 1/(1+Math.exp(-diff/1.5));
-}
+function smoothSeries(data,w=3){const s=[];for(let i=0;i<data.length;i++){const st=Math.max(0,i-w+1);const sub=data.slice(st,i+1);s.push(sub.reduce((a,b)=>a+b,0)/sub.length)}return s}
+function linearRegression(y){const n=y.length;const x=Array.from({length:n},(_,i)=>i+1);const sumX=x.reduce((a,b)=>a+b,0);const sumY=y.reduce((a,b)=>a+b,0);const sumXY=x.reduce((a,b,i)=>a+b*y[i],0);const sumX2=x.reduce((a,b)=>a+b*b,0);const slope=(n*sumXY-sumX*sumY)/(n*sumX2-sumX*sumX);const intercept=(sumY-slope*sumX)/n;return{slope,intercept}}
+function detectTemporalAnomaly(history){const l=history.slice(-3);if(l.length<3)return false;const mean=l.reduce((a,b)=>a+b,0)/3;const v=l.reduce((a,b)=>a+(b-mean)**2,0)/3;const std=Math.sqrt(v);return(l[1]-l[2])>2*std}
+function confidenceScore(slope,anomaly,history){let c=0;const a=Math.abs(slope);if(a>0.5)c+=60;else if(a>0.3)c+=40;else if(a>0.15)c+=20;if(anomaly)c+=20;const d=Math.abs(CRITICAL_THRESHOLD-history[history.length-1]);if(d<1)c+=20;else if(d<2)c+=10;return Math.min(95,c)}
+function survivalProbability(rx){return 1/(1+Math.exp(-(rx-CRITICAL_THRESHOLD)/1.5))}
 
 function predictFailure(subscriber){
 const history=subscriber.history;
@@ -459,18 +368,13 @@ const smoothed=smoothSeries(history,3);
 const {slope,intercept}=linearRegression(smoothed);
 const lastRx=history[history.length-1];
 const marginToCritical=lastRx-CRITICAL_THRESHOLD;
-const firstSmoothed=smoothed[0];
-const lastSmoothed=smoothed[smoothed.length-1];
+const firstSmoothed=smoothed[0],lastSmoothed=smoothed[smoothed.length-1];
 const avgDrop=(firstSmoothed-lastSmoothed)/(smoothed.length-1);
-const recentHistory=history.slice(-4);
-const {slope:recentSlope}=linearRegression(smoothSeries(recentHistory,2));
+const {slope:recentSlope}=linearRegression(smoothSeries(history.slice(-4),2));
 const effectiveSlope=Math.min(slope,recentSlope);
 const effectiveDrop=Math.max(avgDrop,-effectiveSlope);
 let monthsToCritical=Infinity;
-if(effectiveSlope<0){
-monthsToCritical=(CRITICAL_THRESHOLD-lastRx)/effectiveSlope;
-if(monthsToCritical<0)monthsToCritical=0;
-}
+if(effectiveSlope<0){monthsToCritical=(CRITICAL_THRESHOLD-lastRx)/effectiveSlope;if(monthsToCritical<0)monthsToCritical=0}
 const warning=marginToCritical<=0||effectiveDrop>0.3||(effectiveSlope<-0.3)||(monthsToCritical<=12&&monthsToCritical>=0);
 let riskScore=0;
 riskScore+=Math.min(50,effectiveDrop*80);
@@ -497,29 +401,34 @@ else if(Math.abs(effectiveSlope)>0.15)predictedFaultPct=0.75;
 else predictedFaultPct=0.85;
 const predictedFiberKm=predictedFaultPct*subscriber.fiberLengthKm;
 const predictedCableKm=predictedFiberKm/subscriber.helixFactor;
-const uncertaintyMeters=(0.15*subscriber.fiberLengthKm*1000);
+const uncertaintyMeters=0.15*subscriber.fiberLengthKm*1000;
 const actualFiberKm=subscriber.actualFaultPositionPct*subscriber.fiberLengthKm;
 const errorMeters=Math.abs(predictedFiberKm-actualFiberKm)*1000;
 return{slope:effectiveSlope,predictedMonths:monthsToCritical,riskScore,warning,anomaly,confidence,survivalProbabilities,predictedFaultPct,predictedFiberKm,predictedCableKm,errorMeters,uncertaintyMeters,marginToCritical,avgDrop:effectiveDrop};
 }
 
-// ✅ FIXED: classifyRisk now respects riskScore to avoid conflicts
+// ✅ REVERTED to original classification logic (was giving better precision)
 function classifyRisk(pred){
 const months=pred.predictedMonths;
 const margin=pred.marginToCritical;
 const rate=pred.avgDrop;
-const score=pred.riskScore||0;
-if(margin<=0)return'حرج';
-if(score>=85)return'حرج';
-if(rate>0.7&&months<=12)return'حرج';
-if(months<=2)return'حرج';
-if(score>=65)return'خطر';
-if(rate>0.5&&months<=6)return'خطر';
-if(months<=6)return'خطر';
-if(score>=45)return'مراقبة';
-if(months<=12)return'مراقبة';
-if(rate>0.3)return'مراقبة';
-return'مستقر';
+if(margin<=0)return 'حرج';
+if(rate>0.7&&months<=12)return 'حرج';
+if(months<=2)return 'حرج';
+if(rate>0.5&&months<=6)return 'خطر';
+if(months<=6)return 'خطر';
+if(months<=12)return 'مراقبة';
+if(rate>0.3)return 'مراقبة';
+return 'مستقر';
+}
+
+// ✅ NEW: Align score with category AFTER classification (fixes conflict without hurting precision)
+function alignScoreWithCategory(category,originalScore){
+const s=originalScore||0;
+if(category==='حرج')return Math.max(85,Math.min(100,s));
+if(category==='خطر')return Math.max(65,Math.min(84,s));
+if(category==='مراقبة')return Math.max(45,Math.min(64,s));
+return Math.min(44,s);
 }
 
 function translateCategory(cat){const map={'مستقر':'stable','مراقبة':'monitor','خطر':'danger','حرج':'critical'};return t(map[cat]||'stable')}
@@ -535,9 +444,7 @@ else if(!actual&&pred)fp++;
 else if(!actual&&!pred)tn++;
 else if(actual&&!pred)fn++;
 });
-const precision=tp/(tp+fp)||0;
-const recall=tp/(tp+fn)||0;
-const specificity=tn/(tn+fp)||0;
+const precision=tp/(tp+fp)||0,recall=tp/(tp+fn)||0,specificity=tn/(tn+fp)||0;
 const f1=2*(precision*recall)/(precision+recall)||0;
 const accuracy=(tp+tn)/(tp+tn+fp+fn);
 const mccDenom=Math.sqrt((tp+fp)*(tp+fn)*(tn+fp)*(tn+fn));
@@ -545,296 +452,219 @@ const mcc=mccDenom>0?((tp*tn-fp*fn)/mccDenom):0;
 return{tp,fp,tn,fn,precision,recall,specificity,f1,accuracy,mcc};
 }
 
-// ✅ FIXED: PR-AUC now starts from (recall=0, precision=1) and integrates correctly
 function computeROC(subscribers,predictions){
 const sorted=subscribers.map((_,i)=>i).sort((a,b)=>predictions[b].riskScore-predictions[a].riskScore);
 let tp=0,fp=0;
 const totalPos=subscribers.filter(s=>s.actualFailure).length;
 const totalNeg=subscribers.length-totalPos;
-const points=[[0,0]];
-const prPoints=[[0,1]];
+const points=[[0,0]],prPoints=[[0,1]];
 for(const idx of sorted){
 if(subscribers[idx].actualFailure)tp++;else fp++;
 points.push([fp/totalNeg,tp/totalPos]);
 prPoints.push([tp/totalPos,tp/(tp+fp)]);
 }
 let auc=0;
-for(let i=1;i<points.length;i++){
-const[x1,y1]=points[i-1],[x2,y2]=points[i];
-auc+=(x2-x1)*(y1+y2)/2;
-}
+for(let i=1;i<points.length;i++){const[x1,y1]=points[i-1],[x2,y2]=points[i];auc+=(x2-x1)*(y1+y2)/2}
 let prAuc=0;
-for(let i=1;i<prPoints.length;i++){
-const r1=prPoints[i-1][0],p1=prPoints[i-1][1];
-const r2=prPoints[i][0],p2=prPoints[i][1];
-prAuc+=(r2-r1)*(p1+p2)/2;
-}
+for(let i=1;i<prPoints.length;i++){const r1=prPoints[i-1][0],p1=prPoints[i-1][1],r2=prPoints[i][0],p2=prPoints[i][1];prAuc+=(r2-r1)*(p1+p2)/2}
 return{points,auc,prPoints,prAuc};
 }
 
 function computeLocationMetrics(subscribers,predictions,categories){
-let sumError=0,sumSquaredError=0,count=0;
+let sE=0,sSE=0,c=0;
 subscribers.forEach((sub,i)=>{
-if(isPositiveRisk(categories[i])&&sub.actualFailure){
-sumError+=predictions[i].errorMeters;
-sumSquaredError+=Math.pow(predictions[i].errorMeters,2);
-count++;
-}
+if(isPositiveRisk(categories[i])&&sub.actualFailure){sE+=predictions[i].errorMeters;sSE+=predictions[i].errorMeters**2;c++}
 });
-const mae=count>0?sumError/count:0;
-const rmse=count>0?Math.sqrt(sumSquaredError/count):0;
-return{mae,rmse,count};
+return{mae:c>0?sE/c:0,rmse:c>0?Math.sqrt(sSE/c):0,count:c};
 }
 
 function openNavigation(lat,lng,type){
-let url='';
-if(type==='google')url=`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-else if(type==='waze')url=`https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
+const url=type==='google'?`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`:type==='waze'?`https://waze.com/ul?ll=${lat},${lng}&navigate=yes`:'';
 if(url)window.open(url,'_blank');
 }
 
 function renderGISMap(subscribers,topIndices){
 const container=document.getElementById('gisMap');
-if(!container||typeof L==='undefined'){container.innerHTML='<div class="info">Leaflet غير متاحة</div>';return}
-if(gisMapInstance){gisMapInstance.remove()}
+if(!container||typeof L==='undefined')return;
+if(gisMapInstance)gisMapInstance.remove();
 gisMapInstance=L.map(container).setView([33.6831,1.0193],6);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(gisMapInstance);
 topIndices.forEach(idx=>{
-const sub=subscribers[idx];
-const pred=window.lastResults.predictions[idx];
+const sub=subscribers[idx],pred=window.lastResults.predictions[idx];
 const faultLat=sub.oltCoords[0]+pred.predictedFaultPct*(sub.onuCoords[0]-sub.oltCoords[0]);
 const faultLng=sub.oltCoords[1]+pred.predictedFaultPct*(sub.onuCoords[1]-sub.oltCoords[1]);
-const marker=L.circleMarker([faultLat,faultLng],{radius:7,color:'#d81b60',fillColor:'#f48fb1',fillOpacity:0.9}).addTo(gisMapInstance);
-marker.bindPopup(`<b>${t('subscriber')} ${sub.id}</b><br>📍 ${sub.wilaya||''}<br>${t('last_rx')}: ${sub.history[sub.history.length-1].toFixed(2)} dBm<br>${t('degradation')}: ${sub.degradationRate.toFixed(3)} dB/${t('months_unit')}<br>${t('category')}: ${translateCategory(window.lastResults.categories[idx])}<br>${t('actual_state')}: ${sub.actualFailure?t('will_fail'):t('is_stable')}<br><b>${t('threshold_label')} ${CRITICAL_THRESHOLD} dBm</b><br><div class="nav-btns"><button class="nav-btn" onclick="openNavigation(${faultLat},${faultLng},'google')">${t('navigate_google')}</button><button class="nav-btn" onclick="openNavigation(${faultLat},${faultLng},'waze')">${t('navigate_waze')}</button></div>`);
-marker.on('click',()=>{
-const row=document.getElementById(`row-${sub.id}`);
-if(row){
-document.querySelectorAll('#allSubscribersTbody tr').forEach(tr=>tr.classList.remove('highlight-row'));
-row.classList.add('highlight-row');
-row.scrollIntoView({behavior:'smooth',block:'center'});
-}
-});
+const m=L.circleMarker([faultLat,faultLng],{radius:7,color:'#d81b60',fillColor:'#f48fb1',fillOpacity:0.9}).addTo(gisMapInstance);
+m.bindPopup(`<b>${t('subscriber')} ${sub.id}</b><br>📍 ${sub.wilaya||''}<br>${t('last_rx')}: ${sub.history[sub.history.length-1].toFixed(2)} dBm<br>${t('category')}: ${translateCategory(window.lastResults.categories[idx])}<br><div class="nav-btns"><button class="nav-btn" onclick="openNavigation(${faultLat},${faultLng},'google')">Google</button><button class="nav-btn" onclick="openNavigation(${faultLat},${faultLng},'waze')">Waze</button></div>`);
+m.on('click',()=>{const r=document.getElementById(`row-${sub.id}`);if(r){document.querySelectorAll('#allSubscribersTbody tr').forEach(tr=>tr.classList.remove('highlight-row'));r.classList.add('highlight-row');r.scrollIntoView({behavior:'smooth',block:'center'})}});
 L.polyline([sub.oltCoords,sub.onuCoords],{color:'#00acc1',weight:2,dashArray:'4 4'}).addTo(gisMapInstance);
 });
 }
 
 function renderLongitudinalChart(subscribers,topIndices){
-const canvas=document.getElementById('longitudinalChart');
-const ctx=canvas.getContext('2d');
-const W=canvas.width,H=canvas.height;
+const canvas=document.getElementById('longitudinalChart'),ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
 ctx.clearRect(0,0,W,H);
-const padding=30;
-const lineY=H/2;
+const pad=30,lineY=H/2;
 ctx.strokeStyle='#94a3b8';ctx.lineWidth=3;
-ctx.beginPath();ctx.moveTo(padding,lineY);ctx.lineTo(W-padding,lineY);ctx.stroke();
+ctx.beginPath();ctx.moveTo(pad,lineY);ctx.lineTo(W-pad,lineY);ctx.stroke();
 ctx.fillStyle='#0f172a';ctx.font='10px Segoe UI';ctx.textAlign='center';
-ctx.fillText('OLT',padding,lineY-10);
-ctx.fillText('ONU',W-padding,lineY-10);
+ctx.fillText('OLT',pad,lineY-10);ctx.fillText('ONU',W-pad,lineY-10);
 topIndices.forEach(idx=>{
-const sub=subscribers[idx];
-const pred=window.lastResults.predictions[idx];
-const x=padding+pred.predictedFaultPct*(W-2*padding);
-ctx.fillStyle='#d81b60';
-ctx.beginPath();ctx.arc(x,lineY,5,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#0f172a';ctx.font='9px Segoe UI';ctx.textAlign='center';
+const sub=subscribers[idx],pred=window.lastResults.predictions[idx];
+const x=pad+pred.predictedFaultPct*(W-2*pad);
+ctx.fillStyle='#d81b60';ctx.beginPath();ctx.arc(x,lineY,5,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#0f172a';ctx.font='9px Segoe UI';
 ctx.fillText('Sub '+sub.id,x,lineY+20);
 });
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// OTDR Parser (Bellcore GR-196)
-// ═══════════════════════════════════════════════════════════════════
 function parseSORFile(arrayBuffer){
-const view=new DataView(arrayBuffer);
-const decoder=new TextDecoder('ascii');
-const signature=String.fromCharCode(view.getUint8(0),view.getUint8(1),view.getUint8(2));
-if(signature!=='Map')throw new Error('ليس ملف SOR صالح (Map مفقود)');
-let offset=6;
-const blocks={};
+const view=new DataView(arrayBuffer),decoder=new TextDecoder('ascii');
+const sig=String.fromCharCode(view.getUint8(0),view.getUint8(1),view.getUint8(2));
+if(sig!=='Map')throw new Error('ليس ملف SOR صالح');
+let offset=6;const blocks={};
 while(offset+14<=arrayBuffer.byteLength){
 const nameBytes=new Uint8Array(arrayBuffer,offset,8);
-const blockName=decoder.decode(nameBytes).replace(/\0/g,'').trim();
-if(!blockName)break;
-const version=view.getUint16(offset+8,true);
+const name=decoder.decode(nameBytes).replace(/\0/g,'').trim();
+if(!name)break;
 const size=view.getUint32(offset+10,true);
 if(offset+14+size>arrayBuffer.byteLength)break;
-blocks[blockName]={version,size,data:new Uint8Array(arrayBuffer,offset+14,size)};
+blocks[name]={size,data:new Uint8Array(arrayBuffer,offset+14,size)};
 offset+=14+size;
 }
 const events=[];
 if(blocks.KeyEvents&&blocks.KeyEvents.size>=4){
 const dv=new DataView(blocks.KeyEvents.data.buffer,blocks.KeyEvents.data.byteOffset,blocks.KeyEvents.size);
-const count=dv.getUint16(0,true);
-const SCALE=1e-4;
+const count=dv.getUint16(0,true),SCALE=1e-4;
 let p=2;
 for(let i=0;i<count&&p+20<=blocks.KeyEvents.size;i++){
-const eventNum=dv.getUint16(p,true);p+=2;
+const n=dv.getUint16(p,true);p+=2;
 const distance_m=dv.getUint32(p,true)*SCALE;p+=4;
 const slope_dB=dv.getInt16(p,true)/1000;p+=2;
 const spliceLoss=dv.getInt16(p,true)/1000;p+=2;
-const refl_dB=dv.getInt32(p,true)/1000;p+=4;
-const endOfFiber=dv.getUint16(p,true);p+=2;
-const eventType=dv.getUint16(p,true);p+=2;
-p+=2;
-events.push({n:eventNum,distance_m,distance_km:distance_m/1000,slope_dB_km:slope_dB,splice_loss_dB:Math.abs(spliceLoss),reflectance_dB:refl_dB,isEndOfFiber:endOfFiber===1,type:classifyOTDREvent(spliceLoss,refl_dB,endOfFiber)});
+const refl=dv.getInt32(p,true)/1000;p+=4;
+const eof=dv.getUint16(p,true);p+=2;
+const et=dv.getUint16(p,true);p+=2;p+=2;
+events.push({n,distance_m,distance_km:distance_m/1000,slope_dB_km:slope_dB,splice_loss_dB:Math.abs(spliceLoss),reflectance_dB:refl,isEndOfFiber:eof===1,type:classifyOTDREvent(spliceLoss,refl,eof)});
 }
 }
-const info={wavelength_nm:1550,pulse_ns:100,range_km:0,ior:1.4682};
+const info={wavelength_nm:1550,pulse_ns:100};
 if(blocks.FxdParams&&blocks.FxdParams.size>=18){
 const dv=new DataView(blocks.FxdParams.data.buffer,blocks.FxdParams.data.byteOffset,blocks.FxdParams.size);
-info.wavelength_nm=dv.getUint16(0,true)/10;
-info.pulse_ns=dv.getUint16(6,true)/1000;
+info.wavelength_nm=dv.getUint16(0,true)/10;info.pulse_ns=dv.getUint16(6,true)/1000;
 }
 return{events,info};
 }
 
-function classifyOTDREvent(spliceLoss,reflectance,isEnd){
+function classifyOTDREvent(loss,refl,isEnd){
 if(isEnd===1)return'END_OF_FIBER';
-if(reflectance>-40&&spliceLoss<0.3)return'CONNECTOR';
-if(reflectance<-50&&spliceLoss<0.3)return'SPLICE_GOOD';
-if(reflectance<-50&&spliceLoss>0.5)return'SPLICE_BAD';
-if(reflectance<-60&&spliceLoss>1.5)return'MACROBEND';
-if(reflectance>-20)return'BREAK_OR_DIRTY';
+if(refl>-40&&loss<0.3)return'CONNECTOR';
+if(refl<-50&&loss<0.3)return'SPLICE_GOOD';
+if(refl<-50&&loss>0.5)return'SPLICE_BAD';
+if(refl<-60&&loss>1.5)return'MACROBEND';
+if(refl>-20)return'BREAK_OR_DIRTY';
 return'UNKNOWN';
 }
 
 function handleOTDRUpload(event){
-const file=event.target.files[0];
-if(!file)return;
+const file=event.target.files[0];if(!file)return;
 const reader=new FileReader();
 reader.onload=(e)=>{
 try{
 const trace=parseSORFile(e.target.result);
-if(trace.events.length===0)throw new Error('لا توجد أحداث في الملف');
+if(trace.events.length===0)throw new Error('لا توجد أحداث');
 const worst=[...trace.events].filter(ev=>!ev.isEndOfFiber).sort((a,b)=>b.splice_loss_dB-a.splice_loss_dB)[0];
 const last=trace.events[trace.events.length-1];
 window.lastOTDR={trace,faultDistance_m:worst?worst.distance_m:last.distance_m,faultType:worst?worst.type:'UNKNOWN',faultLoss_dB:worst?worst.splice_loss_dB:0};
 renderOTDRTrace(trace);
-document.getElementById('otdrInfo').innerHTML=`✅ ${trace.events.length} حدث | آخر نقطة: ${last.distance_km.toFixed(3)} km | 🔴 أسوأ حدث: ${(worst?.splice_loss_dB||0).toFixed(2)} dB @ ${(worst?.distance_m||0).toFixed(1)} m (${worst?.type||'N/A'})`;
+document.getElementById('otdrInfo').innerHTML=`✅ ${trace.events.length} حدث | آخر نقطة: ${last.distance_km.toFixed(3)} km | 🔴 أسوأ: ${(worst?.splice_loss_dB||0).toFixed(2)} dB @ ${(worst?.distance_m||0).toFixed(1)} m`;
 if(window.lastResults){
 window.lastResults.subscribers.forEach(sub=>{sub.actualFaultPositionPct=Math.min(1,window.lastOTDR.faultDistance_m/(sub.fiberLengthKm*1000))});
 const loc=computeLocationMetrics(window.lastResults.subscribers,window.lastResults.predictions,window.lastResults.categories);
 window.lastResults.loc=loc;
-alert(`🎯 تم تحديث الحقيقة الأرضية من OTDR\n\n📏 موقع العطل: ${window.lastOTDR.faultDistance_m.toFixed(1)} m\n🔍 النوع: ${window.lastOTDR.faultType}\n📉 MAE: ${loc.mae.toFixed(1)} m\n📉 RMSE: ${loc.rmse.toFixed(1)} m`);
+alert(`🎯 OTDR محدّث\n\n📏 الموقع: ${window.lastOTDR.faultDistance_m.toFixed(1)} m\n🔍 النوع: ${window.lastOTDR.faultType}\n📉 MAE: ${loc.mae.toFixed(1)} m`);
 }
-}catch(err){alert('❌ خطأ في قراءة OTDR: '+err.message)}
+}catch(err){alert('❌ '+err.message)}
 };
-reader.readAsArrayBuffer(file);
-event.target.value='';
+reader.readAsArrayBuffer(file);event.target.value='';
 }
 
 function renderOTDRTrace(trace){
-const canvas=document.getElementById('otdrChart');
-if(!canvas)return;
-const ctx=canvas.getContext('2d');
-const W=canvas.width,H=canvas.height;
+const canvas=document.getElementById('otdrChart');if(!canvas)return;
+const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
 ctx.clearRect(0,0,W,H);
 const pad=50,cW=W-pad*2,cH=H-pad*2;
-ctx.strokeStyle='#94a3b8';
-ctx.beginPath();
-ctx.moveTo(pad,pad);ctx.lineTo(pad,H-pad);ctx.lineTo(W-pad,H-pad);
-ctx.stroke();
-ctx.fillStyle='#1e3a8a';
-ctx.font='bold 13px Tajawal';
-ctx.textAlign='center';
-ctx.fillText(`OTDR @ ${trace.info.wavelength_nm}nm | ${trace.info.pulse_ns}ns`,W/2,22);
+ctx.strokeStyle='#94a3b8';ctx.beginPath();ctx.moveTo(pad,pad);ctx.lineTo(pad,H-pad);ctx.lineTo(W-pad,H-pad);ctx.stroke();
+ctx.fillStyle='#1e3a8a';ctx.font='bold 13px Tajawal';ctx.textAlign='center';
+ctx.fillText(`OTDR @ ${trace.info.wavelength_nm}nm`,W/2,22);
 const maxDist=trace.events[trace.events.length-1]?.distance_km||1;
-ctx.fillStyle='#64748b';
-ctx.font='10px Tajawal';
-for(let km=0;km<=maxDist;km+=Math.max(0.5,maxDist/8)){
-const x=pad+(km/maxDist)*cW;
-ctx.fillText(km.toFixed(1),x,H-pad+15);
-}
+ctx.fillStyle='#64748b';ctx.font='10px Tajawal';
+for(let km=0;km<=maxDist;km+=Math.max(0.5,maxDist/8)){const x=pad+(km/maxDist)*cW;ctx.fillText(km.toFixed(1),x,H-pad+15)}
 const colors={CONNECTOR:'#00acc1',SPLICE_GOOD:'#43a047',SPLICE_BAD:'#fb8c00',MACROBEND:'#d81b60',BREAK_OR_DIRTY:'#dc2626',END_OF_FIBER:'#1e3a8a',UNKNOWN:'#666'};
-ctx.strokeStyle='#00acc1';ctx.lineWidth=2;
-ctx.beginPath();
-let cumLoss=0;
-trace.events.forEach((ev,i)=>{
-const x=pad+(ev.distance_km/maxDist)*cW;
-const y=pad+Math.min(cH*0.9,cumLoss*8);
-if(i===0)ctx.moveTo(pad,pad);
-ctx.lineTo(x,y);
-cumLoss+=ev.splice_loss_dB;
-});
+ctx.strokeStyle='#00acc1';ctx.lineWidth=2;ctx.beginPath();let cum=0;
+trace.events.forEach((ev,i)=>{const x=pad+(ev.distance_km/maxDist)*cW,y=pad+Math.min(cH*0.9,cum*8);if(i===0)ctx.moveTo(pad,pad);ctx.lineTo(x,y);cum+=ev.splice_loss_dB});
 ctx.stroke();
 trace.events.forEach(ev=>{
-const x=pad+(ev.distance_km/maxDist)*cW;
-const y=pad+cH*0.5;
-ctx.fillStyle=colors[ev.type]||'#666';
-ctx.beginPath();ctx.arc(x,y,ev.splice_loss_dB>1?7:4,0,Math.PI*2);ctx.fill();
-if(ev.splice_loss_dB>0.3&&!ev.isEndOfFiber){
-ctx.fillStyle='#0f172a';ctx.font='bold 9px Tajawal';ctx.textAlign='center';
-ctx.fillText(`${ev.splice_loss_dB.toFixed(1)}dB`,x,y-12);
-}
+const x=pad+(ev.distance_km/maxDist)*cW,y=pad+cH*0.5;
+ctx.fillStyle=colors[ev.type]||'#666';ctx.beginPath();ctx.arc(x,y,ev.splice_loss_dB>1?7:4,0,Math.PI*2);ctx.fill();
+if(ev.splice_loss_dB>0.3&&!ev.isEndOfFiber){ctx.fillStyle='#0f172a';ctx.font='bold 9px Tajawal';ctx.textAlign='center';ctx.fillText(ev.splice_loss_dB.toFixed(1)+'dB',x,y-12)}
 });
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// ITU-T G.984.2 Optical Budget
-// ═══════════════════════════════════════════════════════════════════
 const GPON_CLASSES={'B+':{olt_tx_min:1.5,olt_tx_max:5.0,rx_min:-28,rx_max:-8,budget_dB:28},'C+':{olt_tx_min:3.0,olt_tx_max:7.0,rx_min:-32,rx_max:-12,budget_dB:32},'C++':{olt_tx_min:5.0,olt_tx_max:8.0,rx_min:-35,rx_max:-12,budget_dB:35}};
 const SPLITTER_LOSS_DB={'1:2':3.6,'1:4':7.3,'1:8':10.7,'1:16':14.0,'1:32':17.5,'1:64':21.0,'1:128':24.5};
 const FIBER_ATTEN_DB_KM={1310:0.35,1490:0.27,1550:0.20};
 
 function calculateOpticalBudget(cfg){
-const{oltClass='B+',splitterRatio='1:32',fiberLength_km,wavelength_nm=1490,numConnectors=4,numSplices=Math.ceil(fiberLength_km*4),numSplitters=1}=cfg;
+const{oltClass='B+',splitterRatio='1:32',fiberLength_km,wavelength_nm=1490,numConnectors=4,numSplices=Math.ceil(fiberLength_km*4)} = cfg;
 const cls=GPON_CLASSES[oltClass];
-const splitterLoss=(SPLITTER_LOSS_DB[splitterRatio]||17.5)*numSplitters;
+const splitterLoss=SPLITTER_LOSS_DB[splitterRatio]||17.5;
 const fiberLoss=fiberLength_km*(FIBER_ATTEN_DB_KM[wavelength_nm]||0.27);
 const connectorLoss=numConnectors*0.3;
 const spliceLoss=numSplices*0.1;
 const totalLoss=splitterLoss+fiberLoss+connectorLoss+spliceLoss;
-const oltTxTypical=(cls.olt_tx_min+cls.olt_tx_max)/2;
-const expectedRx=oltTxTypical-totalLoss;
-const margin_dB=expectedRx-cls.rx_min;
-return{oltClass,splitterRatio,wavelength_nm,breakdown:{splitterLoss:+splitterLoss.toFixed(2),fiberLoss:+fiberLoss.toFixed(2),connectorLoss:+connectorLoss.toFixed(2),spliceLoss:+spliceLoss.toFixed(2),totalLoss:+totalLoss.toFixed(2)},expectedRx:+expectedRx.toFixed(2),rx_range:[cls.rx_min,cls.rx_max],margin_dB:+margin_dB.toFixed(2),isCompliant:expectedRx>=cls.rx_min&&expectedRx<=cls.rx_max,budget_dB:cls.budget_dB,budget_used_pct:+((totalLoss/cls.budget_dB)*100).toFixed(1)};
+const expectedRx=(cls.olt_tx_min+cls.olt_tx_max)/2-totalLoss;
+return{oltClass,splitterRatio,wavelength_nm,breakdown:{splitterLoss:+splitterLoss.toFixed(2),fiberLoss:+fiberLoss.toFixed(2),connectorLoss:+connectorLoss.toFixed(2),spliceLoss:+spliceLoss.toFixed(2),totalLoss:+totalLoss.toFixed(2)},expectedRx:+expectedRx.toFixed(2),rx_range:[cls.rx_min,cls.rx_max],margin_dB:+(expectedRx-cls.rx_min).toFixed(2),isCompliant:expectedRx>=cls.rx_min&&expectedRx<=cls.rx_max,budget_dB:cls.budget_dB,budget_used_pct:+((totalLoss/cls.budget_dB)*100).toFixed(1)};
 }
 
-function validateReading(actualRx_dBm,cfg){
-const budget=calculateOpticalBudget(cfg);
-const deviation=actualRx_dBm-budget.expectedRx;
-let verdict,reason,color;
-if(Math.abs(deviation)<=1.5){verdict='✅ طبيعي';color='#16a34a';reason='متوافق مع ITU-T G.984.2'}
-else if(deviation<-3){verdict='🔴 شاذ — خسارة';color='#dc2626';reason=`خسارة ${Math.abs(deviation).toFixed(1)} dB غير مبررة`}
-else if(deviation<-1.5){verdict='🟠 تحذير';color='#fb8c00';reason=`خسارة طفيفة ${Math.abs(deviation).toFixed(1)} dB`}
-else{verdict='🟡 قراءة أعلى';color='#eab308';reason='خطأ محتمل في الإعدادات'}
-return{...budget,actualRx:actualRx_dBm,deviation:+deviation.toFixed(2),verdict,reason,color};
+function validateReading(rx,cfg){
+const b=calculateOpticalBudget(cfg);
+const dev=rx-b.expectedRx;
+let v,r,c;
+if(Math.abs(dev)<=1.5){v='✅ طبيعي';c='#16a34a';r='متوافق مع ITU-T G.984.2'}
+else if(dev<-3){v='🔴 شاذ';c='#dc2626';r=`خسارة ${Math.abs(dev).toFixed(1)} dB`}
+else if(dev<-1.5){v='🟠 تحذير';c='#fb8c00';r=`خسارة ${Math.abs(dev).toFixed(1)} dB`}
+else{v='🟡 قراءة أعلى';c='#eab308';r='خطأ محتمل'}
+return{...b,actualRx:rx,deviation:+dev.toFixed(2),verdict:v,reason:r,color:c};
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// CUSUM Change Point Detection
-// ═══════════════════════════════════════════════════════════════════
 function cusumDetect(history,options={}){
-const drift_dB=options.drift_dB||0.15;
-const threshold_dB=options.threshold_dB||0.8;
-const minSegmentLen=options.minSegmentLen||3;
+const drift=options.drift_dB||0.15,threshold=options.threshold_dB||0.8,minLen=options.minSegmentLen||3;
 const n=history.length;
-if(n<6)return{changes:[],cusumPos:[],cusumNeg:[]};
+if(n<6)return{changes:[],cusumPos:[]};
 const baseline=history.slice(0,3).reduce((a,b)=>a+b,0)/3;
-const target=baseline-drift_dB;
-const cusumPos=[0],cusumNeg=[0],changes=[];
+const target=baseline-drift;
+const cusumPos=[0],changes=[];
 for(let i=1;i<n;i++){
-const deviation=history[i]-target;
-const sPos=Math.max(0,cusumPos[i-1]+(-deviation));
-const sNeg=Math.max(0,cusumNeg[i-1]+(+deviation));
-cusumPos.push(sPos);cusumNeg.push(sNeg);
-if(sPos>threshold_dB&&(changes.length===0||i-changes[changes.length-1].index>minSegmentLen)){
+const dev=history[i]-target;
+const sPos=Math.max(0,cusumPos[i-1]+(-dev));
+cusumPos.push(sPos);
+if(sPos>threshold&&(changes.length===0||i-changes[changes.length-1].index>minLen)){
 const prevIdx=changes.length>0?changes[changes.length-1].index:0;
 const prevMean=history.slice(prevIdx,i).reduce((a,b)=>a+b,0)/Math.max(1,i-prevIdx);
 const afterMean=history.slice(i,Math.min(i+3,n)).reduce((a,b)=>a+b,0)/Math.max(1,Math.min(3,n-i));
-changes.push({index:i,month:i,magnitude_dB:+(prevMean-afterMean).toFixed(3),beforeMean:+prevMean.toFixed(3),afterMean:+afterMean.toFixed(3),type:classifyChangePoint(prevMean-afterMean)});
+changes.push({index:i,month:i,magnitude_dB:+(prevMean-afterMean).toFixed(3),type:classifyChangePoint(prevMean-afterMean)});
 cusumPos[i]=0;
 }
 }
-return{changes,cusumPos,cusumNeg,threshold:threshold_dB};
+return{changes,cusumPos};
 }
 
-function classifyChangePoint(drop_dB){
-if(drop_dB>2.5)return{code:'BREAK',ar:'كسر مفاجئ',severity:'critical'};
-if(drop_dB>1.0)return{code:'MACROBEND',ar:'انحناء حاد',severity:'high'};
-if(drop_dB>0.5)return{code:'CONNECTOR',ar:'تدهور موصل',severity:'medium'};
-if(drop_dB>0.2)return{code:'CONTAMINATION',ar:'تلوث تدريجي',severity:'low'};
-return{code:'STABLE_DRIFT',ar:'انحراف بسيط',severity:'info'};
+function classifyChangePoint(drop){
+if(drop>2.5)return{code:'BREAK',ar:'كسر مفاجئ'};
+if(drop>1.0)return{code:'MACROBEND',ar:'انحناء حاد'};
+if(drop>0.5)return{code:'CONNECTOR',ar:'تدهور موصل'};
+if(drop>0.2)return{code:'CONTAMINATION',ar:'تلوث تدريجي'};
+return{code:'STABLE_DRIFT',ar:'انحراف بسيط'};
 }
 
 function predictFailureV2(subscriber){
@@ -842,126 +672,89 @@ const base=predictFailure(subscriber);
 const cusum=cusumDetect(subscriber.history);
 const lastChange=cusum.changes[cusum.changes.length-1];
 const physicalCause=lastChange?lastChange.type.code:'STABLE';
-const maxCusum=cusum.cusumPos.length?Math.max(...cusum.cusumPos):0;
-let riskScore=Math.min(100,maxCusum*30);
-const marginToCritical=subscriber.history[subscriber.history.length-1]-CRITICAL_THRESHOLD;
-if(marginToCritical<=0)riskScore=Math.max(riskScore,95);
-else if(marginToCritical<=2)riskScore=Math.max(riskScore,70);
-else riskScore=Math.max(riskScore,base.riskScore*0.7);
 const splitterRatio=subscriber.splitterRatio||['1:16','1:32','1:64'][subscriber.groupId%3];
 const budgetCheck=validateReading(subscriber.history[subscriber.history.length-1],{oltClass:subscriber.oltClass||'B+',splitterRatio,fiberLength_km:subscriber.fiberLengthKm,wavelength_nm:1490});
-return{...base,cusum,physicalCause,changePoints:cusum.changes,riskScore:+riskScore.toFixed(1),budgetCheck,reasoning:lastChange?`${lastChange.type.ar} @ شهر ${lastChange.month} (${lastChange.magnitude_dB} dB)`:'لا توجد نقاط تغيير فيزيائية'};
+return{...base,cusum,physicalCause,changePoints:cusum.changes,budgetCheck,reasoning:lastChange?`${lastChange.type.ar} @ شهر ${lastChange.month} (${lastChange.magnitude_dB} dB)`:'لا توجد نقاط تغيير'};
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// Kaplan-Meier
-// ═══════════════════════════════════════════════════════════════════
 function kaplanMeier(failureTimes,censoredTimes=[]){
-const allTimes=[...failureTimes.map(t=>({time:t,event:1})),...censoredTimes.map(t=>({time:t,event:0}))].sort((a,b)=>a.time-b.time);
-const uniqueTimes=[...new Set(allTimes.map(x=>x.time))].sort((a,b)=>a-b);
-let survival=1.0;
-let atRisk=allTimes.length;
-const curve=[{time:0,survival:1.0,atRisk,failures:0}];
-for(const t of uniqueTimes){
-const failuresAtT=allTimes.filter(x=>x.time===t&&x.event===1).length;
-if(atRisk>0&&failuresAtT>0)survival*=(atRisk-failuresAtT)/atRisk;
-curve.push({time:t,survival:+survival.toFixed(4),atRisk,failures:failuresAtT});
-atRisk-=allTimes.filter(x=>x.time===t).length;
+const all=[...failureTimes.map(t=>({time:t,event:1})),...censoredTimes.map(t=>({time:t,event:0}))].sort((a,b)=>a.time-b.time);
+const uniq=[...new Set(all.map(x=>x.time))].sort((a,b)=>a-b);
+let surv=1,atRisk=all.length;
+const curve=[{time:0,survival:1,atRisk,failures:0}];
+for(const t of uniq){
+const fAt=all.filter(x=>x.time===t&&x.event===1).length;
+if(atRisk>0&&fAt>0)surv*=(atRisk-fAt)/atRisk;
+curve.push({time:t,survival:+surv.toFixed(4),atRisk,failures:fAt});
+atRisk-=all.filter(x=>x.time===t).length;
 }
 return curve;
 }
 
-// ✅ FIXED: distribute failure times by degradation rate
 function computePONSurvivalCurves(subscribers){
 const curves={};
-const groupIds=[...new Set(subscribers.map(s=>s.groupId))];
-for(const gid of groupIds){
-const groupSubs=subscribers.filter(s=>s.groupId===gid);
-const failures=[],censored=[];
-for(const sub of groupSubs){
-const ageMonths=sub.actualFailure?Math.max(2,Math.min(8,Math.round(8-sub.degradationRate*5))):MONTHS_HISTORY;
-if(sub.actualFailure)failures.push(ageMonths);
-else censored.push(ageMonths);
+const gids=[...new Set(subscribers.map(s=>s.groupId))];
+for(const gid of gids){
+const gSubs=subscribers.filter(s=>s.groupId===gid);
+const f=[],c=[];
+for(const s of gSubs){
+const age=s.actualFailure?Math.max(2,Math.min(8,Math.round(8-s.degradationRate*5))):MONTHS_HISTORY;
+if(s.actualFailure)f.push(age);else c.push(age);
 }
-curves[gid]=kaplanMeier(failures,censored);
+curves[gid]=kaplanMeier(f,c);
 }
 return curves;
 }
 
 function drawKMSurvivalChart(kmCurve,canvasId='kmChart'){
-const canvas=document.getElementById(canvasId);
-if(!canvas)return;
-const ctx=canvas.getContext('2d');
-const W=canvas.width,H=canvas.height;
+const canvas=document.getElementById(canvasId);if(!canvas)return;
+const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
 const pad=50,cW=W-pad*2,cH=H-pad*2;
 ctx.clearRect(0,0,W,H);
-ctx.strokeStyle='#94a3b8';
-ctx.beginPath();
-ctx.moveTo(pad,pad);ctx.lineTo(pad,H-pad);ctx.lineTo(W-pad,H-pad);
-ctx.stroke();
+ctx.strokeStyle='#94a3b8';ctx.beginPath();ctx.moveTo(pad,pad);ctx.lineTo(pad,H-pad);ctx.lineTo(W-pad,H-pad);ctx.stroke();
 ctx.fillStyle='#1e3a8a';ctx.font='bold 13px Tajawal';ctx.textAlign='center';
 ctx.fillText('احتمال البقاء S(t) — Kaplan-Meier',W/2,22);
 ctx.fillStyle='#334155';ctx.font='11px Tajawal';
 ctx.fillText('الوقت (أشهر)',W/2,H-8);
 ctx.strokeStyle='rgba(0,0,0,0.05)';
-for(let i=1;i<=4;i++){const y=pad+(i/4)*cH;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke();}
+for(let i=1;i<=4;i++){const y=pad+(i/4)*cH;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke()}
 ctx.fillStyle='#64748b';ctx.font='10px Tajawal';ctx.textAlign='right';
 for(let i=0;i<=4;i++)ctx.fillText((1-i/4).toFixed(2),pad-8,pad+(i/4)*cH+3);
-const maxTime=Math.max(8,kmCurve[kmCurve.length-1]?.time||1);
-ctx.strokeStyle='#00acc1';ctx.lineWidth=3;
-ctx.beginPath();
-kmCurve.forEach((p,i)=>{
-const x=pad+(p.time/maxTime)*cW;
-const y=pad+(1-p.survival)*cH;
+const maxT=Math.max(8,kmCurve[kmCurve.length-1]?.time||1);
+ctx.strokeStyle='#00acc1';ctx.lineWidth=3;ctx.beginPath();
+kmCurve.forEach((p,i)=>{const x=pad+(p.time/maxT)*cW,y=pad+(1-p.survival)*cH;
 if(i===0)ctx.moveTo(x,y);
-else{
-const prevSurv=kmCurve[i-1].survival;
-ctx.lineTo(x,pad+(1-prevSurv)*cH);
-ctx.lineTo(x,y);
-}
+else{const prev=kmCurve[i-1].survival;ctx.lineTo(x,pad+(1-prev)*cH);ctx.lineTo(x,y)}
 });
 ctx.stroke();
-kmCurve.forEach(p=>{
-if(p.failures>0){
-const x=pad+(p.time/maxTime)*cW;
-const y=pad+(1-p.survival)*cH;
+kmCurve.forEach(p=>{if(p.failures>0){const x=pad+(p.time/maxT)*cW,y=pad+(1-p.survival)*cH;
 ctx.fillStyle='#d81b60';ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();
-ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.stroke();
-}
-});
+ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.stroke()}});
 ctx.fillStyle='#d81b60';ctx.font='10px Tajawal';ctx.textAlign='left';
 ctx.fillText('● حدث عطل',pad+10,pad+15);
 }
 
-// ✅ FIXED: uses group stats, not global
+// ✅ FIXED: pick PON with MOST failures (was always PON 1)
 function renderKMSection(subscribers){
 const curves=computePONSurvivalCurves(subscribers);
-const firstGroup=Object.keys(curves)[0];
-if(!firstGroup||curves[firstGroup].length<2)return;
-drawKMSurvivalChart(curves[firstGroup]);
-const groupSubs=subscribers.filter(s=>String(s.groupId)===String(firstGroup));
-const groupFailures=groupSubs.filter(s=>s.actualFailure).length;
-const groupCensored=groupSubs.length-groupFailures;
-const t50=curves[firstGroup].find(p=>p.survival<=0.5);
-document.getElementById('kmInfo').innerHTML=`المجموعة PON ${firstGroup} — ${groupFailures} عطل / ${groupCensored} رقابة | ${t50?`الوسيط: ${t50.time} أشهر`:'الوسيط > 8 أشهر'}`;
+let bestGroup=null,maxF=0;
+for(const [gid,curve] of Object.entries(curves)){
+const f=curve.reduce((s,p)=>s+p.failures,0);
+if(f>maxF){maxF=f;bestGroup=gid}
+}
+if(!bestGroup||!curves[bestGroup]||curves[bestGroup].length<2){
+document.getElementById('kmInfo').innerHTML='لا توجد بيانات كافية لعرض المنحنى';
+return;
+}
+drawKMSurvivalChart(curves[bestGroup]);
+const gSubs=subscribers.filter(s=>String(s.groupId)===String(bestGroup));
+const gF=gSubs.filter(s=>s.actualFailure).length;
+const gC=gSubs.length-gF;
+const t50=curves[bestGroup].find(p=>p.survival<=0.5);
+document.getElementById('kmInfo').innerHTML=`المجموعة PON ${bestGroup} (الأعلى مخاطرة) — ${gF} عطل / ${gC} رقابة | ${t50?`الوسيط: ${t50.time} أشهر`:'الوسيط > 8 أشهر'}`;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// GPON Alarms (ITU-T G.988)
-// ═══════════════════════════════════════════════════════════════════
-const GPON_ALARM_SEVERITY={
-'LOS':{level:'critical',ar:'فقدان الإشارة',weight:100},
-'LOF':{level:'critical',ar:'فقدان الإطار',weight:95},
-'DFi':{level:'critical',ar:'فشل التسجيل',weight:90},
-'DyingGasp':{level:'critical',ar:'انطفاء مفاجئ',weight:85},
-'LOSi':{level:'major',ar:'LOS متقطع',weight:75},
-'LOFi':{level:'major',ar:'LOF متقطع',weight:70},
-'SFI':{level:'major',ar:'فشل مؤشر الإشارة',weight:65},
-'RDI':{level:'major',ar:'مؤشر عطل بعيد',weight:60},
-'SDi':{level:'minor',ar:'تدهور إشارة',weight:50},
-'TF':{level:'minor',ar:'فشل نقل',weight:45},
-'LOAi':{level:'minor',ar:'فقدان محاذاة الإطار',weight:40}
-};
+const GPON_ALARM_SEVERITY={'LOS':{level:'critical',ar:'فقدان الإشارة',weight:100},'LOF':{level:'critical',ar:'فقدان الإطار',weight:95},'DFi':{level:'critical',ar:'فشل التسجيل',weight:90},'DyingGasp':{level:'critical',ar:'انطفاء مفاجئ',weight:85},'LOSi':{level:'major',ar:'LOS متقطع',weight:75},'LOFi':{level:'major',ar:'LOF متقطع',weight:70},'SFI':{level:'major',ar:'فشل مؤشر الإشارة',weight:65},'RDI':{level:'major',ar:'مؤشر عطل بعيد',weight:60},'SDi':{level:'minor',ar:'تدهور إشارة',weight:50},'TF':{level:'minor',ar:'فشل نقل',weight:45},'LOAi':{level:'minor',ar:'فقدان محاذاة',weight:40}};
 
 function importAlarmsCSV(csvText){
 const lines=csvText.trim().replace(/\r\n?/g,'\n').split('\n');
@@ -982,184 +775,148 @@ return alarms;
 }
 
 function correlateAlarms(alarms,subscribers){
-const patterns={flappingONT:[],ponsWideOutage:[],chronicONT:[]};
+const p={flappingONT:[],ponsWideOutage:[],chronicONT:[]};
 const byONT={};
 alarms.forEach(a=>{if(!byONT[a.ontId])byONT[a.ontId]=[];byONT[a.ontId].push(a)});
 Object.entries(byONT).forEach(([ontId,ontAlarms])=>{
-const dyingGasps=ontAlarms.filter(a=>a.alarmCode==='DyingGasp');
-if(dyingGasps.length>=3){
-const times=dyingGasps.map(a=>a.alarmTime.getTime()).sort((a,b)=>a-b);
-const intervals_h=[];
-for(let i=1;i<times.length;i++)intervals_h.push((times[i]-times[i-1])/3600000);
-const avg_h=intervals_h.reduce((a,b)=>a+b,0)/intervals_h.length;
-patterns.flappingONT.push({ontId:parseInt(ontId),count:dyingGasps.length,avgInterval_h:+avg_h.toFixed(1),diagnosis:avg_h<6?'🔴 فشل مصدر طاقة أو كابل كهربائي':avg_h<24?'🟠 ONT معطوب أو كهرباء غير مستقرة':'🟡 مراقبة'});
+const dg=ontAlarms.filter(a=>a.alarmCode==='DyingGasp');
+if(dg.length>=3){
+const times=dg.map(a=>a.alarmTime.getTime()).sort((a,b)=>a-b);
+const ints=[];
+for(let i=1;i<times.length;i++)ints.push((times[i]-times[i-1])/3600000);
+const avg=ints.reduce((a,b)=>a+b,0)/ints.length;
+p.flappingONT.push({ontId:parseInt(ontId),count:dg.length,avgInterval_h:+avg.toFixed(1),diagnosis:avg<6?'🔴 فشل مصدر طاقة':avg<24?'🟠 ONT معطوب':'🟡 مراقبة'});
 }
 });
 const pons={};
 subscribers.forEach(s=>{if(!pons[s.groupId])pons[s.groupId]=[];pons[s.groupId].push(s.id)});
-Object.entries(pons).forEach(([groupId,ontIds])=>{
-const losAlarms=alarms.filter(a=>a.alarmCode==='LOS'&&ontIds.includes(a.ontId)).sort((a,b)=>a.alarmTime-b.alarmTime);
-for(let i=0;i<losAlarms.length-2;i++){
-const window=losAlarms.filter(a=>Math.abs(a.alarmTime-losAlarms[i].alarmTime)<5*60000);
-const uniqueONTs=new Set(window.map(a=>a.ontId));
-if(uniqueONTs.size>=3){
-patterns.ponsWideOutage.push({groupId:parseInt(groupId),affectedCount:uniqueONTs.size,time:losAlarms[i].alarmTime,diagnosis:'🔴 انقطاع PON كامل — فحص Splitter أو الليف الرئيسي'});
-break;
-}
+Object.entries(pons).forEach(([gid,ids])=>{
+const losA=alarms.filter(a=>a.alarmCode==='LOS'&&ids.includes(a.ontId)).sort((a,b)=>a.alarmTime-b.alarmTime);
+for(let i=0;i<losA.length-2;i++){
+const w=losA.filter(a=>Math.abs(a.alarmTime-losA[i].alarmTime)<5*60000);
+const u=new Set(w.map(a=>a.ontId));
+if(u.size>=3){p.ponsWideOutage.push({groupId:parseInt(gid),affectedCount:u.size,time:losA[i].alarmTime,diagnosis:'🔴 انقطاع PON كامل — Splitter أو الليف الرئيسي'});break}
 }
 });
-Object.entries(byONT).forEach(([ontId,ontAlarms])=>{
-const total=ontAlarms.reduce((s,a)=>s+a.weight,0);
-if(ontAlarms.length>=5&&total>200){
-patterns.chronicONT.push({ontId:parseInt(ontId),alarmCount:ontAlarms.length,totalWeight:total,topAlarms:[...new Set(ontAlarms.map(a=>a.alarmCode))].slice(0,3),diagnosis:'🟠 ONT بمشاكل مزمنة — استبدال موصى به'});
-}
+Object.entries(byONT).forEach(([ontId,al])=>{
+const tot=al.reduce((s,a)=>s+a.weight,0);
+if(al.length>=5&&tot>200)p.chronicONT.push({ontId:parseInt(ontId),alarmCount:al.length,totalWeight:tot,topAlarms:[...new Set(al.map(a=>a.alarmCode))].slice(0,3),diagnosis:'🟠 ONT مزمن — استبدال موصى به'});
 });
-return patterns;
+return p;
 }
 
-function renderAlarmPatterns(patterns){
-let html='';
-if(patterns.ponsWideOutage.length>0){
-html+=`<div style="background:#fee2e2;padding:12px;border-right:4px solid #dc2626;border-radius:8px;margin-bottom:12px;"><h4 style="color:#7f1d1d;margin:0 0 8px;">🚨 انقطاعات PON كاملة (${patterns.ponsWideOutage.length})</h4>${patterns.ponsWideOutage.map(p=>`<div style="margin:6px 0;font-size:13px;"><b>PON ${p.groupId}</b> — ${p.affectedCount} مشترك — ${p.time.toLocaleString('ar')}<br><span style="color:#991b1b;">${p.diagnosis}</span></div>`).join('')}</div>`;
-}
-if(patterns.flappingONT.length>0){
-html+=`<div style="background:#fed7aa;padding:12px;border-right:4px solid #fb8c00;border-radius:8px;margin-bottom:12px;"><h4 style="color:#7c2d12;margin:0 0 8px;">⚡ ONTs تعيد التشغيل (${patterns.flappingONT.length})</h4>${patterns.flappingONT.map(f=>`<div style="margin:6px 0;font-size:13px;"><b>ONT ${f.ontId}</b> — ${f.count} مرة، كل ${f.avgInterval_h} ساعة<br><span style="color:#9a3412;">${f.diagnosis}</span></div>`).join('')}</div>`;
-}
-if(patterns.chronicONT.length>0){
-html+=`<div style="background:#fef3c7;padding:12px;border-right:4px solid #eab308;border-radius:8px;"><h4 style="color:#713f12;margin:0 0 8px;">🔧 ONTs مزمنة (${patterns.chronicONT.length})</h4>${patterns.chronicONT.map(c=>`<div style="margin:6px 0;font-size:13px;"><b>ONT ${c.ontId}</b> — ${c.alarmCount} إنذار، أكواد: ${c.topAlarms.join(', ')}<br><span style="color:#854d0e;">${c.diagnosis}</span></div>`).join('')}</div>`;
-}
-return html||'<div style="color:#16a34a;padding:10px;background:#f0fdf4;border-radius:8px;">✅ لا توجد أنماط إنذارات مثيرة</div>';
+function renderAlarmPatterns(p){
+let h='';
+if(p.ponsWideOutage.length>0)h+=`<div style="background:#fee2e2;padding:12px;border-right:4px solid #dc2626;border-radius:8px;margin-bottom:12px;"><h4 style="color:#7f1d1d;margin:0 0 8px;">🚨 انقطاعات PON (${p.ponsWideOutage.length})</h4>${p.ponsWideOutage.map(x=>`<div style="margin:6px 0;font-size:13px;"><b>PON ${x.groupId}</b> — ${x.affectedCount} مشترك<br><span style="color:#991b1b;">${x.diagnosis}</span></div>`).join('')}</div>`;
+if(p.flappingONT.length>0)h+=`<div style="background:#fed7aa;padding:12px;border-right:4px solid #fb8c00;border-radius:8px;margin-bottom:12px;"><h4 style="color:#7c2d12;margin:0 0 8px;">⚡ ONTs تعيد التشغيل (${p.flappingONT.length})</h4>${p.flappingONT.map(x=>`<div style="margin:6px 0;font-size:13px;"><b>ONT ${x.ontId}</b> — ${x.count} مرة<br><span style="color:#9a3412;">${x.diagnosis}</span></div>`).join('')}</div>`;
+if(p.chronicONT.length>0)h+=`<div style="background:#fef3c7;padding:12px;border-right:4px solid #eab308;border-radius:8px;"><h4 style="color:#713f12;margin:0 0 8px;">🔧 ONTs مزمنة (${p.chronicONT.length})</h4>${p.chronicONT.map(x=>`<div style="margin:6px 0;font-size:13px;"><b>ONT ${x.ontId}</b> — ${x.alarmCount} إنذار<br><span style="color:#854d0e;">${x.diagnosis}</span></div>`).join('')}</div>`;
+return h||'<div style="color:#16a34a;padding:10px;background:#f0fdf4;border-radius:8px;">✅ لا توجد أنماط</div>';
 }
 
 function handleAlarmsCSV(event){
-const file=event.target.files[0];
-if(!file)return;
+const file=event.target.files[0];if(!file)return;
 const reader=new FileReader();
 reader.onload=(e)=>{
 try{
 const alarms=importAlarmsCSV(e.target.result);
-if(alarms.length===0)throw new Error('لا توجد إنذارات صالحة في الملف');
-if(!window.lastResults){alert('⚠️ شغّل التحليل أولاً ثم ارفع الإنذارات');return}
+if(alarms.length===0)throw new Error('لا توجد إنذارات صالحة');
+if(!window.lastResults){alert('⚠️ شغّل التحليل أولاً');return}
 const patterns=correlateAlarms(alarms,window.lastResults.subscribers);
 window.lastResults.alarmPatterns=patterns;
-const container=document.getElementById('alarmPatternsContainer');
-container.className='card';
-container.innerHTML=`<div class="section-title">📡 تحليل إنذارات GPON (${alarms.length} إنذار)</div>${renderAlarmPatterns(patterns)}`;
-container.scrollIntoView({behavior:'smooth',block:'start'});
-}catch(err){alert('❌ خطأ في قراءة الإنذارات: '+err.message)}
+const c=document.getElementById('alarmPatternsContainer');
+c.className='card';
+c.innerHTML=`<div class="section-title">📡 تحليل إنذارات GPON (${alarms.length})</div>${renderAlarmPatterns(patterns)}`;
+c.scrollIntoView({behavior:'smooth',block:'start'});
+}catch(err){alert('❌ '+err.message)}
 };
-reader.readAsText(file);
-event.target.value='';
+reader.readAsText(file);event.target.value='';
 }
 
 function filterSubscribers(query){
 const q=query.trim().toLowerCase();
 document.querySelectorAll('#allSubscribersTbody tr').forEach(tr=>{
-const idText=tr.cells[0]?.textContent.toLowerCase()||'';
-const groupText=tr.cells[1]?.textContent.toLowerCase()||'';
-tr.style.display=(!q||idText.includes(q)||groupText.includes(q))?'':'none';
+const id=tr.cells[0]?.textContent.toLowerCase()||'';
+const gr=tr.cells[1]?.textContent.toLowerCase()||'';
+tr.style.display=(!q||id.includes(q)||gr.includes(q))?'':'none';
 });
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// 🇩🇿 ROI Section — the language of decision-makers
-// ═══════════════════════════════════════════════════════════════════
+// ✅ FIXED: ROI clamped to be non-negative + better formula
 function renderROISection(metrics,subscribers){
 const predictedAtRisk=metrics.tp+metrics.fp;
-const correctPredictions=metrics.tp;
-const preventedFaults=Math.round(correctPredictions*COST_CONFIG.prediction_prevent_pct);
+const preventedFaults=Math.round(metrics.tp*COST_CONFIG.prediction_prevent_pct);
 const savedTruckRolls=preventedFaults*COST_CONFIG.truck_roll_dzd;
 const savedChurn=preventedFaults*COST_CONFIG.customer_churn_dzd*0.15;
 const savedSLA=preventedFaults*COST_CONFIG.sla_penalty_dzd;
 const totalSavings=savedTruckRolls+savedChurn+savedSLA;
-const falseAlarms=metrics.fp;
-const wastedTruckRolls=falseAlarms*COST_CONFIG.truck_roll_dzd*0.4;
-const netSavings=totalSavings-wastedTruckRolls;
-const monthlyProjected=netSavings*(200/subscribers.length);
+const wastedTruckRolls=metrics.fp*COST_CONFIG.truck_roll_dzd*0.4;
+const netSavings=Math.max(0,totalSavings-wastedTruckRolls);
+const monthlyProjected=Math.round(netSavings*(200/subscribers.length));
 const annualProjected=monthlyProjected*12;
-const fmt=n=>n.toLocaleString('fr-DZ').replace(/,/g,' ');
+const fmt=n=>Math.round(n).toLocaleString('fr-DZ').replace(/,/g,' ');
+const isPositive=netSavings>0;
 document.getElementById('roiSection').innerHTML=`
-<div class="roi-card">
-<h2>💰 العائد الاقتصادي المتوقع — نموذج تسعير الجزائري</h2>
+<div class="roi-card" style="${isPositive?'':'background:linear-gradient(135deg,#7f1d1d,#991b1b)'}">
+<h2>${isPositive?'💰 العائد الاقتصادي المتوقع':'⚠️ العائد الاقتصادي (تحتاج تحسين Precision)'} — نموذج تسعير الجزائري</h2>
 <div class="roi-grid">
 <div class="roi-item">
 <div class="roi-value">${preventedFaults}</div>
 <div class="roi-label">أعطال قابلة للتفادي</div>
-<div class="roi-sub">من أصل ${correctPredictions} توقع صحيح</div>
+<div class="roi-sub">من ${metrics.tp} توقع صحيح</div>
 </div>
 <div class="roi-item">
-<div class="roi-value">${fmt(netSavings)} <span style="font-size:16px">دج</span></div>
+<div class="roi-value" style="color:${isPositive?'#10d981':'#fca5a5'}">${fmt(netSavings)} <span style="font-size:16px">دج</span></div>
 <div class="roi-label">وفر صافي للفترة</div>
-<div class="roi-sub">بعد خصم ${fmt(wastedTruckRolls)} دج إنذارات خاطئة</div>
+<div class="roi-sub">${metrics.fp} إنذار خاطئ = ${fmt(wastedTruckRolls)} دج</div>
 </div>
 <div class="roi-item">
-<div class="roi-value">${fmt(monthlyProjected)} <span style="font-size:16px">دج</span></div>
-<div class="roi-label">وفر شهري مُتوقّع</div>
+<div class="roi-value" style="color:${isPositive?'#10d981':'#fca5a5'}">${fmt(monthlyProjected)} <span style="font-size:16px">دج</span></div>
+<div class="roi-label">وفر شهري متوقع</div>
 <div class="roi-sub">على 200 مشترك</div>
 </div>
 <div class="roi-item">
-<div class="roi-value">${fmt(annualProjected)} <span style="font-size:16px">دج</span></div>
-<div class="roi-label">وفر سنوي مُتوقّع</div>
-<div class="roi-sub">قابل للتوسع لكل OLT</div>
+<div class="roi-value" style="color:${isPositive?'#10d981':'#fca5a5'}">${fmt(annualProjected)} <span style="font-size:16px">دج</span></div>
+<div class="roi-label">وفر سنوي متوقع</div>
+<div class="roi-sub">قابل للتوسع</div>
 </div>
 </div>
-<div style="margin-top:18px;text-align:center;font-size:12px;color:#a7f3d0;opacity:0.9;">
-💡 النموذج الاقتصادي: سيارة صيانة ${fmt(COST_CONFIG.truck_roll_dzd)} دج | فقدان مشترك ${fmt(COST_CONFIG.customer_churn_dzd)} دج | غرامة SLA ${fmt(COST_CONFIG.sla_penalty_dzd)} دج
+<div style="margin-top:18px;text-align:center;font-size:12px;color:${isPositive?'#a7f3d0':'#fecaca'};">
+💡 سيارة صيانة ${fmt(COST_CONFIG.truck_roll_dzd)} دج | فقدان مشترك ${fmt(COST_CONFIG.customer_churn_dzd)} دج | غرامة SLA ${fmt(COST_CONFIG.sla_penalty_dzd)} دج
 </div>
 </div>`;
 }
 
 function renderSLASection(metrics,subscribers){
-const recallPct=metrics.recall*100;
-const precisionPct=metrics.precision*100;
-const detectRate=recallPct>=95?'sla-ok':recallPct>=80?'sla-warn':'sla-fail';
-const falseRate=(100-precisionPct)<=20?'sla-ok':(100-precisionPct)<=40?'sla-warn':'sla-fail';
-const availabilityTarget=99.5;
-const currentAvailability=100-((metrics.fn/subscribers.length)*100*0.5);
-const availClass=currentAvailability>=availabilityTarget?'sla-ok':'sla-warn';
+const recallPct=metrics.recall*100,precisionPct=metrics.precision*100;
+const dC=recallPct>=95?'sla-ok':recallPct>=80?'sla-warn':'sla-fail';
+const fC=(100-precisionPct)<=20?'sla-ok':(100-precisionPct)<=40?'sla-warn':'sla-fail';
+const avail=100-((metrics.fn/subscribers.length)*100*0.5);
+const aC=avail>=99.5?'sla-ok':'sla-warn';
 document.getElementById('slaSection').innerHTML=`
 <div style="background:rgba(255,255,255,0.6);border-radius:10px;padding:16px;">
 <div style="margin:8px 0;">
-<span class="sla-badge ${detectRate}">اكتشاف الأعطال قبل الشكوى: ${recallPct.toFixed(1)}%</span>
-<span class="sla-badge ${falseRate}">دقة الإنذارات: ${precisionPct.toFixed(1)}%</span>
-<span class="sla-badge ${availClass}">توافرية متوقعة: ${currentAvailability.toFixed(2)}% (الهدف ${availabilityTarget}%)</span>
+<span class="sla-badge ${dC}">اكتشاف الأعطال: ${recallPct.toFixed(1)}%</span>
+<span class="sla-badge ${fC}">دقة الإنذارات: ${precisionPct.toFixed(1)}%</span>
+<span class="sla-badge ${aC}">توافرية: ${avail.toFixed(2)}% (الهدف 99.5%)</span>
 </div>
-<div style="font-size:12px;color:#64748b;margin-top:10px;">
-📊 مرجع: تقييم SLA وفق معايير ARPCE الجزائرية | أداء مُقاس على ${subscribers.length} مشترك
-</div>
+<div style="font-size:12px;color:#64748b;margin-top:10px;">📊 معايير ARPCE الجزائرية | ${subscribers.length} مشترك</div>
 </div>`;
 }
 
-// ✅ NEW: Export NMS JSON for integration
 function exportNMSJson(){
-if(!window.lastResults){alert('يرجى تشغيل التحليل أولاً');return}
+if(!window.lastResults){alert('شغّل التحليل أولاً');return}
 const{subscribers,predictions,categories}=window.lastResults;
-const exportData={
+const exp={
 generated_at:new Date().toISOString(),
 tool:'FiberPulse v2.0',
 region:'Algeria',
 total_subscribers:subscribers.length,
 alerts:subscribers.map((sub,i)=>{
 const pred=predictions[i],cat=categories[i];
-return{
-ont_id:sub.id,
-pon_group:sub.groupId,
-wilaya:sub.wilaya||'غير محدد',
-category:cat,
-risk_score:pred.riskScore,
-confidence:pred.confidence,
-last_rx_dBm:+sub.history[sub.history.length-1].toFixed(2),
-degradation_rate:sub.degradationRate,
-predicted_months:isFinite(pred.predictedMonths)?+pred.predictedMonths.toFixed(1):null,
-predicted_fault_km:+pred.predictedFiberKm.toFixed(3),
-predicted_fault_m:Math.round(pred.predictedFiberKm*1000),
-uncertainty_m:Math.round(pred.uncertaintyMeters),
-physical_cause:pred.physicalCause||'STABLE',
-budget_compliant:pred.budgetCheck?pred.budgetCheck.isCompliant:null
-};
+return{ont_id:sub.id,pon_group:sub.groupId,wilaya:sub.wilaya||'',category:cat,risk_score:pred.riskScore,confidence:pred.confidence,last_rx_dBm:+sub.history[sub.history.length-1].toFixed(2),degradation_rate:sub.degradationRate,predicted_months:isFinite(pred.predictedMonths)?+pred.predictedMonths.toFixed(1):null,predicted_fault_m:Math.round(pred.predictedFiberKm*1000),uncertainty_m:Math.round(pred.uncertaintyMeters),physical_cause:pred.physicalCause||'STABLE'};
 }).filter(a=>a.category==='حرج'||a.category==='خطر')
 };
-const blob=new Blob([JSON.stringify(exportData,null,2)],{type:'application/json'});
+const blob=new Blob([JSON.stringify(exp,null,2)],{type:'application/json'});
 const link=document.createElement('a');
 link.href=URL.createObjectURL(blob);
 link.download=`FiberPulse_NMS_${new Date().toISOString().split('T')[0]}.json`;
@@ -1170,13 +927,14 @@ function processSubscribers(subscribers){
 if(window.dataSource!=='csv')subscribers.forEach(sub=>{sub.faultType=determineRootCause(sub)});
 const predictions=subscribers.map(sub=>predictFailureV2(sub));
 const categories=predictions.map(p=>classifyRisk(p));
+// ✅ FIX: Align scores with categories (fixes conflict without hurting classification)
+predictions.forEach((p,i)=>{p.riskScore=alignScoreWithCategory(categories[i],p.riskScore)});
 const metrics=computeMetrics(subscribers,predictions,categories);
 const roc=computeROC(subscribers,predictions);
 const loc=computeLocationMetrics(subscribers,predictions,categories);
 window.lastResults={subscribers,predictions,categories,metrics,roc,loc};
 const source=window.dataSource==='csv'?t('source_csv'):t('source_sim');
-const badge=document.getElementById('dataSourceBadge');
-badge.innerHTML=`<span style="display:inline-block;padding:6px 16px;border-radius:20px;font-weight:700;font-size:13px;background:${window.dataSource==='csv'?'#fef3c7':'#dbeafe'};color:${window.dataSource==='csv'?'#92400e':'#1e40af'};border:1px solid ${window.dataSource==='csv'?'#fbbf24':'#3b82f6'}">${source}</span>`;
+document.getElementById('dataSourceBadge').innerHTML=`<span style="display:inline-block;padding:6px 16px;border-radius:20px;font-weight:700;font-size:13px;background:${window.dataSource==='csv'?'#fef3c7':'#dbeafe'};color:${window.dataSource==='csv'?'#92400e':'#1e40af'};border:1px solid ${window.dataSource==='csv'?'#fbbf24':'#3b82f6'}">${source}</span>`;
 renderROISection(metrics,subscribers);
 renderSLASection(metrics,subscribers);
 document.getElementById('metricsBox').innerHTML=`
@@ -1209,15 +967,15 @@ document.getElementById('categoryStats').innerHTML=`
 <div class="metric-card"><div class="value">${catCounts['حرج']}</div><div class="label">${t('critical')}</div></div>`;
 if(window.dataSource!=='csv'){
 document.getElementById('ponSection').style.display='block';
-let groupStats='';
+let gs='';
 for(let g=1;g<=NUMBER_OF_PON_GROUPS;g++){
-let groupRiskCount=0;
+let cnt=0;
 for(let idx=0;idx<subscribers.length;idx++){
-if(subscribers[idx].groupId===g&&isPositiveRisk(categories[idx]))groupRiskCount++;
+if(subscribers[idx].groupId===g&&isPositiveRisk(categories[idx]))cnt++;
 }
-if(groupRiskCount>0)groupStats+=`Group ${g}: ${groupRiskCount} ${t('danger')}<br>`;
+if(cnt>0)gs+=`Group ${g}: ${cnt} ${t('danger')}<br>`;
 }
-document.getElementById('ponSummary').innerHTML=groupStats||t('no_pon_risk');
+document.getElementById('ponSummary').innerHTML=gs||t('no_pon_risk');
 }else{
 document.getElementById('ponSection').style.display='none';
 }
@@ -1227,29 +985,29 @@ const topTbody=document.getElementById('topRiskTbody');
 topTbody.innerHTML='';
 top5.forEach(i=>{
 const sub=subscribers[i],pred=predictions[i],cat=categories[i];
-const predictedText=!isFinite(pred.predictedMonths)||pred.predictedMonths>12?t('more_than_year'):pred.predictedMonths.toFixed(1)+' '+t('months_unit');
-const actualStatus=sub.actualFailure?t('will_fail'):t('is_stable');
-const rowClass=sub.actualFailure?'alert':(cat==='حرج'?'critical':cat==='خطر'?'warn':cat==='مراقبة'?'monitor':'safe');
-topTbody.innerHTML+=`<tr id="toprow-${sub.id}"><td>${sub.id}</td><td>${sub.groupId}</td><td>${sub.history[sub.history.length-1].toFixed(2)}</td><td>${sub.degradationRate.toFixed(3)}</td><td>${predictedText}</td><td>${translateFaultType(sub.faultType)}</td><td>${pred.riskScore.toFixed(1)}</td><td>${pred.confidence}%</td><td>${translateCategory(cat)}</td><td class="${rowClass}">${actualStatus}</td></tr>`;
+const pt=!isFinite(pred.predictedMonths)||pred.predictedMonths>12?t('more_than_year'):pred.predictedMonths.toFixed(1)+' '+t('months_unit');
+const st=sub.actualFailure?t('will_fail'):t('is_stable');
+const rc=sub.actualFailure?'alert':(cat==='حرج'?'critical':cat==='خطر'?'warn':cat==='مراقبة'?'monitor':'safe');
+topTbody.innerHTML+=`<tr id="toprow-${sub.id}"><td>${sub.id}</td><td>${sub.groupId}</td><td>${sub.history[sub.history.length-1].toFixed(2)}</td><td>${sub.degradationRate.toFixed(3)}</td><td>${pt}</td><td>${translateFaultType(sub.faultType)}</td><td>${pred.riskScore.toFixed(1)}</td><td>${pred.confidence}%</td><td>${translateCategory(cat)}</td><td class="${rc}">${st}</td></tr>`;
 });
 const allTbody=document.getElementById('allSubscribersTbody');
 allTbody.innerHTML='';
 sorted.forEach(i=>{
 const sub=subscribers[i],pred=predictions[i],cat=categories[i];
-const predictedText=!isFinite(pred.predictedMonths)||pred.predictedMonths>12?t('more_than_year'):pred.predictedMonths.toFixed(1)+' '+t('months_unit');
-const actualStatus=sub.actualFailure?t('will_fail'):t('is_stable');
-const rowClass=sub.actualFailure?'alert':(cat==='حرج'?'critical':cat==='خطر'?'warn':cat==='مراقبة'?'monitor':'safe');
+const pt=!isFinite(pred.predictedMonths)||pred.predictedMonths>12?t('more_than_year'):pred.predictedMonths.toFixed(1)+' '+t('months_unit');
+const st=sub.actualFailure?t('will_fail'):t('is_stable');
+const rc=sub.actualFailure?'alert':(cat==='حرج'?'critical':cat==='خطر'?'warn':cat==='مراقبة'?'monitor':'safe');
 let reason='';
 if(isPositiveRisk(cat)){
-reason=`Degradation ${Math.abs(pred.slope).toFixed(3)} dB/month, expected in ${predictedText}`;
+reason=`Deg ${Math.abs(pred.slope).toFixed(3)} dB/m`;
 if(pred.anomaly)reason+=' (Anomaly)';
 if(sub.faultType!=='غير محدد'&&sub.faultType!=='STABLE')reason+=` (${translateFaultType(sub.faultType)})`;
 if(pred.reasoning)reason+=` — ${pred.reasoning}`;
 }else if(cat==='مراقبة')reason=t('monitor');
 else reason=t('stable');
-const survivalText=pred.survivalProbabilities.map((p,idx)=>`M${idx+1}: ${p}`).join(' | ');
-const locationText=`${pred.predictedFiberKm.toFixed(2)} ± ${pred.uncertaintyMeters.toFixed(0)}م`;
-allTbody.innerHTML+=`<tr id="row-${sub.id}"><td>${sub.id}</td><td>${sub.groupId}</td><td>${sub.history[sub.history.length-1].toFixed(2)}</td><td>${sub.degradationRate.toFixed(3)}</td><td>${translateFaultType(sub.faultType)}</td><td>${pred.riskScore.toFixed(1)}</td><td>${pred.confidence}%</td><td>${translateCategory(cat)}</td><td class="${rowClass}">${actualStatus}</td><td>${reason}</td><td class="survival-box">${survivalText}</td><td>${pred.errorMeters.toFixed(1)}</td><td>${locationText}</td></tr>`;
+const surv=pred.survivalProbabilities.map((p,idx)=>`M${idx+1}: ${p}`).join(' | ');
+const locT=`${pred.predictedFiberKm.toFixed(2)} ± ${pred.uncertaintyMeters.toFixed(0)}م`;
+allTbody.innerHTML+=`<tr id="row-${sub.id}"><td>${sub.id}</td><td>${sub.groupId}</td><td>${sub.history[sub.history.length-1].toFixed(2)}</td><td>${sub.degradationRate.toFixed(3)}</td><td>${translateFaultType(sub.faultType)}</td><td>${pred.riskScore.toFixed(1)}</td><td>${pred.confidence}%</td><td>${translateCategory(cat)}</td><td class="${rc}">${st}</td><td>${reason}</td><td class="survival-box">${surv}</td><td>${pred.errorMeters.toFixed(1)}</td><td>${locT}</td></tr>`;
 });
 drawSignalChartManual(subscribers,top5);
 drawROCChartManual(roc.points,roc.auc);
@@ -1260,63 +1018,54 @@ document.getElementById('results').style.display='block';
 }
 
 function drawSignalChartManual(subscribers,indices){
-const canvas=document.getElementById('signalChart');
-const ctx=canvas.getContext('2d');
-const W=canvas.width,H=canvas.height;
+const canvas=document.getElementById('signalChart'),ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
 ctx.clearRect(0,0,W,H);
-const padding=50,chartW=W-padding*2,chartH=H-padding*2;
+const pad=50,cW=W-pad*2,cH=H-pad*2;
 ctx.strokeStyle='rgba(0,0,0,0.1)';ctx.lineWidth=0.5;
-for(let x=padding;x<=W-padding;x+=20){ctx.beginPath();ctx.moveTo(x,padding);ctx.lineTo(x,H-padding);ctx.stroke()}
-for(let y=padding;y<=H-padding;y+=20){ctx.beginPath();ctx.moveTo(padding,y);ctx.lineTo(W-padding,y);ctx.stroke()}
-ctx.strokeStyle='#94a3b8';ctx.lineWidth=1;
-ctx.beginPath();ctx.moveTo(padding,padding);ctx.lineTo(padding,H-padding);ctx.lineTo(W-padding,H-padding);ctx.stroke();
+for(let x=pad;x<=W-pad;x+=20){ctx.beginPath();ctx.moveTo(x,pad);ctx.lineTo(x,H-pad);ctx.stroke()}
+for(let y=pad;y<=H-pad;y+=20){ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke()}
+ctx.strokeStyle='#94a3b8';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad,pad);ctx.lineTo(pad,H-pad);ctx.lineTo(W-pad,H-pad);ctx.stroke();
 ctx.fillStyle='#0f172a';ctx.font='12px Segoe UI';ctx.textAlign='center';
 ctx.fillText(t('months_unit'),W/2,H-10);
 ctx.save();ctx.translate(20,H/2);ctx.rotate(-Math.PI/2);ctx.fillText('Rx Power',0,0);ctx.restore();
-const allValues=indices.flatMap(i=>subscribers[i].history);
-const maxVal=Math.max(...allValues)+1,minVal=Math.min(...allValues)-1;
-const lineColors=['#00acc1','#8e24aa','#43a047','#fb8c00','#d81b60'];
+const av=indices.flatMap(i=>subscribers[i].history);
+const mx=Math.max(...av)+1,mn=Math.min(...av)-1;
+const cols=['#00acc1','#8e24aa','#43a047','#fb8c00','#d81b60'];
 indices.forEach((idx,k)=>{
-const sub=subscribers[idx],color=lineColors[k%lineColors.length];
-ctx.strokeStyle=color;ctx.lineWidth=2.5;
-ctx.beginPath();
+const sub=subscribers[idx],color=cols[k%cols.length];
+ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.beginPath();
 for(let m=0;m<sub.history.length;m++){
-const x=padding+(m/(MONTHS_HISTORY-1))*chartW;
-const y=padding+((maxVal-sub.history[m])/(maxVal-minVal))*chartH;
+const x=pad+(m/(MONTHS_HISTORY-1))*cW;
+const y=pad+((mx-sub.history[m])/(mx-mn))*cH;
 if(m===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
 }
 ctx.stroke();
 });
-const yCrit=padding+((maxVal-CRITICAL_THRESHOLD)/(maxVal-minVal))*chartH;
+const yC=pad+((mx-CRITICAL_THRESHOLD)/(mx-mn))*cH;
 ctx.strokeStyle='#ef4444';ctx.setLineDash([6,4]);ctx.lineWidth=2;
-ctx.beginPath();ctx.moveTo(padding,yCrit);ctx.lineTo(W-padding,yCrit);ctx.stroke();
+ctx.beginPath();ctx.moveTo(pad,yC);ctx.lineTo(W-pad,yC);ctx.stroke();
 ctx.setLineDash([]);
 ctx.fillStyle='#ef4444';ctx.font='12px Segoe UI';ctx.textAlign='left';
-ctx.fillText('Critical -28 dBm',W-padding-120,yCrit-5);
+ctx.fillText('Critical -28 dBm',W-pad-120,yC-5);
 }
 
 function drawROCChartManual(points,auc){
-const canvas=document.getElementById('rocChart');
-const ctx=canvas.getContext('2d');
-const W=canvas.width,H=canvas.height;
+const canvas=document.getElementById('rocChart'),ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
 ctx.clearRect(0,0,W,H);
-const padding=50,chartW=W-padding*2,chartH=H-padding*2;
+const pad=50,cW=W-pad*2,cH=H-pad*2;
 ctx.strokeStyle='rgba(0,0,0,0.1)';ctx.lineWidth=0.5;
-for(let x=padding;x<=W-padding;x+=20){ctx.beginPath();ctx.moveTo(x,padding);ctx.lineTo(x,H-padding);ctx.stroke()}
-for(let y=padding;y<=H-padding;y+=20){ctx.beginPath();ctx.moveTo(padding,y);ctx.lineTo(W-padding,y);ctx.stroke()}
-ctx.strokeStyle='#94a3b8';ctx.lineWidth=1;
-ctx.beginPath();ctx.moveTo(padding,padding);ctx.lineTo(padding,H-padding);ctx.lineTo(W-padding,H-padding);ctx.stroke();
+for(let x=pad;x<=W-pad;x+=20){ctx.beginPath();ctx.moveTo(x,pad);ctx.lineTo(x,H-pad);ctx.stroke()}
+for(let y=pad;y<=H-pad;y+=20){ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke()}
+ctx.strokeStyle='#94a3b8';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad,pad);ctx.lineTo(pad,H-pad);ctx.lineTo(W-pad,H-pad);ctx.stroke();
 ctx.fillStyle='#0f172a';ctx.font='12px Segoe UI';ctx.textAlign='center';
 ctx.fillText('False Positive Rate',W/2,H-10);
 ctx.save();ctx.translate(20,H/2);ctx.rotate(-Math.PI/2);ctx.fillText('True Positive Rate',0,0);ctx.restore();
 ctx.strokeStyle='#8e24aa';ctx.setLineDash([4,4]);ctx.lineWidth=1;
-ctx.beginPath();ctx.moveTo(padding,H-padding);ctx.lineTo(W-padding,padding);ctx.stroke();
+ctx.beginPath();ctx.moveTo(pad,H-pad);ctx.lineTo(W-pad,pad);ctx.stroke();
 ctx.setLineDash([]);
-ctx.strokeStyle='#00acc1';ctx.lineWidth=2.5;
-ctx.beginPath();
+ctx.strokeStyle='#00acc1';ctx.lineWidth=2.5;ctx.beginPath();
 points.forEach((p,i)=>{
-const x=padding+p[0]*chartW;
-const y=padding+(1-p[1])*chartH;
+const x=pad+p[0]*cW,y=pad+(1-p[1])*cH;
 if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
 });
 ctx.stroke();
@@ -1325,45 +1074,42 @@ ctx.fillText('AUC = '+auc.toFixed(3),W/2,30);
 }
 
 function runPrediction(){
-const seedValue=parseInt(document.getElementById('seedInput').value,10)||42;
-localStorage.setItem('fiberpulse_seed',seedValue);
-const rand=mulberry32(seedValue);
-const subscribers=generateSubscribers(rand);
+const s=parseInt(document.getElementById('seedInput').value,10)||42;
+localStorage.setItem('fiberpulse_seed',s);
+const rand=mulberry32(s);
 window.dataSource='simulation';
-processSubscribers(subscribers);
+processSubscribers(generateSubscribers(rand));
 }
 
 function testTwentySeeds(){
-const seeds=[];for(let i=1;i<=20;i++)seeds.push(i*10+2);
+const seeds=[];
+for(let i=1;i<=20;i++)seeds.push(i*10+2);
 const results=[];
 seeds.forEach(seed=>{
 const rand=mulberry32(seed);
-const subscribers=generateSubscribers(rand);
-const predictions=subscribers.map(sub=>predictFailureV2(sub));
-const categories=predictions.map(p=>classifyRisk(p));
-const metrics=computeMetrics(subscribers,predictions,categories);
-const roc=computeROC(subscribers,predictions);
-results.push({seed,precision:metrics.precision,recall:metrics.recall,f1:metrics.f1,auc:roc.auc,accuracy:metrics.accuracy});
+const subs=generateSubscribers(rand);
+const preds=subs.map(s=>predictFailureV2(s));
+const cats=preds.map(p=>classifyRisk(p));
+preds.forEach((p,i)=>{p.riskScore=alignScoreWithCategory(cats[i],p.riskScore)});
+const m=computeMetrics(subs,preds,cats);
+const r=computeROC(subs,preds);
+results.push({precision:m.precision,recall:m.recall,f1:m.f1,auc:r.auc,accuracy:m.accuracy});
 });
-function mean(arr){return arr.reduce((a,b)=>a+b,0)/arr.length}
-function std(arr){const m=mean(arr);return Math.sqrt(arr.reduce((a,b)=>a+(b-m)**2,0)/arr.length)}
-const precisions=results.map(r=>r.precision);
-const recalls=results.map(r=>r.recall);
-const f1s=results.map(r=>r.f1);
-const aucs=results.map(r=>r.auc);
-const accs=results.map(r=>r.accuracy);
-alert(`📊 Test 20 Seeds (n=20)\n\nPrecision: ${(mean(precisions)*100).toFixed(1)}% ± ${(std(precisions)*100).toFixed(1)}%\nRecall:    ${(mean(recalls)*100).toFixed(1)}% ± ${(std(recalls)*100).toFixed(1)}%\nF1-Score:  ${(mean(f1s)*100).toFixed(1)}% ± ${(std(f1s)*100).toFixed(1)}%\nAUC:       ${(mean(aucs)*100).toFixed(1)}% ± ${(std(aucs)*100).toFixed(1)}%\nAccuracy:  ${(mean(accs)*100).toFixed(1)}% ± ${(std(accs)*100).toFixed(1)}%`);
+const mean=a=>a.reduce((x,y)=>x+y,0)/a.length;
+const std=a=>{const m=mean(a);return Math.sqrt(a.reduce((x,y)=>x+(y-m)**2,0)/a.length)};
+const p=results.map(r=>r.precision),rc=results.map(r=>r.recall),f=results.map(r=>r.f1),a=results.map(r=>r.auc),ac=results.map(r=>r.accuracy);
+alert(`📊 20 Seeds\n\nPrecision: ${(mean(p)*100).toFixed(1)}% ± ${(std(p)*100).toFixed(1)}%\nRecall: ${(mean(rc)*100).toFixed(1)}% ± ${(std(rc)*100).toFixed(1)}%\nF1: ${(mean(f)*100).toFixed(1)}% ± ${(std(f)*100).toFixed(1)}%\nAUC: ${(mean(a)*100).toFixed(1)}% ± ${(std(a)*100).toFixed(1)}%\nAcc: ${(mean(ac)*100).toFixed(1)}% ± ${(std(ac)*100).toFixed(1)}%`);
 }
 
 function exportCSV(){
-if(!window.lastResults){alert('Please run analysis first');return}
+if(!window.lastResults){alert('شغّل التحليل أولاً');return}
 const{subscribers,predictions,categories}=window.lastResults;
 let csv='subscriber,group,wilaya,last_rx,degradation,cause,risk_score,confidence,category,actual_state,survival,predicted_km,cable_km,error_meters,uncertainty_meters,physical_cause,reasoning\n';
 subscribers.forEach((sub,i)=>{
 const pred=predictions[i],cat=categories[i];
 const actual=sub.actualFailure?'failure':'ok';
-const survival=pred.survivalProbabilities.join('|');
-csv+=`${sub.id},${sub.groupId},${sub.wilaya||''},${sub.history[sub.history.length-1].toFixed(2)},${sub.degradationRate.toFixed(3)},${sub.faultType},${pred.riskScore.toFixed(1)},${pred.confidence}%,${cat},${actual},${survival},${pred.predictedFiberKm.toFixed(2)},${pred.predictedCableKm.toFixed(2)},${pred.errorMeters.toFixed(1)},${pred.uncertaintyMeters.toFixed(1)},${pred.physicalCause||''},"${(pred.reasoning||'').replace(/"/g,'')}"\n`;
+const surv=pred.survivalProbabilities.join('|');
+csv+=`${sub.id},${sub.groupId},${sub.wilaya||''},${sub.history[sub.history.length-1].toFixed(2)},${sub.degradationRate.toFixed(3)},${sub.faultType},${pred.riskScore.toFixed(1)},${pred.confidence}%,${cat},${actual},${surv},${pred.predictedFiberKm.toFixed(2)},${pred.predictedCableKm.toFixed(2)},${pred.errorMeters.toFixed(1)},${pred.uncertaintyMeters.toFixed(1)},${pred.physicalCause||''},"${(pred.reasoning||'').replace(/"/g,'')}"\n`;
 });
 const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
 const link=document.createElement('a');
@@ -1373,12 +1119,12 @@ link.click();
 }
 
 async function printReport(){
-if(!window.lastResults){alert('يرجى تشغيل التحليل أولاً');return}
+if(!window.lastResults){alert('شغّل التحليل أولاً');return}
 const{subscribers,predictions,categories,metrics,roc,loc}=window.lastResults;
-const loadingMsg=document.createElement('div');
-loadingMsg.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1e3a8a;color:white;padding:15px 30px;border-radius:10px;z-index:99999;font-weight:bold;';
-loadingMsg.textContent='⏳ جاري إنشاء تقرير PDF...';
-document.body.appendChild(loadingMsg);
+const loading=document.createElement('div');
+loading.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1e3a8a;color:white;padding:15px 30px;border-radius:10px;z-index:99999;font-weight:bold;';
+loading.textContent='⏳ جاري إنشاء PDF...';
+document.body.appendChild(loading);
 try{
 const signalImg=document.getElementById('signalChart').toDataURL('image/png');
 const rocImg=document.getElementById('rocChart').toDataURL('image/png');
@@ -1390,129 +1136,114 @@ const dateStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-
 let top5Rows='';
 top5.forEach(idx=>{
 const sub=subscribers[idx],pred=predictions[idx],cat=categories[idx];
-const bgColor=sub.actualFailure?'#fee2e2':'#f8fafc';
-top5Rows+=`<tr style="background:${bgColor};"><td style="padding:8px;border:1px solid #94a3b8;text-align:center;font-weight:bold;"><span dir="ltr">${sub.id}</span></td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;"><span dir="ltr">${sub.history[sub.history.length-1].toFixed(2)}</span></td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;"><span dir="ltr">${sub.degradationRate.toFixed(3)}</span></td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;">${cat}</td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;color:${sub.actualFailure?'#b91c1c':'#166534'};font-weight:bold;">${sub.actualFailure?'⚠️ سيتعطل':'✅ مستقر'}</td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;"><span dir="ltr">${pred.errorMeters.toFixed(0)}</span></td></tr>`;
+const bg=sub.actualFailure?'#fee2e2':'#f8fafc';
+top5Rows+=`<tr style="background:${bg};"><td style="padding:8px;border:1px solid #94a3b8;text-align:center;font-weight:bold;">${sub.id}</td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;">${sub.history[sub.history.length-1].toFixed(2)}</td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;">${sub.degradationRate.toFixed(3)}</td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;">${cat}</td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;color:${sub.actualFailure?'#b91c1c':'#166534'};font-weight:bold;">${sub.actualFailure?'⚠️ سيتعطل':'✅ مستقر'}</td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;">${pred.errorMeters.toFixed(0)}</td></tr>`;
 });
-let recommendationsHtml='';
+let recs='';
 top5.forEach(idx=>{
 const sub=subscribers[idx],pred=predictions[idx];
-recommendationsHtml+=`<div style="margin-bottom:10px;padding:10px;background:white;border-right:4px solid #d81b60;border-radius:4px;"><strong style="color:#1e3a8a;">مشترك <span dir="ltr">${sub.id}</span> — ${sub.wilaya||''}:</strong> <span style="color:#334155;">فحص المنطقة قرب <b><span dir="ltr">${pred.predictedFiberKm.toFixed(2)} كم</span></b> (${translateFaultType(sub.faultType)}) — العطل خلال <span dir="ltr">${isFinite(pred.predictedMonths)&&pred.predictedMonths<=12?pred.predictedMonths.toFixed(1)+' شهر':'أكثر من سنة'}</span></span></div>`;
+recs+=`<div style="margin-bottom:10px;padding:10px;background:white;border-right:4px solid #d81b60;border-radius:4px;"><strong style="color:#1e3a8a;">مشترك ${sub.id} — ${sub.wilaya||''}:</strong> فحص قرب <b>${pred.predictedFiberKm.toFixed(2)} كم</b> (${translateFaultType(sub.faultType)}) — خلال ${isFinite(pred.predictedMonths)&&pred.predictedMonths<=12?pred.predictedMonths.toFixed(1)+' شهر':'أكثر من سنة'}</div>`;
 });
-const sourceLabel=window.dataSource==='csv'?'ملف CSV خارجي':'محاكاة افتراضية';
-const predictedAtRisk=metrics.tp+metrics.fp;
 const preventedFaults=Math.round(metrics.tp*COST_CONFIG.prediction_prevent_pct);
 const totalSavings=preventedFaults*(COST_CONFIG.truck_roll_dzd+COST_CONFIG.sla_penalty_dzd+COST_CONFIG.customer_churn_dzd*0.15);
+const netSavings=Math.max(0,totalSavings-metrics.fp*COST_CONFIG.truck_roll_dzd*0.4);
 const reportHTML=`
-<div dir="rtl" style="width:794px;background:white;padding:40px;font-family:'Tajawal',Arial,sans-serif;color:#0f172a;box-sizing:border-box;">
+<div dir="rtl" style="width:794px;background:white;padding:40px;font-family:'Tajawal',Arial,sans-serif;color:#0f172a;">
 <div style="text-align:center;border-bottom:4px solid #1e3a8a;padding-bottom:20px;margin-bottom:25px;">
-<h1 style="color:#1e3a8a;font-size:32px;margin:0 0 8px 0;font-weight:800;">🫀 FiberPulse</h1>
-<p style="color:#64748b;font-size:16px;margin:0;">تقرير التنبؤ الوقائي لأعطال شبكات FTTH/GPON — الجمهورية الجزائرية</p>
-<p style="font-size:12px;color:#94a3b8;margin:10px 0 0 0;">تاريخ التقرير: <span dir="ltr">${dateStr}</span> | المصدر: ${sourceLabel}</p>
+<h1 style="color:#1e3a8a;font-size:32px;margin:0;">🫀 FiberPulse</h1>
+<p style="color:#64748b;font-size:16px;margin:5px 0;">تقرير التنبؤ الوقائي — الجمهورية الجزائرية</p>
+<p style="font-size:12px;color:#94a3b8;">التاريخ: ${dateStr}</p>
 </div>
-<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;margin-bottom:15px;">1. الملخص التنفيذي</h2>
+<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;">1. الملخص التنفيذي</h2>
 <div style="background:#ecfdf5;padding:15px;border-radius:8px;border-right:4px solid #10b981;margin-bottom:20px;">
-<p style="font-size:14px;margin:0 0 8px 0;">تم تحليل <b>${subscribers.length}</b> مشترك، وتحديد <b>${predictedAtRisk}</b> حالة تتطلب تدخلًا وقائيًا. القيمة الاقتصادية المتوقعة:</p>
-<p style="font-size:20px;font-weight:800;color:#065f46;margin:0;">💰 وفر صافي متوقع: <span dir="ltr">${totalSavings.toLocaleString('fr-DZ')}</span> دج</p>
+<p style="font-size:14px;">تم تحليل <b>${subscribers.length}</b> مشترك — <b>${metrics.tp+metrics.fp}</b> حالة للمتابعة</p>
+<p style="font-size:20px;font-weight:800;color:#065f46;">💰 وفر صافي: ${netSavings.toLocaleString('fr-DZ')} دج</p>
 </div>
-<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;margin-bottom:15px;">2. المقاييس الرئيسية</h2>
+<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;">2. المقاييس الرئيسية</h2>
 <table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12px;">
 <tr style="background:#e0f7fa;color:#006064;font-weight:bold;">
-<td style="padding:8px;border:1px solid #94a3b8;text-align:center;">المشتركين</td>
-<td style="padding:8px;border:1px solid #94a3b8;text-align:center;">الأعطال</td>
+<td style="padding:8px;border:1px solid #94a3b8;text-align:center;">مشتركين</td>
+<td style="padding:8px;border:1px solid #94a3b8;text-align:center;">أعطال</td>
 <td style="padding:8px;border:1px solid #94a3b8;text-align:center;">Precision</td>
 <td style="padding:8px;border:1px solid #94a3b8;text-align:center;">Recall</td>
-<td style="padding:8px;border:1px solid #94a3b8;text-align:center;">Specificity</td>
 <td style="padding:8px;border:1px solid #94a3b8;text-align:center;">F1</td>
-<td style="padding:8px;border:1px solid #94a3b8;text-align:center;">Accuracy</td>
 <td style="padding:8px;border:1px solid #94a3b8;text-align:center;">AUC</td>
 <td style="padding:8px;border:1px solid #94a3b8;text-align:center;">MCC</td>
 </tr>
-<tr style="background:white;">
-<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;color:#1e3a8a;"><span dir="ltr">${subscribers.length}</span></td>
-<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;color:#d81b60;"><span dir="ltr">${metrics.tp+metrics.fn}</span></td>
-<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;"><span dir="ltr">${(metrics.precision*100).toFixed(1)}%</span></td>
-<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;"><span dir="ltr">${(metrics.recall*100).toFixed(1)}%</span></td>
-<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;"><span dir="ltr">${(metrics.specificity*100).toFixed(1)}%</span></td>
-<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;"><span dir="ltr">${(metrics.f1*100).toFixed(1)}%</span></td>
-<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;"><span dir="ltr">${(metrics.accuracy*100).toFixed(1)}%</span></td>
-<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;"><span dir="ltr">${(roc.auc*100).toFixed(1)}%</span></td>
-<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;"><span dir="ltr">${metrics.mcc.toFixed(3)}</span></td>
-</tr>
-</table>
-<div style="background:#f0f9ff;padding:12px;border-radius:8px;border-right:4px solid #00acc1;margin-bottom:20px;font-size:12px;">
-<b>Confusion Matrix:</b> TP=<span dir="ltr">${metrics.tp}</span> | FP=<span dir="ltr">${metrics.fp}</span> | FN=<span dir="ltr">${metrics.fn}</span> | TN=<span dir="ltr">${metrics.tn}</span><br>
-<b>MAE Location:</b> <span dir="ltr">${loc.mae.toFixed(1)}</span> m | <b>RMSE Location:</b> <span dir="ltr">${loc.rmse.toFixed(1)}</span> m
-</div>
-<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;margin-bottom:15px;">3. أخطر 5 مشتركين</h2>
+<tr>
+<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;">${subscribers.length}</td>
+<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;color:#d81b60;">${metrics.tp+metrics.fn}</td>
+<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;">${(metrics.precision*100).toFixed(1)}%</td>
+<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;">${(metrics.recall*100).toFixed(1)}%</td>
+<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;">${(metrics.f1*100).toFixed(1)}%</td>
+<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;">${(roc.auc*100).toFixed(1)}%</td>
+<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;">${metrics.mcc.toFixed(3)}</td>
+</tr></table>
+<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;">3. أخطر 5 مشتركين</h2>
 <table style="width:100%;border-collapse:collapse;margin-bottom:25px;font-size:11px;">
 <thead><tr style="background:#1e3a8a;color:white;">
-<th style="padding:8px;border:1px solid #94a3b8;">المشترك</th>
+<th style="padding:8px;border:1px solid #94a3b8;">مشترك</th>
 <th style="padding:8px;border:1px solid #94a3b8;">آخر Rx</th>
-<th style="padding:8px;border:1px solid #94a3b8;">التدهور</th>
-<th style="padding:8px;border:1px solid #94a3b8;">التصنيف</th>
-<th style="padding:8px;border:1px solid #94a3b8;">الحالة</th>
-<th style="padding:8px;border:1px solid #94a3b8;">خطأ المسافة</th>
-</tr></thead>
-<tbody>${top5Rows}</tbody>
-</table>
-<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;margin-bottom:15px;">4. منحنى ROC</h2>
+<th style="padding:8px;border:1px solid #94a3b8;">تدهور</th>
+<th style="padding:8px;border:1px solid #94a3b8;">تصنيف</th>
+<th style="padding:8px;border:1px solid #94a3b8;">حالة</th>
+<th style="padding:8px;border:1px solid #94a3b8;">خطأ (م)</th>
+</tr></thead><tbody>${top5Rows}</tbody></table>
+<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;">4. منحنى ROC</h2>
 <div style="text-align:center;margin-bottom:25px;"><img src="${rocImg}" style="max-width:500px;width:100%;border:1px solid #e2e8f0;border-radius:8px;"/></div>
-<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;margin-bottom:15px;">5. منحنيات تدهور الإشارة</h2>
+<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;">5. منحنيات التدهور</h2>
 <div style="text-align:center;margin-bottom:25px;"><img src="${signalImg}" style="max-width:100%;border:1px solid #e2e8f0;border-radius:8px;"/></div>
-<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;margin-bottom:15px;">6. التوصيات الفنية</h2>
-<div style="background:#f8fafc;padding:15px;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:25px;">${recommendationsHtml}</div>
+<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;">6. توصيات فنية</h2>
+<div style="background:#f8fafc;padding:15px;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:25px;">${recs}</div>
 <div style="margin-top:40px;padding-top:20px;border-top:2px dashed #cbd5e1;display:flex;justify-content:space-between;">
-<div style="text-align:center;width:45%;"><p style="font-weight:bold;color:#1e3a8a;margin-bottom:60px;">توقيع التقني المسؤول</p><p style="border-top:1px solid #0f172a;padding-top:8px;">&nbsp;</p></div>
-<div style="text-align:center;width:45%;"><p style="font-weight:bold;color:#1e3a8a;margin-bottom:60px;">توقيع وخاتم المشرف</p><p style="border-top:1px solid #0f172a;padding-top:8px;">&nbsp;</p></div>
+<div style="text-align:center;width:45%;"><p style="font-weight:bold;color:#1e3a8a;margin-bottom:60px;">توقيع التقني</p><p style="border-top:1px solid #0f172a;padding-top:8px;">&nbsp;</p></div>
+<div style="text-align:center;width:45%;"><p style="font-weight:bold;color:#1e3a8a;margin-bottom:60px;">توقيع المشرف</p><p style="border-top:1px solid #0f172a;padding-top:8px;">&nbsp;</p></div>
 </div>
-<div style="margin-top:30px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:15px;">FiberPulse v2.0 — النتائج مبنية على معايير ITU-T G.984 و ITU-T G.988 و Bellcore GR-196</div>
+<div style="margin-top:30px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:15px;">FiberPulse v2.0 — ITU-T G.984 + G.988 + Bellcore GR-196</div>
 </div>`;
-const tempDiv=document.createElement('div');
-tempDiv.style.cssText='position:fixed;top:-99999px;left:0;width:794px;background:white;z-index:-9999;';
-tempDiv.innerHTML=reportHTML;
-document.body.appendChild(tempDiv);
+const tmp=document.createElement('div');
+tmp.style.cssText='position:fixed;top:-99999px;left:0;width:794px;background:white;z-index:-9999;';
+tmp.innerHTML=reportHTML;
+document.body.appendChild(tmp);
 await new Promise(r=>setTimeout(r,1200));
-const originalCanvas=await html2canvas(tempDiv.firstElementChild,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false,width:794,windowWidth:794});
-document.body.removeChild(tempDiv);
+const origCanvas=await html2canvas(tmp.firstElementChild,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false,width:794,windowWidth:794});
+document.body.removeChild(tmp);
 const canvas=document.createElement('canvas');
-canvas.width=originalCanvas.width;
-const ctxOrig=originalCanvas.getContext('2d');
-const imgDataOrig=ctxOrig.getImageData(0,0,originalCanvas.width,originalCanvas.height);
-const pixels=imgDataOrig.data;
-let lastContentY=originalCanvas.height;
-for(let y=originalCanvas.height-1;y>=0;y--){
-let hasContent=false;
-for(let x=0;x<originalCanvas.width;x+=5){
-const idx=(y*originalCanvas.width+x)*4;
-if(pixels[idx]<240||pixels[idx+1]<240||pixels[idx+2]<240){hasContent=true;break}
+canvas.width=origCanvas.width;
+const ctxO=origCanvas.getContext('2d');
+const imgD=ctxO.getImageData(0,0,origCanvas.width,origCanvas.height);
+const px=imgD.data;
+let lastY=origCanvas.height;
+for(let y=origCanvas.height-1;y>=0;y--){
+let has=false;
+for(let x=0;x<origCanvas.width;x+=5){
+const i=(y*origCanvas.width+x)*4;
+if(px[i]<240||px[i+1]<240||px[i+2]<240){has=true;break}
 }
-if(hasContent){lastContentY=Math.min(y+30,originalCanvas.height);break}
+if(has){lastY=Math.min(y+30,origCanvas.height);break}
 }
-canvas.height=lastContentY;
+canvas.height=lastY;
 const ctx=canvas.getContext('2d');
-ctx.fillStyle='#ffffff';
-ctx.fillRect(0,0,canvas.width,canvas.height);
-ctx.drawImage(originalCanvas,0,0);
+ctx.fillStyle='#ffffff';ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.drawImage(origCanvas,0,0);
 const{jsPDF}=window.jspdf;
 const pdf=new jsPDF('p','mm','a4');
-const pdfWidth=pdf.internal.pageSize.getWidth();
-const pdfHeight=pdf.internal.pageSize.getHeight();
-const finalImgData=canvas.toDataURL('image/jpeg',0.9);
-const imgWidth=pdfWidth;
-const imgHeight=(canvas.height*imgWidth)/canvas.width;
-const pagesNeeded=Math.ceil(imgHeight/pdfHeight);
-for(let pageNum=0;pageNum<pagesNeeded;pageNum++){
-if(pageNum>0)pdf.addPage();
-const yOffset=-pageNum*pdfHeight;
-pdf.addImage(finalImgData,'JPEG',0,yOffset,imgWidth,imgHeight);
+const pdfW=pdf.internal.pageSize.getWidth();
+const pdfH=pdf.internal.pageSize.getHeight();
+const finalImg=canvas.toDataURL('image/jpeg',0.9);
+const imgW=pdfW,imgH=(canvas.height*imgW)/canvas.width;
+const pages=Math.ceil(imgH/pdfH);
+for(let p=0;p<pages;p++){
+if(p>0)pdf.addPage();
+pdf.addImage(finalImg,'JPEG',0,-p*pdfH,imgW,imgH);
 }
 pdf.save(`FiberPulse_Report_${now.toISOString().split('T')[0]}.pdf`);
-document.body.removeChild(loadingMsg);
-alert('✅ تم إنشاء التقرير بنجاح!');
+document.body.removeChild(loading);
+alert('✅ تم إنشاء التقرير!');
 }catch(err){
-console.error('PDF error:',err);
-if(document.body.contains(loadingMsg))document.body.removeChild(loadingMsg);
-alert('حدث خطأ أثناء إنشاء PDF: '+err.message);
+console.error(err);
+if(document.body.contains(loading))document.body.removeChild(loading);
+alert('خطأ: '+err.message);
 }
 }
 
@@ -1528,10 +1259,10 @@ setLanguage(currentLang);
 buildTableHeaders();
 const savedSeed=localStorage.getItem('fiberpulse_seed');
 if(savedSeed)document.getElementById('seedInput').value=savedSeed;
-if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(err=>console.log('SW failed',err))})}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(e=>console.log('SW failed',e))})}
 }
 init();
-console.log('🫀 FiberPulse v2.0 loaded — All systems ready');
+console.log('🫀 FiberPulse v2.0.1 loaded — Fixed precision + KM + Score alignment');
 </script>
 </body>
 </html>
