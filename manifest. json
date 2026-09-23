@@ -1,0 +1,34 @@
+{
+  "name": "FiberPulse — FTTH/GPON Predictive Engine",
+  "short_name": "FiberPulse",
+  "description": "محرك تنبؤي لأعطال شبكات FTTH/GPON — Bellcore GR-196 + ITU-T G.984.2 + CUSUM + Kaplan-Meier + GPON Alarms",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4faff",
+  "theme_color": "#00acc1",
+  "categories": ["utilities", "productivity", "business"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMwMGFjYzEiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM4ZTI0YWEiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjEwMCIgZmlsbD0iI2Y0ZmFmZiIvPjxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1NiIgcj0iMTYwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjZykiIHN0cm9rZS13aWR0aD0iMjAiLz48cGF0aCBkPSJNMTU2IDI1Nmw2MC02MCA2MCA2MCA2MC02MCA2MCA2MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjI0IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "تشغيل التحليل",
+      "short_name": "Run",
+      "url": "./index.html?action=run"
+    },
+    {
+      "name": "تقرير PDF",
+      "short_name": "PDF",
+      "url": "./index.html?action=pdf"
+    }
+  ]
+}
