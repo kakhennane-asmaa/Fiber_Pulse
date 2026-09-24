@@ -674,6 +674,11 @@ if(ev.splice_loss_dB>0.3&&!ev.isEndOfFiber){ctx.fillStyle='#0f172a';ctx.font='bo
 });
 }
 
+// 🟢 [الأسطر التي كانت مفقودة وتسببت في الخطأ - تمت إعادتها الآن بنجاح!]
+const GPON_CLASSES={'B+':{olt_tx_min:1.5,olt_tx_max:5.0,rx_min:-28,rx_max:-8,budget_dB:28},'C+':{olt_tx_min:3.0,olt_tx_max:7.0,rx_min:-32,rx_max:-12,budget_dB:32},'C++':{olt_tx_min:5.0,olt_tx_max:8.0,rx_min:-35,rx_max:-12,budget_dB:35}};
+const SPLITTER_LOSS_DB={'1:2':3.6,'1:4':7.3,'1:8':10.7,'1:16':14.0,'1:32':17.5,'1:64':21.0,'1:128':24.5};
+const FIBER_ATTEN_DB_KM={1310:0.35,1490:0.27,1550:0.20};
+
 function calculateOpticalBudget(cfg){
 const{oltClass='B+',splitterRatio='1:32',fiberLength_km,wavelength_nm=1490,numConnectors=4,numSplices=Math.ceil(fiberLength_km*4)} = cfg;
 const cls=GPON_CLASSES[oltClass];
@@ -812,6 +817,8 @@ const gC=gSubs.length-gF;
 const t50=curves[bestGroup].find(p=>p.survival<=0.5);
 document.getElementById('kmInfo').innerHTML=`المجموعة PON ${bestGroup} (الأعلى مخاطرة) — ${gF} عطل / ${gC} رقابة | ${t50?`الوسيط: ${t50.time} أشهر`:'الوسيط > 8 أشهر'}`;
 }
+
+const GPON_ALARM_SEVERITY={'LOS':{level:'critical',ar:'فقدان الإشارة',weight:100},'LOF':{level:'critical',ar:'فقدان الإطار',weight:95},'DFi':{level:'critical',ar:'فشل التسجيل',weight:90},'DyingGasp':{level:'critical',ar:'انطفاء مفاجئ',weight:85},'LOSi':{level:'major',ar:'LOS متقطع',weight:75},'LOFi':{level:'major',ar:'LOF متقطع',weight:70},'SFI':{level:'major',ar:'فشل مؤشر الإشارة',weight:65},'RDI':{level:'major',ar:'مؤشر عطل بعيد',weight:60},'SDi':{level:'minor',ar:'تدهور إشارة',weight:50},'TF':{level:'minor',ar:'فشل نقل',weight:45},'LOAi':{level:'minor',ar:'فقدان محاذاة',weight:40}};
 
 function importAlarmsCSV(csvText){
 const lines=csvText.trim().replace(/\r\n?/g,'\n').split('\n');
@@ -1080,7 +1087,6 @@ function processSubscribers(subscribers){
         document.getElementById('results').style.display='block';
         
     } catch (error) {
-        // صندوق الطوارئ: سيظهر لك بالضبط ما هو الخطأ إذا وجد!
         document.getElementById('results').style.display = 'block';
         document.getElementById('results').innerHTML = `
         <div style="background:#fee2e2; border: 3px solid #dc2626; padding: 25px; border-radius:12px; color:#991b1b; text-align:left; direction:ltr; font-family:monospace;">
@@ -1089,10 +1095,6 @@ function processSubscribers(subscribers){
             <hr style="border-color:#fca5a5; margin:15px 0;">
             <p style="font-size:14px; font-weight:bold;">Stack Trace:</p>
             <pre style="font-size:12px; white-space:pre-wrap; word-break:break-word; background:#fff; padding:10px; border-radius:6px; border:1px solid #f87171;">${error.stack}</pre>
-            <br>
-            <p dir="rtl" style="text-align:right; font-family:'Tajawal', sans-serif; font-size:16px; color:#1e3a8a; font-weight:bold;">
-                📸 يا هندسة، صوّري هذه الشاشة الحمراء فوراً وأرسليها لي هنا لأصلح المشكلة في ثانية!
-            </p>
         </div>`;
         console.error("FiberPulse Crash:", error);
     }
@@ -1280,7 +1282,7 @@ const reportHTML=`
 <div style="text-align:center;width:45%;"><p style="font-weight:bold;color:#1e3a8a;margin-bottom:60px;">توقيع التقني</p><p style="border-top:1px solid #0f172a;padding-top:8px;">&nbsp;</p></div>
 <div style="text-align:center;width:45%;"><p style="font-weight:bold;color:#1e3a8a;margin-bottom:60px;">توقيع المشرف</p><p style="border-top:1px solid #0f172a;padding-top:8px;">&nbsp;</p></div>
 </div>
-<div style="margin-top:30px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:15px;">FiberPulse v2.3 (Debug Edition) — ITU-T G.984</div>
+<div style="margin-top:30px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:15px;">FiberPulse v2.3 — ITU-T G.984 + RCA Logic</div>
 </div>`;
 const tmp=document.createElement('div');
 tmp.style.cssText='position:fixed;top:-99999px;left:0;width:794px;background:white;z-index:-9999;';
@@ -1343,7 +1345,7 @@ if(savedSeed)document.getElementById('seedInput').value=savedSeed;
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(e=>console.log('SW failed',e))})}
 }
 init();
-console.log('🫀 FiberPulse v2.3 Debug Edition loaded');
+console.log('🫀 FiberPulse v2.3 loaded and fixed');
 </script>
 </body>
 </html>
