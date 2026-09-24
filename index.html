@@ -75,6 +75,7 @@ canvas{background:transparent;display:block;max-width:100%}
 .nav-btns{display:flex;gap:5px;margin-top:8px}
 .nav-btn{background:#1e3a8a;color:white;border:none;border-radius:6px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer}
 .section-title{color:#1e3a8a;font-size:17px;font-weight:700;border-right:5px solid #00acc1;padding-right:12px;margin:20px 0 12px 0}
+.badge-group{display:inline-block;background:#8b5cf6;color:white;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold;margin-top:4px;}
 </style>
 </head>
 <body>
@@ -120,7 +121,7 @@ canvas{background:transparent;display:block;max-width:100%}
 <div class="metrics-grid" id="extendedMetrics"></div>
 <div class="section-title">Category Distribution</div>
 <div class="metrics-grid" id="categoryStats"></div>
-<div id="ponSection"><div class="section-title" data-i18n="pon_title">📍 PON Risk Distribution</div><div class="pon-summary" id="ponSummary"></div></div>
+<div id="ponSection"><div class="section-title" data-i18n="pon_title">📍 PON Risk Distribution (Topology RCA)</div><div class="pon-summary" id="ponSummary"></div></div>
 <div class="section-title" data-i18n="top5_title">Top 5 Subscribers</div>
 <div style="overflow-x:auto;"><table><thead id="top5Head"></thead><tbody id="topRiskTbody"></tbody></table></div>
 <div class="section-title">📍 GIS Map</div>
@@ -169,9 +170,9 @@ prediction_prevent_pct:0.65
 };
 
 const translations={
-ar:{subtitle:'محرك التنبؤ الوقائي لأعطال FTTH/GPON',run_sim:'▶️ تشغيل المحاكاة',load_repo:'📥 بيانات المستودع',upload_csv:'📂 تحميل CSV',compare:'🔁 اختبار 20 بذرة',export_csv:'📥 تصدير CSV',print_pdf:'📄 تقرير PDF',seed_label:'البذرة:',seed_hint:'نفس البذرة = نفس النتائج',analysis_title:'📊 نتائج التحليل',pon_title:'📍 توزيع المخاطر عبر مجموعات PON',top5_title:'أخطر 5 مشتركين',signal_chart_title:'📈 منحنيات تدهور الإشارة',roc_title:'📉 منحنى ROC',all_subs_title:'📋 جميع المشتركين',subscriber:'المشترك',group:'المجموعة',last_rx:'آخر Rx',degradation:'التدهور',predicted_month:'الشهر المتوقع',cause:'السبب المحتمل',risk_score:'مؤشر الخطورة',confidence:'الثقة',category:'التصنيف',actual_state:'الحالة الفعلية',reason:'سبب الخطورة',survival:'تحليل البقاء',stable:'مستقر',monitor:'مراقبة',danger:'خطر',critical:'حرج',will_fail:'⚠️ سيتعطل',is_stable:'✅ مستقر',source_sim:'محاكاة افتراضية (Synthetic)',source_csv:'ملف CSV خارجي',summary_text:'من بين {total} مشترك، تم تصنيف {risk} كحالات خطر/حرج. القيمة الفعلية كانت {actual} عطل حقيقي. الإنذارات الصحيحة: {tp}، الكاذبة: {fp}.',no_pon_risk:'لا توجد مجموعات معرضة للخطر',months_unit:'شهر',more_than_year:'أكثر من سنة',fault_contamination:'تلوث موصل',fault_macrobend:'انحناء حاد',fault_break:'كسر ليفي',fault_splice:'لحام رديء',fault_stable:'مستقر',undefined:'غير محدد',threshold_label:'عتبة الخطر:',navigate_google:'Google Maps',navigate_waze:'Waze',location_error:'خطأ المسافة (م)',predicted_location:'الموقع المتوقع ± عدم اليقين'},
-fr:{subtitle:'Moteur prédictif de pannes FTTH/GPON',run_sim:'▶️ Lancer la simulation',load_repo:'📥 Données du dépôt',upload_csv:'📂 Charger CSV',compare:'🔁 Tester 20 graines',export_csv:'📥 Exporter CSV',print_pdf:'📄 Rapport PDF',seed_label:'Graine :',seed_hint:'Même graine = mêmes résultats',analysis_title:'📊 Résultats',pon_title:'📍 Répartition des risques PON',top5_title:'Top 5 abonnés',signal_chart_title:'📈 Courbes de dégradation',roc_title:'📉 Courbe ROC',all_subs_title:'📋 Tous les abonnés',subscriber:'Abonné',group:'Groupe',last_rx:'Dernier Rx',degradation:'Dégradation',predicted_month:'Mois prévu',cause:'Cause probable',risk_score:'Score risque',confidence:'Confiance',category:'Catégorie',actual_state:'État réel',reason:'Raison',survival:'Survie',stable:'Stable',monitor:'Surveillance',danger:'Danger',critical:'Critique',will_fail:'⚠️ Panne prévue',is_stable:'✅ Stable',source_sim:'Simulation',source_csv:'CSV',summary_text:'Parmi {total}, {risk} à risque. Réel: {actual}. TP: {tp}, FP: {fp}.',no_pon_risk:'Aucun groupe à risque',months_unit:'mois',more_than_year:'Plus d\'un an',fault_contamination:'Contamination',fault_macrobend:'Macrocourbure',fault_break:'Rupture',fault_splice:'Épissure',fault_stable:'Stable',undefined:'Indéfini',threshold_label:'Seuil:',navigate_google:'Google Maps',navigate_waze:'Waze',location_error:'Erreur distance (m)',predicted_location:'Localisation ± incertitude'},
-en:{subtitle:'FTTH/GPON Predictive Fault Engine',run_sim:'▶️ Run Simulation',load_repo:'📥 Load Repository Data',upload_csv:'📂 Upload CSV',compare:'🔁 Test 20 Seeds',export_csv:'📥 Export CSV',print_pdf:'📄 PDF Report',seed_label:'Seed:',seed_hint:'Same seed = same results',analysis_title:'📊 Analysis Results',pon_title:'📍 PON Risk Distribution',top5_title:'Top 5 Subscribers',signal_chart_title:'📈 Signal Degradation Curves',roc_title:'📉 ROC Curve',all_subs_title:'📋 All Subscribers',subscriber:'Subscriber',group:'Group',last_rx:'Last Rx',degradation:'Degradation',predicted_month:'Predicted Month',cause:'Probable Cause',risk_score:'Risk Score',confidence:'Confidence',category:'Category',actual_state:'Actual State',reason:'Risk Reason',survival:'Survival',stable:'Stable',monitor:'Monitor',danger:'Danger',critical:'Critical',will_fail:'⚠️ Will Fail',is_stable:'✅ Stable',source_sim:'Simulation',source_csv:'CSV',summary_text:'Of {total}, {risk} at risk. Actual: {actual}. TP: {tp}, FP: {fp}.',no_pon_risk:'No groups at risk',months_unit:'months',more_than_year:'More than a year',fault_contamination:'Contamination',fault_macrobend:'Macrobend',fault_break:'Fiber Break',fault_splice:'Bad Splice',fault_stable:'Stable',undefined:'Undefined',threshold_label:'Threshold:',navigate_google:'Google Maps',navigate_waze:'Waze',location_error:'Distance Error (m)',predicted_location:'Predicted Location ± Uncertainty'}
+ar:{subtitle:'محرك التنبؤ الوقائي لأعطال FTTH/GPON',run_sim:'▶️ تشغيل المحاكاة',load_repo:'📥 بيانات المستودع',upload_csv:'📂 تحميل CSV',compare:'🔁 اختبار 20 بذرة',export_csv:'📥 تصدير CSV',print_pdf:'📄 تقرير PDF',seed_label:'البذرة:',seed_hint:'نفس البذرة = نفس النتائج',analysis_title:'📊 نتائج التحليل',pon_title:'📍 تحليل العطل الجماعي (طوبولوجيا PON)',top5_title:'أخطر 5 مشتركين',signal_chart_title:'📈 منحنيات تدهور الإشارة',roc_title:'📉 منحنى ROC',all_subs_title:'📋 جميع المشتركين',subscriber:'المشترك',group:'المجموعة',last_rx:'آخر Rx',degradation:'التدهور',predicted_month:'الشهر المتوقع',cause:'السبب المحتمل',risk_score:'مؤشر الخطورة',confidence:'الثقة',category:'التصنيف',actual_state:'الحالة الفعلية',reason:'سبب الخطورة',survival:'تحليل البقاء',stable:'مستقر',monitor:'مراقبة',danger:'خطر',critical:'حرج',will_fail:'⚠️ سيتعطل',is_stable:'✅ مستقر',source_sim:'محاكاة افتراضية (Synthetic)',source_csv:'ملف CSV خارجي',summary_text:'من بين {total} مشترك، تم تصنيف {risk} كحالات خطر/حرج. القيمة الفعلية كانت {actual} عطل حقيقي. الإنذارات الصحيحة: {tp}، الكاذبة: {fp}.',no_pon_risk:'لا توجد أعطال جماعية، الشبكة الرئيسية مستقرة',months_unit:'شهر',more_than_year:'أكثر من سنة',fault_contamination:'تلوث موصل',fault_macrobend:'انحناء حاد',fault_break:'كسر ليفي',fault_splice:'لحام رديء',fault_stable:'مستقر',fault_splitter:'عطل جماعي (Splitter)',undefined:'غير محدد',threshold_label:'عتبة الخطر:',navigate_google:'Google Maps',navigate_waze:'Waze',location_error:'خطأ المسافة (م)',predicted_location:'الموقع المتوقع ± عدم اليقين'},
+fr:{subtitle:'Moteur prédictif de pannes FTTH/GPON',run_sim:'▶️ Lancer la simulation',load_repo:'📥 Données du dépôt',upload_csv:'📂 Charger CSV',compare:'🔁 Tester 20 graines',export_csv:'📥 Exporter CSV',print_pdf:'📄 Rapport PDF',seed_label:'Graine :',seed_hint:'Même graine = mêmes résultats',analysis_title:'📊 Résultats',pon_title:'📍 Analyse des Pannes Collectives (PON)',top5_title:'Top 5 abonnés',signal_chart_title:'📈 Courbes de dégradation',roc_title:'📉 Courbe ROC',all_subs_title:'📋 Tous les abonnés',subscriber:'Abonné',group:'Groupe',last_rx:'Dernier Rx',degradation:'Dégradation',predicted_month:'Mois prévu',cause:'Cause probable',risk_score:'Score risque',confidence:'Confiance',category:'Catégorie',actual_state:'État réel',reason:'Raison',survival:'Survie',stable:'Stable',monitor:'Surveillance',danger:'Danger',critical:'Critique',will_fail:'⚠️ Panne prévue',is_stable:'✅ Stable',source_sim:'Simulation',source_csv:'CSV',summary_text:'Parmi {total}, {risk} à risque. Réel: {actual}. TP: {tp}, FP: {fp}.',no_pon_risk:'Aucune panne collective détectée',months_unit:'mois',more_than_year:'Plus d\'un an',fault_contamination:'Contamination',fault_macrobend:'Macrocourbure',fault_break:'Rupture',fault_splice:'Épissure',fault_stable:'Stable',fault_splitter:'Panne collective (Splitter)',undefined:'Indéfini',threshold_label:'Seuil:',navigate_google:'Google Maps',navigate_waze:'Waze',location_error:'Erreur distance (m)',predicted_location:'Localisation ± incertitude'},
+en:{subtitle:'FTTH/GPON Predictive Fault Engine',run_sim:'▶️ Run Simulation',load_repo:'📥 Load Repository Data',upload_csv:'📂 Upload CSV',compare:'🔁 Test 20 Seeds',export_csv:'📥 Export CSV',print_pdf:'📄 PDF Report',seed_label:'Seed:',seed_hint:'Same seed = same results',analysis_title:'📊 Analysis Results',pon_title:'📍 Collective Fault Analysis (PON Tree)',top5_title:'Top 5 Subscribers',signal_chart_title:'📈 Signal Degradation Curves',roc_title:'📉 ROC Curve',all_subs_title:'📋 All Subscribers',subscriber:'Subscriber',group:'Group',last_rx:'Last Rx',degradation:'Degradation',predicted_month:'Predicted Month',cause:'Probable Cause',risk_score:'Risk Score',confidence:'Confidence',category:'Category',actual_state:'Actual State',reason:'Risk Reason',survival:'Survival',stable:'Stable',monitor:'Monitor',danger:'Danger',critical:'Critical',will_fail:'⚠️ Will Fail',is_stable:'✅ Stable',source_sim:'Simulation',source_csv:'CSV',summary_text:'Of {total}, {risk} at risk. Actual: {actual}. TP: {tp}, FP: {fp}.',no_pon_risk:'No collective faults detected',months_unit:'months',more_than_year:'More than a year',fault_contamination:'Contamination',fault_macrobend:'Macrobend',fault_break:'Fiber Break',fault_splice:'Bad Splice',fault_stable:'Stable',fault_splitter:'Collective Fault (Splitter)',undefined:'Undefined',threshold_label:'Threshold:',navigate_google:'Google Maps',navigate_waze:'Waze',location_error:'Distance Error (m)',predicted_location:'Predicted Location ± Uncertainty'}
 };
 
 let currentLang=localStorage.getItem('fiberpulse_lang')||'ar';
@@ -205,7 +206,6 @@ while(ponGroupsWithSplitterIssue.size<numSplitterIssues)ponGroupsWithSplitterIss
 for(let i=1;i<=NUMBER_OF_SUBSCRIBERS;i++){
 const groupId=((i-1)%NUMBER_OF_PON_GROUPS)+1;
 const groupHasIssue=ponGroupsWithSplitterIssue.has(groupId);
-// التعديل الهام: تخصيص ولاية محددة لكل مجموعة PON لواقعية الخرائط الجغرافية (Topology Fix)
 const wilaya=ALGERIA_WILAYAS[groupId % ALGERIA_WILAYAS.length];
 let rx=-17-rand()*7;
 let faultType,degradationRate,suddenDrop=false;
@@ -221,12 +221,11 @@ if(rand()<0.15){faultType='CONTAMINATION';degradationRate=0.25+rand()*0.25}
 else{faultType='STABLE';degradationRate=rand()*0.15}
 }
 
-// تعديل التشتت الجغرافي: نجعل المشتركين في دائرة ضيقة حول الـ OLT (واقعية أكثر)
 const oltLat=wilaya.lat+(rand()-0.5)*0.01;
 const oltLng=wilaya.lng+(rand()-0.5)*0.01;
 const onuLat=oltLat+(rand()-0.5)*0.03;
 const onuLng=oltLng+(rand()-0.5)*0.03;
-const fiberLengthKm=1+rand()*4; // الكابلات واقعياً لا تتجاوز 5 كم في المدن
+const fiberLengthKm=1+rand()*4; 
 const helixFactor=1.02+rand()*0.06;
 const history=[];
 let current=rx;
@@ -255,16 +254,15 @@ const avgDrop=diffs.reduce((a,b)=>a+b,0)/(diffs.length||1);
 const stdDrop=Math.sqrt(diffs.reduce((a,b)=>a+(b-avgDrop)**2,0)/(diffs.length||1));
 const lastDrop=diffs.length>0?diffs[diffs.length-1]:0;
 
-// التعديل الهام: ربط نوع العطل بمسافته الفيزيائية المنطقية
 let actualFaultPositionPct;
 if (faultType === 'MACROBEND') {
-    actualFaultPositionPct = 0.98 + (rand() * 0.02); // في منزل المشترك
+    actualFaultPositionPct = 0.98 + (rand() * 0.02);
 } else if (faultType === 'CONTAMINATION') {
-    actualFaultPositionPct = 0.85 + (rand() * 0.05); // في الـ FAT في العمارة
+    actualFaultPositionPct = 0.85 + (rand() * 0.05);
 } else if (faultType === 'BREAK') {
-    actualFaultPositionPct = 0.40 + (rand() * 0.40); // في كابل التوزيع في الشارع
+    actualFaultPositionPct = 0.40 + (rand() * 0.40);
 } else if (faultType === 'SPLICE') {
-    actualFaultPositionPct = 0.50 + (rand() * 0.20); // في صندوق التلحيم (BPEO)
+    actualFaultPositionPct = 0.50 + (rand() * 0.20);
 } else {
     actualFaultPositionPct = computeFaultPositionFromHistory(lastDrop, stdDrop, avgDrop, rand);
 }
@@ -284,7 +282,6 @@ while(failureIds.size<14)failureIds.add(Math.floor(rand()*50)+1);
 for(let i=1;i<=50;i++){
 const groupId=((i-1)%10)+1;
 const isFailure=failureIds.has(i);
-// التعديل الهام: تخصيص ولاية لكل مجموعة PON لواقعية الخرائط الجغرافية 
 const wilaya=ALGERIA_WILAYAS[groupId % ALGERIA_WILAYAS.length];
 let rx=-18-rand()*7;
 const degradationRate=isFailure?0.35+rand()*0.7:rand()*0.3;
@@ -322,7 +319,6 @@ const lastDrop=diffs.length>0?diffs[diffs.length-1]:0;
 
 const faultType=isFailure?(rand()<0.4?'CONTAMINATION':rand()<0.6?'MACROBEND':'BREAK'):'STABLE';
 
-// التعديل الهام: ربط نوع العطل بمسافته الفيزيائية المنطقية
 let actualFaultPositionPct;
 if (faultType === 'MACROBEND') {
     actualFaultPositionPct = 0.98 + (rand() * 0.02);
@@ -372,25 +368,34 @@ window.dataSource='csv';
 processSubscribers(subscribers);
 }
 
+// التحديث الجديد: تشخيص الأعطال الفيزيائية بذكاء لحل لغز 482 متر
 function determineRootCause(subscriber){
-const h=subscriber.history;
-const diffs=[];
-for(let i=1;i<h.length;i++)diffs.push(h[i-1]-h[i]);
-if(diffs.length<3)return'STABLE';
-const avgDrop=subscriber.degradationRate||0;
-const lastDrop=diffs[diffs.length-1];
-const maxDrop=Math.max(...diffs);
-const minDrop=Math.min(...diffs);
-const std=Math.sqrt(diffs.reduce((a,b)=>a+(b-avgDrop)**2,0)/diffs.length);
-if(lastDrop>2.5||(lastDrop>1.5&&lastDrop>2*avgDrop))return'BREAK';
-else if(maxDrop>1.2&&std>0.4)return'MACROBEND';
-else if(std>0.3&&minDrop<0.05)return'SPLICE';
-else if(avgDrop>0.15&&std<=0.3)return'CONTAMINATION';
-return'STABLE';
+    const h = subscriber.history;
+    const diffs = [];
+    for (let i = 1; i < h.length; i++) diffs.push(h[i-1] - h[i]);
+    if (diffs.length < 3) return 'STABLE';
+
+    const maxDrop = Math.max(...diffs);
+    const lastDrop = diffs[diffs.length-1];
+    const avgDrop = diffs.reduce((a,b)=>a+b,0) / diffs.length;
+
+    // 1. الكسر: نزول فادح جداً
+    if (maxDrop > 1.8 || lastDrop > 1.8) return 'BREAK';
+    // 2. الانحناء الحاد: قفزة مفاجئة متوسطة
+    if (maxDrop > 1.0) return 'MACROBEND';
+    
+    // 3. اللحام: تذبذبات متقطعة
+    let stableMonths = diffs.filter(d => d < 0.1).length;
+    if (stableMonths > 2 && maxDrop > 0.3) return 'SPLICE';
+    
+    // 4. التلوث: تدهور تدريجي بطيء
+    if (avgDrop > 0.15) return 'CONTAMINATION';
+    
+    return 'STABLE';
 }
 
 function translateFaultType(faultType){
-const mapping={'CONTAMINATION':'fault_contamination','MACROBEND':'fault_macrobend','BREAK':'fault_break','SPLICE':'fault_splice','STABLE':'fault_stable','غير محدد':'undefined'};
+const mapping={'CONTAMINATION':'fault_contamination','MACROBEND':'fault_macrobend','BREAK':'fault_break','SPLICE':'fault_splice','STABLE':'fault_stable','SPLITTER':'fault_splitter','غير محدد':'undefined'};
 return t(mapping[faultType]||'undefined');
 }
 
@@ -400,39 +405,33 @@ function detectTemporalAnomaly(history){const l=history.slice(-3);if(l.length<3)
 function confidenceScore(slope,anomaly,history){let c=0;const a=Math.abs(slope);if(a>0.5)c+=60;else if(a>0.3)c+=40;else if(a>0.15)c+=20;if(anomaly)c+=20;const d=Math.abs(CRITICAL_THRESHOLD-history[history.length-1]);if(d<1)c+=20;else if(d<2)c+=10;return Math.min(95,c)}
 function survivalProbability(rx){return 1/(1+Math.exp(-(rx-CRITICAL_THRESHOLD)/1.5))}
 
-// التحديث الكبير (المرحلة 1): خوارزمية ذكية لا تتجاهل السقوط المفاجئ + تحديد المسافة الفيزيائي
 function predictFailure(subscriber) {
     const history = subscriber.history;
     const lastRx = history[history.length - 1];
     const marginToCritical = lastRx - CRITICAL_THRESHOLD;
     
-    // 1. حساب الميل العادي (التدهور التدريجي)
     const smoothed = smoothSeries(history, 3);
     const { slope: longTermSlope, intercept } = linearRegression(smoothed);
     
-    // 2. حساب الميل القصير المدى (لحل مشكلة الـ False Negatives)
     const recentHistory = history.slice(-3);
     const recentDrop = recentHistory.length >= 3 ? (recentHistory[0] - recentHistory[2]) : 0; 
-    const isSuddenDrop = recentDrop > 1.5; // إذا سقطت الإشارة بأكثر من 1.5 ديسيبل مؤخراً
+    const isSuddenDrop = recentDrop > 1.5; 
 
-    // نأخذ الأسوأ بين التدهور البطيء والسقوط المفاجئ
     const effectiveSlope = isSuddenDrop ? -(recentDrop / 2) : longTermSlope;
     const effectiveDrop = Math.max((smoothed[0] - smoothed[smoothed.length - 1]) / (smoothed.length - 1), -effectiveSlope);
 
-    // حساب متى سينهار الخط
     let monthsToCritical = Infinity;
     if (effectiveSlope < 0) {
         monthsToCritical = (CRITICAL_THRESHOLD - lastRx) / effectiveSlope;
         if (monthsToCritical < 0) monthsToCritical = 0;
     }
 
-    // تقييم المخاطرة
     const warning = marginToCritical <= 0 || effectiveDrop > 0.3 || isSuddenDrop || (monthsToCritical <= 12 && monthsToCritical >= 0);
     
     let riskScore = 0;
     riskScore += Math.min(50, effectiveDrop * 80);
     riskScore += Math.min(30, Math.max(0, (10 + marginToCritical)) * 3);
-    if (isSuddenDrop) riskScore += 40; // عقوبة شديدة للسقوط المفاجئ
+    if (isSuddenDrop) riskScore += 40; 
     if (monthsToCritical <= 6 && monthsToCritical >= 0) riskScore += 20;
     riskScore = Math.min(100, riskScore);
 
@@ -445,21 +444,19 @@ function predictFailure(subscriber) {
         survivalProbabilities.push(survivalProbability(predictedRx).toFixed(2));
     }
 
-    // 3. ذكاء تحديد مسافة العطل (Heuristic Localization)
     let predictedFaultPct;
-    const actualFaultType = subscriber.faultType; 
-    
-    // نستخدم شبه-عشوائية ثابتة (Pseudo-random) تعتمد على ID المشترك لضمان البذرة
+    // نعتمد هنا على التشخيص الخوارزمي بدلاً من بيانات التوليد للحصول على اختبار حقيقي 100%
+    const diagFaultType = subscriber.diagnosedFaultType; 
     const pseudoRand = (subscriber.id % 100) / 100;
 
-    if (actualFaultType === 'MACROBEND') {
-        predictedFaultPct = 0.98 + (pseudoRand * 0.02); // الانحناء في منزل المشترك
-    } else if (actualFaultType === 'CONTAMINATION') {
-        predictedFaultPct = 0.85 + (pseudoRand * 0.05); // التلوث في العمارة FAT
-    } else if (actualFaultType === 'BREAK') {
-        predictedFaultPct = 0.40 + (pseudoRand * 0.40); // كابلات التوزيع
-    } else if (actualFaultType === 'SPLICE') {
-        predictedFaultPct = 0.50 + (pseudoRand * 0.20); // صناديق التلحيم
+    if (diagFaultType === 'MACROBEND') {
+        predictedFaultPct = 0.98 + (pseudoRand * 0.02); 
+    } else if (diagFaultType === 'CONTAMINATION') {
+        predictedFaultPct = 0.85 + (pseudoRand * 0.05); 
+    } else if (diagFaultType === 'BREAK') {
+        predictedFaultPct = 0.40 + (pseudoRand * 0.40); 
+    } else if (diagFaultType === 'SPLICE') {
+        predictedFaultPct = 0.50 + (pseudoRand * 0.20); 
     } else {
         predictedFaultPct = 0.85; 
     }
@@ -470,13 +467,13 @@ function predictFailure(subscriber) {
     const actualFiberKm = subscriber.actualFaultPositionPct * subscriber.fiberLengthKm;
     const errorMeters = Math.abs(predictedFiberKm - actualFiberKm) * 1000;
     
-    const uncertaintyMeters = actualFaultType === 'MACROBEND' ? 10 : (0.05 * subscriber.fiberLengthKm * 1000);
+    const uncertaintyMeters = diagFaultType === 'MACROBEND' ? 10 : (0.05 * subscriber.fiberLengthKm * 1000);
 
     return { 
         slope: effectiveSlope, predictedMonths: monthsToCritical, riskScore, 
         warning, anomaly, confidence, survivalProbabilities, predictedFaultPct, 
         predictedFiberKm, predictedCableKm, errorMeters, uncertaintyMeters, 
-        marginToCritical, avgDrop: effectiveDrop 
+        marginToCritical, avgDrop: effectiveDrop, diagFaultType
     };
 }
 
@@ -558,7 +555,6 @@ function renderGISMap(subscribers,topIndices){
 const container=document.getElementById('gisMap');
 if(!container||typeof L==='undefined')return;
 if(gisMapInstance)gisMapInstance.remove();
-// المركز الأولي للخريطة يعتمد على أول مشترك في القائمة لتبدو منطقية
 const centerLat=subscribers.length>0?subscribers[0].oltCoords[0]:33.6831;
 const centerLng=subscribers.length>0?subscribers[0].oltCoords[1]:1.0193;
 gisMapInstance=L.map(container).setView([centerLat,centerLng],12);
@@ -591,6 +587,7 @@ ctx.fillText('Sub '+sub.id,x,lineY+20);
 });
 }
 
+// ... OTDR functions ...
 function parseSORFile(arrayBuffer){
 const view=new DataView(arrayBuffer),decoder=new TextDecoder('ascii');
 const sig=String.fromCharCode(view.getUint8(0),view.getUint8(1),view.getUint8(2));
@@ -683,10 +680,6 @@ ctx.fillStyle=colors[ev.type]||'#666';ctx.beginPath();ctx.arc(x,y,ev.splice_loss
 if(ev.splice_loss_dB>0.3&&!ev.isEndOfFiber){ctx.fillStyle='#0f172a';ctx.font='bold 9px Tajawal';ctx.textAlign='center';ctx.fillText(ev.splice_loss_dB.toFixed(1)+'dB',x,y-12)}
 });
 }
-
-const GPON_CLASSES={'B+':{olt_tx_min:1.5,olt_tx_max:5.0,rx_min:-28,rx_max:-8,budget_dB:28},'C+':{olt_tx_min:3.0,olt_tx_max:7.0,rx_min:-32,rx_max:-12,budget_dB:32},'C++':{olt_tx_min:5.0,olt_tx_max:8.0,rx_min:-35,rx_max:-12,budget_dB:35}};
-const SPLITTER_LOSS_DB={'1:2':3.6,'1:4':7.3,'1:8':10.7,'1:16':14.0,'1:32':17.5,'1:64':21.0,'1:128':24.5};
-const FIBER_ATTEN_DB_KM={1310:0.35,1490:0.27,1550:0.20};
 
 function calculateOpticalBudget(cfg){
 const{oltClass='B+',splitterRatio='1:32',fiberLength_km,wavelength_nm=1490,numConnectors=4,numSplices=Math.ceil(fiberLength_km*4)} = cfg;
@@ -827,8 +820,7 @@ const t50=curves[bestGroup].find(p=>p.survival<=0.5);
 document.getElementById('kmInfo').innerHTML=`المجموعة PON ${bestGroup} (الأعلى مخاطرة) — ${gF} عطل / ${gC} رقابة | ${t50?`الوسيط: ${t50.time} أشهر`:'الوسيط > 8 أشهر'}`;
 }
 
-const GPON_ALARM_SEVERITY={'LOS':{level:'critical',ar:'فقدان الإشارة',weight:100},'LOF':{level:'critical',ar:'فقدان الإطار',weight:95},'DFi':{level:'critical',ar:'فشل التسجيل',weight:90},'DyingGasp':{level:'critical',ar:'انطفاء مفاجئ',weight:85},'LOSi':{level:'major',ar:'LOS متقطع',weight:75},'LOFi':{level:'major',ar:'LOF متقطع',weight:70},'SFI':{level:'major',ar:'فشل مؤشر الإشارة',weight:65},'RDI':{level:'major',ar:'مؤشر عطل بعيد',weight:60},'SDi':{level:'minor',ar:'تدهور إشارة',weight:50},'TF':{level:'minor',ar:'فشل نقل',weight:45},'LOAi':{level:'minor',ar:'فقدان محاذاة',weight:40}};
-
+// ... Alarms functions ...
 function importAlarmsCSV(csvText){
 const lines=csvText.trim().replace(/\r\n?/g,'\n').split('\n');
 const headers=lines[0].split(',').map(h=>h.trim().toLowerCase());
@@ -980,12 +972,12 @@ if(!window.lastResults){alert('شغّل التحليل أولاً');return}
 const{subscribers,predictions,categories}=window.lastResults;
 const exp={
 generated_at:new Date().toISOString(),
-tool:'FiberPulse v2.1 (Enterprise)',
+tool:'FiberPulse v2.2 (Enterprise)',
 region:'Algeria',
 total_subscribers:subscribers.length,
 alerts:subscribers.map((sub,i)=>{
 const pred=predictions[i],cat=categories[i];
-return{ont_id:sub.id,pon_group:sub.groupId,wilaya:sub.wilaya||'',category:cat,risk_score:pred.riskScore,confidence:pred.confidence,last_rx_dBm:+sub.history[sub.history.length-1].toFixed(2),degradation_rate:sub.degradationRate,predicted_months:isFinite(pred.predictedMonths)?+pred.predictedMonths.toFixed(1):null,predicted_fault_m:Math.round(pred.predictedFiberKm*1000),uncertainty_m:Math.round(pred.uncertaintyMeters),physical_cause:pred.physicalCause||'STABLE'};
+return{ont_id:sub.id,pon_group:sub.groupId,wilaya:sub.wilaya||'',category:cat,risk_score:pred.riskScore,confidence:pred.confidence,last_rx_dBm:+sub.history[sub.history.length-1].toFixed(2),degradation_rate:sub.degradationRate,predicted_months:isFinite(pred.predictedMonths)?+pred.predictedMonths.toFixed(1):null,predicted_fault_m:Math.round(pred.predictedFiberKm*1000),uncertainty_m:Math.round(pred.uncertaintyMeters),physical_cause:pred.diagFaultType||'STABLE'};
 }).filter(a=>a.category==='حرج'||a.category==='خطر')
 };
 const blob=new Blob([JSON.stringify(exp,null,2)],{type:'application/json'});
@@ -996,10 +988,34 @@ link.click();
 }
 
 function processSubscribers(subscribers){
-if(window.dataSource!=='csv')subscribers.forEach(sub=>{sub.faultType=determineRootCause(sub)});
-const predictions=subscribers.map(sub=>predictFailureV2(sub));
-const categories=predictions.map(p=>classifyRisk(p));
-predictions.forEach((p,i)=>{p.riskScore=alignScoreWithCategory(categories[i],p.riskScore)});
+// 1. التشخيص الذكي لكل المشتركين لبناء التوقع (الآن نعتمد عليه كلياً)
+subscribers.forEach(sub=>{ sub.diagnosedFaultType = determineRootCause(sub); });
+
+const predictions = subscribers.map(sub => predictFailureV2(sub));
+const categories = predictions.map(p => classifyRisk(p));
+predictions.forEach((p, i) => { p.riskScore = alignScoreWithCategory(categories[i], p.riskScore) });
+
+// 2. التحديث العظيم: ذكاء الشجرة البصرية (PON Tree RCA)
+// نبحث عن المجموعات التي تحتوي على 3 أخطار فما فوق
+const groupRiskCounts = {};
+subscribers.forEach((sub, i) => {
+    if (!groupRiskCounts[sub.groupId]) groupRiskCounts[sub.groupId] = 0;
+    if (isPositiveRisk(categories[i])) groupRiskCounts[sub.groupId]++;
+});
+
+predictions.forEach((pred, i) => {
+    const sub = subscribers[i];
+    if (isPositiveRisk(categories[i]) && groupRiskCounts[sub.groupId] >= 3) {
+        pred.reasoning = (pred.reasoning ? pred.reasoning + ' | ' : '') + '⚠️ عطل جماعي (Splitter)';
+        pred.diagFaultType = 'SPLITTER'; // نغير التشخيص لعطل جماعي
+        pred.predictedFaultPct = 0.85; // المسافة تكون عند صندوق التوزيع المشترك
+        pred.predictedFiberKm = pred.predictedFaultPct * sub.fiberLengthKm;
+        pred.predictedCableKm = pred.predictedFiberKm / sub.helixFactor;
+        pred.errorMeters = Math.abs(pred.predictedFiberKm - (sub.actualFaultPositionPct * sub.fiberLengthKm)) * 1000;
+        pred.uncertaintyMeters = 15;
+    }
+});
+
 const metrics=computeMetrics(subscribers,predictions,categories);
 const roc=computeROC(subscribers,predictions);
 const loc=computeLocationMetrics(subscribers,predictions,categories);
@@ -1008,6 +1024,7 @@ const source=window.dataSource==='csv'?t('source_csv'):t('source_sim');
 document.getElementById('dataSourceBadge').innerHTML=`<span style="display:inline-block;padding:6px 16px;border-radius:20px;font-weight:700;font-size:13px;background:${window.dataSource==='csv'?'#fef3c7':'#dbeafe'};color:${window.dataSource==='csv'?'#92400e':'#1e40af'};border:1px solid ${window.dataSource==='csv'?'#fbbf24':'#3b82f6'}">${source}</span>`;
 renderROISection(metrics,subscribers);
 renderSLASection(metrics,subscribers);
+
 document.getElementById('metricsBox').innerHTML=`
 <div class="metric-card"><div class="value">${subscribers.length}</div><div class="label">${t('subscriber')}</div></div>
 <div class="metric-card"><div class="value">${metrics.tp+metrics.fn}</div><div class="label">${t('actual_state')}</div></div>
@@ -1036,20 +1053,21 @@ document.getElementById('categoryStats').innerHTML=`
 <div class="metric-card"><div class="value">${catCounts['مراقبة']}</div><div class="label">${t('monitor')}</div></div>
 <div class="metric-card"><div class="value">${catCounts['خطر']}</div><div class="label">${t('danger')}</div></div>
 <div class="metric-card"><div class="value">${catCounts['حرج']}</div><div class="label">${t('critical')}</div></div>`;
-if(window.dataSource!=='csv'){
+
 document.getElementById('ponSection').style.display='block';
 let gs='';
+let collectiveFaultsFound = false;
 for(let g=1;g<=NUMBER_OF_PON_GROUPS;g++){
-let cnt=0;
-for(let idx=0;idx<subscribers.length;idx++){
-if(subscribers[idx].groupId===g&&isPositiveRisk(categories[idx]))cnt++;
+    if(groupRiskCounts[g] >= 3){
+        collectiveFaultsFound = true;
+        gs+=`<div style="background:#fef2f2;border-right:4px solid #dc2626;padding:10px;margin-bottom:8px;border-radius:6px;">
+        <b>🚨 المجموعة (PON Group ${g})</b>: تم اكتشاف ${groupRiskCounts[g]} مشتركين متضررين معاً. <br>
+        <span style="color:#b91c1c;font-size:13px;font-weight:bold;">السبب المحتمل: عطل في Splitter أو كابل التوزيع المشترك. يجب إرسال الفرقة إلى الكابينة!</span>
+        </div>`;
+    }
 }
-if(cnt>0)gs+=`Group ${g}: ${cnt} ${t('danger')}<br>`;
-}
-document.getElementById('ponSummary').innerHTML=gs||t('no_pon_risk');
-}else{
-document.getElementById('ponSection').style.display='none';
-}
+document.getElementById('ponSummary').innerHTML= collectiveFaultsFound ? gs : `<div style="color:#16a34a;padding:10px;background:#f0fdf4;border-radius:8px;">✅ ${t('no_pon_risk')}</div>`;
+
 const sorted=subscribers.map((_,i)=>i).sort((a,b)=>predictions[b].riskScore-predictions[a].riskScore);
 const top5=sorted.slice(0,5);
 const topTbody=document.getElementById('topRiskTbody');
@@ -1059,8 +1077,10 @@ const sub=subscribers[i],pred=predictions[i],cat=categories[i];
 const pt=!isFinite(pred.predictedMonths)||pred.predictedMonths>12?t('more_than_year'):pred.predictedMonths.toFixed(1)+' '+t('months_unit');
 const st=sub.actualFailure?t('will_fail'):t('is_stable');
 const rc=sub.actualFailure?'alert':(cat==='حرج'?'critical':cat==='خطر'?'warn':cat==='مراقبة'?'monitor':'safe');
-topTbody.innerHTML+=`<tr id="toprow-${sub.id}"><td>${sub.id}</td><td>${sub.groupId}</td><td>${sub.history[sub.history.length-1].toFixed(2)}</td><td>${sub.degradationRate.toFixed(3)}</td><td>${pt}</td><td>${translateFaultType(sub.faultType)}</td><td>${pred.riskScore.toFixed(1)}</td><td>${pred.confidence}%</td><td>${translateCategory(cat)}</td><td class="${rc}">${st}</td></tr>`;
+const tag = pred.diagFaultType === 'SPLITTER' ? `<br><span class="badge-group">عطل جماعي</span>` : '';
+topTbody.innerHTML+=`<tr id="toprow-${sub.id}"><td>${sub.id}</td><td>${sub.groupId}</td><td>${sub.history[sub.history.length-1].toFixed(2)}</td><td>${sub.degradationRate.toFixed(3)}</td><td>${pt}</td><td>${translateFaultType(pred.diagFaultType)}${tag}</td><td>${pred.riskScore.toFixed(1)}</td><td>${pred.confidence}%</td><td>${translateCategory(cat)}</td><td class="${rc}">${st}</td></tr>`;
 });
+
 const allTbody=document.getElementById('allSubscribersTbody');
 allTbody.innerHTML='';
 sorted.forEach(i=>{
@@ -1072,13 +1092,14 @@ let reason='';
 if(isPositiveRisk(cat)){
 reason=`Deg ${Math.abs(pred.slope).toFixed(3)} dB/m`;
 if(pred.anomaly)reason+=' (Anomaly)';
-if(sub.faultType!=='غير محدد'&&sub.faultType!=='STABLE')reason+=` (${translateFaultType(sub.faultType)})`;
+if(pred.diagFaultType!=='غير محدد'&&pred.diagFaultType!=='STABLE')reason+=` (${translateFaultType(pred.diagFaultType)})`;
 if(pred.reasoning)reason+=` — ${pred.reasoning}`;
 }else if(cat==='مراقبة')reason=t('monitor');
 else reason=t('stable');
 const surv=pred.survivalProbabilities.map((p,idx)=>`M${idx+1}: ${p}`).join(' | ');
 const locT=`${pred.predictedFiberKm.toFixed(2)} ± ${pred.uncertaintyMeters.toFixed(0)}م`;
-allTbody.innerHTML+=`<tr id="row-${sub.id}"><td>${sub.id}</td><td>${sub.groupId}</td><td>${sub.history[sub.history.length-1].toFixed(2)}</td><td>${sub.degradationRate.toFixed(3)}</td><td>${translateFaultType(sub.faultType)}</td><td>${pred.riskScore.toFixed(1)}</td><td>${pred.confidence}%</td><td>${translateCategory(cat)}</td><td class="${rc}">${st}</td><td>${reason}</td><td class="survival-box">${surv}</td><td>${pred.errorMeters.toFixed(1)}</td><td>${locT}</td></tr>`;
+const tag = pred.diagFaultType === 'SPLITTER' ? `<br><span class="badge-group">عطل جماعي</span>` : '';
+allTbody.innerHTML+=`<tr id="row-${sub.id}"><td>${sub.id}</td><td>${sub.groupId}</td><td>${sub.history[sub.history.length-1].toFixed(2)}</td><td>${sub.degradationRate.toFixed(3)}</td><td>${translateFaultType(pred.diagFaultType)}${tag}</td><td>${pred.riskScore.toFixed(1)}</td><td>${pred.confidence}%</td><td>${translateCategory(cat)}</td><td class="${rc}">${st}</td><td>${reason}</td><td class="survival-box">${surv}</td><td>${pred.errorMeters.toFixed(1)}</td><td>${locT}</td></tr>`;
 });
 drawSignalChartManual(subscribers,top5);
 drawROCChartManual(roc.points,roc.auc);
@@ -1180,7 +1201,7 @@ subscribers.forEach((sub,i)=>{
 const pred=predictions[i],cat=categories[i];
 const actual=sub.actualFailure?'failure':'ok';
 const surv=pred.survivalProbabilities.join('|');
-csv+=`${sub.id},${sub.groupId},${sub.wilaya||''},${sub.history[sub.history.length-1].toFixed(2)},${sub.degradationRate.toFixed(3)},${sub.faultType},${pred.riskScore.toFixed(1)},${pred.confidence}%,${cat},${actual},${surv},${pred.predictedFiberKm.toFixed(2)},${pred.predictedCableKm.toFixed(2)},${pred.errorMeters.toFixed(1)},${pred.uncertaintyMeters.toFixed(1)},${pred.physicalCause||''},"${(pred.reasoning||'').replace(/"/g,'')}"\n`;
+csv+=`${sub.id},${sub.groupId},${sub.wilaya||''},${sub.history[sub.history.length-1].toFixed(2)},${sub.degradationRate.toFixed(3)},${pred.diagFaultType},${pred.riskScore.toFixed(1)},${pred.confidence}%,${cat},${actual},${surv},${pred.predictedFiberKm.toFixed(2)},${pred.predictedCableKm.toFixed(2)},${pred.errorMeters.toFixed(1)},${pred.uncertaintyMeters.toFixed(1)},${pred.physicalCause||''},"${(pred.reasoning||'').replace(/"/g,'')}"\n`;
 });
 const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
 const link=document.createElement('a');
@@ -1213,7 +1234,7 @@ top5Rows+=`<tr style="background:${bg};"><td style="padding:8px;border:1px solid
 let recs='';
 top5.forEach(idx=>{
 const sub=subscribers[idx],pred=predictions[idx];
-recs+=`<div style="margin-bottom:10px;padding:10px;background:white;border-right:4px solid #d81b60;border-radius:4px;"><strong style="color:#1e3a8a;">مشترك ${sub.id} — ${sub.wilaya||''}:</strong> فحص قرب <b>${pred.predictedFiberKm.toFixed(2)} كم</b> (${translateFaultType(sub.faultType)}) — خلال ${isFinite(pred.predictedMonths)&&pred.predictedMonths<=12?pred.predictedMonths.toFixed(1)+' شهر':'أكثر من سنة'}</div>`;
+recs+=`<div style="margin-bottom:10px;padding:10px;background:white;border-right:4px solid #d81b60;border-radius:4px;"><strong style="color:#1e3a8a;">مشترك ${sub.id} — ${sub.wilaya||''}:</strong> فحص قرب <b>${pred.predictedFiberKm.toFixed(2)} كم</b> (${translateFaultType(pred.diagFaultType)}) — خلال ${isFinite(pred.predictedMonths)&&pred.predictedMonths<=12?pred.predictedMonths.toFixed(1)+' شهر':'أكثر من سنة'}</div>`;
 });
 const preventedFaults=Math.round(metrics.tp*COST_CONFIG.prediction_prevent_pct);
 const totalSavings=preventedFaults*(COST_CONFIG.truck_roll_dzd+COST_CONFIG.sla_penalty_dzd+COST_CONFIG.customer_churn_dzd*0.15);
@@ -1270,7 +1291,7 @@ const reportHTML=`
 <div style="text-align:center;width:45%;"><p style="font-weight:bold;color:#1e3a8a;margin-bottom:60px;">توقيع التقني</p><p style="border-top:1px solid #0f172a;padding-top:8px;">&nbsp;</p></div>
 <div style="text-align:center;width:45%;"><p style="font-weight:bold;color:#1e3a8a;margin-bottom:60px;">توقيع المشرف</p><p style="border-top:1px solid #0f172a;padding-top:8px;">&nbsp;</p></div>
 </div>
-<div style="margin-top:30px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:15px;">FiberPulse v2.1 (Enterprise) — ITU-T G.984 + G.988</div>
+<div style="margin-top:30px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:15px;">FiberPulse v2.2 (Ultimate Enterprise) — ITU-T G.984 + RCA Logic</div>
 </div>`;
 const tmp=document.createElement('div');
 tmp.style.cssText='position:fixed;top:-99999px;left:0;width:794px;background:white;z-index:-9999;';
@@ -1333,7 +1354,7 @@ if(savedSeed)document.getElementById('seedInput').value=savedSeed;
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(e=>console.log('SW failed',e))})}
 }
 init();
-console.log('🫀 FiberPulse v2.1.0 Enterprise loaded — Zero False Negatives + Heuristic Localization');
+console.log('🫀 FiberPulse v2.2.0 Ultimate loaded — PON Tree RCA + Accurate Diagnostic Localization');
 </script>
 </body>
 </html>
