@@ -108,7 +108,7 @@ canvas{background:transparent;display:block;max-width:100%}
 </div>
 </div>
 
-<div id="results" class="card">
+<div id="results" class="card" style="display:none;">
 <h2 data-i18n="analysis_title">📊 Analysis Results</h2>
 <div id="dataSourceBadge" style="text-align:center;margin-bottom:12px;"></div>
 <div id="roiSection"></div>
@@ -368,7 +368,6 @@ window.dataSource='csv';
 processSubscribers(subscribers);
 }
 
-// التحديث الجديد: تشخيص الأعطال الفيزيائية بذكاء لحل لغز 482 متر
 function determineRootCause(subscriber){
     const h = subscriber.history;
     const diffs = [];
@@ -379,16 +378,12 @@ function determineRootCause(subscriber){
     const lastDrop = diffs[diffs.length-1];
     const avgDrop = diffs.reduce((a,b)=>a+b,0) / diffs.length;
 
-    // 1. الكسر: نزول فادح جداً
     if (maxDrop > 1.8 || lastDrop > 1.8) return 'BREAK';
-    // 2. الانحناء الحاد: قفزة مفاجئة متوسطة
     if (maxDrop > 1.0) return 'MACROBEND';
     
-    // 3. اللحام: تذبذبات متقطعة
     let stableMonths = diffs.filter(d => d < 0.1).length;
     if (stableMonths > 2 && maxDrop > 0.3) return 'SPLICE';
     
-    // 4. التلوث: تدهور تدريجي بطيء
     if (avgDrop > 0.15) return 'CONTAMINATION';
     
     return 'STABLE';
@@ -445,8 +440,7 @@ function predictFailure(subscriber) {
     }
 
     let predictedFaultPct;
-    // نعتمد هنا على التشخيص الخوارزمي بدلاً من بيانات التوليد للحصول على اختبار حقيقي 100%
-    const diagFaultType = subscriber.diagnosedFaultType; 
+    const diagFaultType = subscriber.diagnosedFaultType || 'STABLE'; 
     const pseudoRand = (subscriber.id % 100) / 100;
 
     if (diagFaultType === 'MACROBEND') {
@@ -587,7 +581,6 @@ ctx.fillText('Sub '+sub.id,x,lineY+20);
 });
 }
 
-// ... OTDR functions ...
 function parseSORFile(arrayBuffer){
 const view=new DataView(arrayBuffer),decoder=new TextDecoder('ascii');
 const sig=String.fromCharCode(view.getUint8(0),view.getUint8(1),view.getUint8(2));
@@ -820,7 +813,6 @@ const t50=curves[bestGroup].find(p=>p.survival<=0.5);
 document.getElementById('kmInfo').innerHTML=`المجموعة PON ${bestGroup} (الأعلى مخاطرة) — ${gF} عطل / ${gC} رقابة | ${t50?`الوسيط: ${t50.time} أشهر`:'الوسيط > 8 أشهر'}`;
 }
 
-// ... Alarms functions ...
 function importAlarmsCSV(csvText){
 const lines=csvText.trim().replace(/\r\n?/g,'\n').split('\n');
 const headers=lines[0].split(',').map(h=>h.trim().toLowerCase());
@@ -907,7 +899,6 @@ tr.style.display=(!q||id.includes(q)||gr.includes(q))?'':'none';
 }
 
 function renderROISection(metrics,subscribers){
-const predictedAtRisk=metrics.tp+metrics.fp;
 const preventedFaults=Math.round(metrics.tp*COST_CONFIG.prediction_prevent_pct);
 const savedTruckRolls=preventedFaults*COST_CONFIG.truck_roll_dzd;
 const savedChurn=preventedFaults*COST_CONFIG.customer_churn_dzd*0.15;
@@ -967,146 +958,144 @@ document.getElementById('slaSection').innerHTML=`
 </div>`;
 }
 
-function exportNMSJson(){
-if(!window.lastResults){alert('شغّل التحليل أولاً');return}
-const{subscribers,predictions,categories}=window.lastResults;
-const exp={
-generated_at:new Date().toISOString(),
-tool:'FiberPulse v2.2 (Enterprise)',
-region:'Algeria',
-total_subscribers:subscribers.length,
-alerts:subscribers.map((sub,i)=>{
-const pred=predictions[i],cat=categories[i];
-return{ont_id:sub.id,pon_group:sub.groupId,wilaya:sub.wilaya||'',category:cat,risk_score:pred.riskScore,confidence:pred.confidence,last_rx_dBm:+sub.history[sub.history.length-1].toFixed(2),degradation_rate:sub.degradationRate,predicted_months:isFinite(pred.predictedMonths)?+pred.predictedMonths.toFixed(1):null,predicted_fault_m:Math.round(pred.predictedFiberKm*1000),uncertainty_m:Math.round(pred.uncertaintyMeters),physical_cause:pred.diagFaultType||'STABLE'};
-}).filter(a=>a.category==='حرج'||a.category==='خطر')
-};
-const blob=new Blob([JSON.stringify(exp,null,2)],{type:'application/json'});
-const link=document.createElement('a');
-link.href=URL.createObjectURL(blob);
-link.download=`FiberPulse_NMS_${new Date().toISOString().split('T')[0]}.json`;
-link.click();
-}
-
 function processSubscribers(subscribers){
-// 1. التشخيص الذكي لكل المشتركين لبناء التوقع (الآن نعتمد عليه كلياً)
-subscribers.forEach(sub=>{ sub.diagnosedFaultType = determineRootCause(sub); });
+    try {
+        subscribers.forEach(sub=>{ sub.diagnosedFaultType = determineRootCause(sub); });
 
-const predictions = subscribers.map(sub => predictFailureV2(sub));
-const categories = predictions.map(p => classifyRisk(p));
-predictions.forEach((p, i) => { p.riskScore = alignScoreWithCategory(categories[i], p.riskScore) });
+        const predictions = subscribers.map(sub => predictFailureV2(sub));
+        const categories = predictions.map(p => classifyRisk(p));
+        predictions.forEach((p, i) => { p.riskScore = alignScoreWithCategory(categories[i], p.riskScore) });
 
-// 2. التحديث العظيم: ذكاء الشجرة البصرية (PON Tree RCA)
-// نبحث عن المجموعات التي تحتوي على 3 أخطار فما فوق
-const groupRiskCounts = {};
-subscribers.forEach((sub, i) => {
-    if (!groupRiskCounts[sub.groupId]) groupRiskCounts[sub.groupId] = 0;
-    if (isPositiveRisk(categories[i])) groupRiskCounts[sub.groupId]++;
-});
+        const groupRiskCounts = {};
+        subscribers.forEach((sub, i) => {
+            if (!groupRiskCounts[sub.groupId]) groupRiskCounts[sub.groupId] = 0;
+            if (isPositiveRisk(categories[i])) groupRiskCounts[sub.groupId]++;
+        });
 
-predictions.forEach((pred, i) => {
-    const sub = subscribers[i];
-    if (isPositiveRisk(categories[i]) && groupRiskCounts[sub.groupId] >= 3) {
-        pred.reasoning = (pred.reasoning ? pred.reasoning + ' | ' : '') + '⚠️ عطل جماعي (Splitter)';
-        pred.diagFaultType = 'SPLITTER'; // نغير التشخيص لعطل جماعي
-        pred.predictedFaultPct = 0.85; // المسافة تكون عند صندوق التوزيع المشترك
-        pred.predictedFiberKm = pred.predictedFaultPct * sub.fiberLengthKm;
-        pred.predictedCableKm = pred.predictedFiberKm / sub.helixFactor;
-        pred.errorMeters = Math.abs(pred.predictedFiberKm - (sub.actualFaultPositionPct * sub.fiberLengthKm)) * 1000;
-        pred.uncertaintyMeters = 15;
-    }
-});
+        predictions.forEach((pred, i) => {
+            const sub = subscribers[i];
+            if (isPositiveRisk(categories[i]) && groupRiskCounts[sub.groupId] >= 3) {
+                pred.reasoning = (pred.reasoning ? pred.reasoning + ' | ' : '') + '⚠️ عطل جماعي (Splitter)';
+                pred.diagFaultType = 'SPLITTER'; 
+                pred.predictedFaultPct = 0.85; 
+                pred.predictedFiberKm = pred.predictedFaultPct * sub.fiberLengthKm;
+                pred.predictedCableKm = pred.predictedFiberKm / sub.helixFactor;
+                pred.errorMeters = Math.abs(pred.predictedFiberKm - (sub.actualFaultPositionPct * sub.fiberLengthKm)) * 1000;
+                pred.uncertaintyMeters = 15;
+            }
+        });
 
-const metrics=computeMetrics(subscribers,predictions,categories);
-const roc=computeROC(subscribers,predictions);
-const loc=computeLocationMetrics(subscribers,predictions,categories);
-window.lastResults={subscribers,predictions,categories,metrics,roc,loc};
-const source=window.dataSource==='csv'?t('source_csv'):t('source_sim');
-document.getElementById('dataSourceBadge').innerHTML=`<span style="display:inline-block;padding:6px 16px;border-radius:20px;font-weight:700;font-size:13px;background:${window.dataSource==='csv'?'#fef3c7':'#dbeafe'};color:${window.dataSource==='csv'?'#92400e':'#1e40af'};border:1px solid ${window.dataSource==='csv'?'#fbbf24':'#3b82f6'}">${source}</span>`;
-renderROISection(metrics,subscribers);
-renderSLASection(metrics,subscribers);
+        const metrics=computeMetrics(subscribers,predictions,categories);
+        const roc=computeROC(subscribers,predictions);
+        const loc=computeLocationMetrics(subscribers,predictions,categories);
+        window.lastResults={subscribers,predictions,categories,metrics,roc,loc};
+        const source=window.dataSource==='csv'?t('source_csv'):t('source_sim');
+        document.getElementById('dataSourceBadge').innerHTML=`<span style="display:inline-block;padding:6px 16px;border-radius:20px;font-weight:700;font-size:13px;background:${window.dataSource==='csv'?'#fef3c7':'#dbeafe'};color:${window.dataSource==='csv'?'#92400e':'#1e40af'};border:1px solid ${window.dataSource==='csv'?'#fbbf24':'#3b82f6'}">${source}</span>`;
+        renderROISection(metrics,subscribers);
+        renderSLASection(metrics,subscribers);
 
-document.getElementById('metricsBox').innerHTML=`
-<div class="metric-card"><div class="value">${subscribers.length}</div><div class="label">${t('subscriber')}</div></div>
-<div class="metric-card"><div class="value">${metrics.tp+metrics.fn}</div><div class="label">${t('actual_state')}</div></div>
-<div class="metric-card"><div class="value">${(metrics.precision*100).toFixed(1)}%</div><div class="label">Precision</div></div>
-<div class="metric-card"><div class="value">${(metrics.recall*100).toFixed(1)}%</div><div class="label">Recall</div></div>
-<div class="metric-card"><div class="value">${(metrics.specificity*100).toFixed(1)}%</div><div class="label">Specificity</div></div>
-<div class="metric-card"><div class="value">${(metrics.f1*100).toFixed(1)}%</div><div class="label">F1-Score</div></div>
-<div class="metric-card"><div class="value">${(metrics.accuracy*100).toFixed(1)}%</div><div class="label">Accuracy</div></div>
-<div class="metric-card"><div class="value">${(roc.auc*100).toFixed(1)}%</div><div class="label">AUC</div></div>
-<div class="metric-card"><div class="value">${(roc.prAuc*100).toFixed(1)}%</div><div class="label">PR-AUC</div></div>
-<div class="metric-card"><div class="value">${metrics.mcc.toFixed(3)}</div><div class="label">MCC</div></div>`;
-document.getElementById('summary').innerHTML=t('summary_text').replace('{total}',subscribers.length).replace('{risk}',metrics.tp+metrics.fp).replace('{actual}',metrics.tp+metrics.fn).replace('{tp}',metrics.tp).replace('{fp}',metrics.fp);
-document.getElementById('confusionMatrix').innerHTML=`
-<div class="confusion-card tp"><div class="value" style="color:#16a34a;">${metrics.tp}</div><div class="label">True Positives (TP)</div></div>
-<div class="confusion-card fp"><div class="value" style="color:#fb923c;">${metrics.fp}</div><div class="label">False Positives (FP)</div></div>
-<div class="confusion-card fn"><div class="value" style="color:#dc2626;">${metrics.fn}</div><div class="label">False Negatives (FN)</div></div>
-<div class="confusion-card tn"><div class="value" style="color:#2563eb;">${metrics.tn}</div><div class="label">True Negatives (TN)</div></div>`;
-document.getElementById('extendedMetrics').innerHTML=`
-<div class="metric-card"><div class="value">${loc.mae.toFixed(1)}</div><div class="label">MAE Location (m)</div></div>
-<div class="metric-card"><div class="value">${loc.rmse.toFixed(1)}</div><div class="label">RMSE Location (m)</div></div>
-<div class="metric-card"><div class="value">${loc.count}</div><div class="label">Samples (Localization)</div></div>`;
-const catCounts={'مستقر':0,'مراقبة':0,'خطر':0,'حرج':0};
-categories.forEach(c=>catCounts[c]++);
-document.getElementById('categoryStats').innerHTML=`
-<div class="metric-card"><div class="value">${catCounts['مستقر']}</div><div class="label">${t('stable')}</div></div>
-<div class="metric-card"><div class="value">${catCounts['مراقبة']}</div><div class="label">${t('monitor')}</div></div>
-<div class="metric-card"><div class="value">${catCounts['خطر']}</div><div class="label">${t('danger')}</div></div>
-<div class="metric-card"><div class="value">${catCounts['حرج']}</div><div class="label">${t('critical')}</div></div>`;
+        document.getElementById('metricsBox').innerHTML=`
+        <div class="metric-card"><div class="value">${subscribers.length}</div><div class="label">${t('subscriber')}</div></div>
+        <div class="metric-card"><div class="value">${metrics.tp+metrics.fn}</div><div class="label">${t('actual_state')}</div></div>
+        <div class="metric-card"><div class="value">${(metrics.precision*100).toFixed(1)}%</div><div class="label">Precision</div></div>
+        <div class="metric-card"><div class="value">${(metrics.recall*100).toFixed(1)}%</div><div class="label">Recall</div></div>
+        <div class="metric-card"><div class="value">${(metrics.specificity*100).toFixed(1)}%</div><div class="label">Specificity</div></div>
+        <div class="metric-card"><div class="value">${(metrics.f1*100).toFixed(1)}%</div><div class="label">F1-Score</div></div>
+        <div class="metric-card"><div class="value">${(metrics.accuracy*100).toFixed(1)}%</div><div class="label">Accuracy</div></div>
+        <div class="metric-card"><div class="value">${(roc.auc*100).toFixed(1)}%</div><div class="label">AUC</div></div>
+        <div class="metric-card"><div class="value">${(roc.prAuc*100).toFixed(1)}%</div><div class="label">PR-AUC</div></div>
+        <div class="metric-card"><div class="value">${metrics.mcc.toFixed(3)}</div><div class="label">MCC</div></div>`;
+        document.getElementById('summary').innerHTML=t('summary_text').replace('{total}',subscribers.length).replace('{risk}',metrics.tp+metrics.fp).replace('{actual}',metrics.tp+metrics.fn).replace('{tp}',metrics.tp).replace('{fp}',metrics.fp);
+        document.getElementById('confusionMatrix').innerHTML=`
+        <div class="confusion-card tp"><div class="value" style="color:#16a34a;">${metrics.tp}</div><div class="label">True Positives (TP)</div></div>
+        <div class="confusion-card fp"><div class="value" style="color:#fb923c;">${metrics.fp}</div><div class="label">False Positives (FP)</div></div>
+        <div class="confusion-card fn"><div class="value" style="color:#dc2626;">${metrics.fn}</div><div class="label">False Negatives (FN)</div></div>
+        <div class="confusion-card tn"><div class="value" style="color:#2563eb;">${metrics.tn}</div><div class="label">True Negatives (TN)</div></div>`;
+        document.getElementById('extendedMetrics').innerHTML=`
+        <div class="metric-card"><div class="value">${loc.mae?loc.mae.toFixed(1):'0.0'}</div><div class="label">MAE Location (m)</div></div>
+        <div class="metric-card"><div class="value">${loc.rmse?loc.rmse.toFixed(1):'0.0'}</div><div class="label">RMSE Location (m)</div></div>
+        <div class="metric-card"><div class="value">${loc.count}</div><div class="label">Samples (Localization)</div></div>`;
+        const catCounts={'مستقر':0,'مراقبة':0,'خطر':0,'حرج':0};
+        categories.forEach(c=>catCounts[c]++);
+        document.getElementById('categoryStats').innerHTML=`
+        <div class="metric-card"><div class="value">${catCounts['مستقر']}</div><div class="label">${t('stable')}</div></div>
+        <div class="metric-card"><div class="value">${catCounts['مراقبة']}</div><div class="label">${t('monitor')}</div></div>
+        <div class="metric-card"><div class="value">${catCounts['خطر']}</div><div class="label">${t('danger')}</div></div>
+        <div class="metric-card"><div class="value">${catCounts['حرج']}</div><div class="label">${t('critical')}</div></div>`;
 
-document.getElementById('ponSection').style.display='block';
-let gs='';
-let collectiveFaultsFound = false;
-for(let g=1;g<=NUMBER_OF_PON_GROUPS;g++){
-    if(groupRiskCounts[g] >= 3){
-        collectiveFaultsFound = true;
-        gs+=`<div style="background:#fef2f2;border-right:4px solid #dc2626;padding:10px;margin-bottom:8px;border-radius:6px;">
-        <b>🚨 المجموعة (PON Group ${g})</b>: تم اكتشاف ${groupRiskCounts[g]} مشتركين متضررين معاً. <br>
-        <span style="color:#b91c1c;font-size:13px;font-weight:bold;">السبب المحتمل: عطل في Splitter أو كابل التوزيع المشترك. يجب إرسال الفرقة إلى الكابينة!</span>
+        document.getElementById('ponSection').style.display='block';
+        let gs='';
+        let collectiveFaultsFound = false;
+        for(let g=1;g<=NUMBER_OF_PON_GROUPS;g++){
+            if(groupRiskCounts[g] >= 3){
+                collectiveFaultsFound = true;
+                gs+=`<div style="background:#fef2f2;border-right:4px solid #dc2626;padding:10px;margin-bottom:8px;border-radius:6px;">
+                <b>🚨 المجموعة (PON Group ${g})</b>: تم اكتشاف ${groupRiskCounts[g]} مشتركين متضررين معاً. <br>
+                <span style="color:#b91c1c;font-size:13px;font-weight:bold;">السبب المحتمل: عطل في Splitter أو كابل التوزيع المشترك. يجب إرسال الفرقة إلى الكابينة!</span>
+                </div>`;
+            }
+        }
+        document.getElementById('ponSummary').innerHTML= collectiveFaultsFound ? gs : `<div style="color:#16a34a;padding:10px;background:#f0fdf4;border-radius:8px;">✅ ${t('no_pon_risk')}</div>`;
+
+        const sorted=subscribers.map((_,i)=>i).sort((a,b)=>predictions[b].riskScore-predictions[a].riskScore);
+        const top5=sorted.slice(0,5);
+        const topTbody=document.getElementById('topRiskTbody');
+        topTbody.innerHTML='';
+        top5.forEach(i=>{
+        const sub=subscribers[i],pred=predictions[i],cat=categories[i];
+        const pt=!isFinite(pred.predictedMonths)||pred.predictedMonths>12?t('more_than_year'):pred.predictedMonths.toFixed(1)+' '+t('months_unit');
+        const st=sub.actualFailure?t('will_fail'):t('is_stable');
+        const rc=sub.actualFailure?'alert':(cat==='حرج'?'critical':cat==='خطر'?'warn':cat==='مراقبة'?'monitor':'safe');
+        const tag = pred.diagFaultType === 'SPLITTER' ? `<br><span class="badge-group">عطل جماعي</span>` : '';
+        topTbody.innerHTML+=`<tr id="toprow-${sub.id}"><td>${sub.id}</td><td>${sub.groupId}</td><td>${sub.history[sub.history.length-1].toFixed(2)}</td><td>${sub.degradationRate.toFixed(3)}</td><td>${pt}</td><td>${translateFaultType(pred.diagFaultType)}${tag}</td><td>${pred.riskScore.toFixed(1)}</td><td>${pred.confidence}%</td><td>${translateCategory(cat)}</td><td class="${rc}">${st}</td></tr>`;
+        });
+
+        const allTbody=document.getElementById('allSubscribersTbody');
+        allTbody.innerHTML='';
+        sorted.forEach(i=>{
+        const sub=subscribers[i],pred=predictions[i],cat=categories[i];
+        const pt=!isFinite(pred.predictedMonths)||pred.predictedMonths>12?t('more_than_year'):pred.predictedMonths.toFixed(1)+' '+t('months_unit');
+        const st=sub.actualFailure?t('will_fail'):t('is_stable');
+        const rc=sub.actualFailure?'alert':(cat==='حرج'?'critical':cat==='خطر'?'warn':cat==='مراقبة'?'monitor':'safe');
+        let reason='';
+        if(isPositiveRisk(cat)){
+        reason=`Deg ${Math.abs(pred.slope).toFixed(3)} dB/m`;
+        if(pred.anomaly)reason+=' (Anomaly)';
+        if(pred.diagFaultType!=='غير محدد'&&pred.diagFaultType!=='STABLE')reason+=` (${translateFaultType(pred.diagFaultType)})`;
+        if(pred.reasoning)reason+=` — ${pred.reasoning}`;
+        }else if(cat==='مراقبة')reason=t('monitor');
+        else reason=t('stable');
+        const surv=pred.survivalProbabilities.map((p,idx)=>`M${idx+1}: ${p}`).join(' | ');
+        const locT=`${pred.predictedFiberKm.toFixed(2)} ± ${pred.uncertaintyMeters.toFixed(0)}م`;
+        const tag = pred.diagFaultType === 'SPLITTER' ? `<br><span class="badge-group">عطل جماعي</span>` : '';
+        allTbody.innerHTML+=`<tr id="row-${sub.id}"><td>${sub.id}</td><td>${sub.groupId}</td><td>${sub.history[sub.history.length-1].toFixed(2)}</td><td>${sub.degradationRate.toFixed(3)}</td><td>${translateFaultType(pred.diagFaultType)}${tag}</td><td>${pred.riskScore.toFixed(1)}</td><td>${pred.confidence}%</td><td>${translateCategory(cat)}</td><td class="${rc}">${st}</td><td>${reason}</td><td class="survival-box">${surv}</td><td>${pred.errorMeters.toFixed(1)}</td><td>${locT}</td></tr>`;
+        });
+        
+        drawSignalChartManual(subscribers,top5);
+        drawROCChartManual(roc.points,roc.auc);
+        renderGISMap(subscribers,top5);
+        renderLongitudinalChart(subscribers,top5);
+        renderKMSection(subscribers);
+        
+        document.getElementById('results').style.display='block';
+        
+    } catch (error) {
+        // صندوق الطوارئ: سيظهر لك بالضبط ما هو الخطأ إذا وجد!
+        document.getElementById('results').style.display = 'block';
+        document.getElementById('results').innerHTML = `
+        <div style="background:#fee2e2; border: 3px solid #dc2626; padding: 25px; border-radius:12px; color:#991b1b; text-align:left; direction:ltr; font-family:monospace;">
+            <h2 style="color:#7f1d1d; margin-bottom:15px;">🚨 System Crash Detected! (JavaScript Error)</h2>
+            <p style="font-size:16px;"><b>Message:</b> ${error.message}</p>
+            <hr style="border-color:#fca5a5; margin:15px 0;">
+            <p style="font-size:14px; font-weight:bold;">Stack Trace:</p>
+            <pre style="font-size:12px; white-space:pre-wrap; word-break:break-word; background:#fff; padding:10px; border-radius:6px; border:1px solid #f87171;">${error.stack}</pre>
+            <br>
+            <p dir="rtl" style="text-align:right; font-family:'Tajawal', sans-serif; font-size:16px; color:#1e3a8a; font-weight:bold;">
+                📸 يا هندسة، صوّري هذه الشاشة الحمراء فوراً وأرسليها لي هنا لأصلح المشكلة في ثانية!
+            </p>
         </div>`;
+        console.error("FiberPulse Crash:", error);
     }
-}
-document.getElementById('ponSummary').innerHTML= collectiveFaultsFound ? gs : `<div style="color:#16a34a;padding:10px;background:#f0fdf4;border-radius:8px;">✅ ${t('no_pon_risk')}</div>`;
-
-const sorted=subscribers.map((_,i)=>i).sort((a,b)=>predictions[b].riskScore-predictions[a].riskScore);
-const top5=sorted.slice(0,5);
-const topTbody=document.getElementById('topRiskTbody');
-topTbody.innerHTML='';
-top5.forEach(i=>{
-const sub=subscribers[i],pred=predictions[i],cat=categories[i];
-const pt=!isFinite(pred.predictedMonths)||pred.predictedMonths>12?t('more_than_year'):pred.predictedMonths.toFixed(1)+' '+t('months_unit');
-const st=sub.actualFailure?t('will_fail'):t('is_stable');
-const rc=sub.actualFailure?'alert':(cat==='حرج'?'critical':cat==='خطر'?'warn':cat==='مراقبة'?'monitor':'safe');
-const tag = pred.diagFaultType === 'SPLITTER' ? `<br><span class="badge-group">عطل جماعي</span>` : '';
-topTbody.innerHTML+=`<tr id="toprow-${sub.id}"><td>${sub.id}</td><td>${sub.groupId}</td><td>${sub.history[sub.history.length-1].toFixed(2)}</td><td>${sub.degradationRate.toFixed(3)}</td><td>${pt}</td><td>${translateFaultType(pred.diagFaultType)}${tag}</td><td>${pred.riskScore.toFixed(1)}</td><td>${pred.confidence}%</td><td>${translateCategory(cat)}</td><td class="${rc}">${st}</td></tr>`;
-});
-
-const allTbody=document.getElementById('allSubscribersTbody');
-allTbody.innerHTML='';
-sorted.forEach(i=>{
-const sub=subscribers[i],pred=predictions[i],cat=categories[i];
-const pt=!isFinite(pred.predictedMonths)||pred.predictedMonths>12?t('more_than_year'):pred.predictedMonths.toFixed(1)+' '+t('months_unit');
-const st=sub.actualFailure?t('will_fail'):t('is_stable');
-const rc=sub.actualFailure?'alert':(cat==='حرج'?'critical':cat==='خطر'?'warn':cat==='مراقبة'?'monitor':'safe');
-let reason='';
-if(isPositiveRisk(cat)){
-reason=`Deg ${Math.abs(pred.slope).toFixed(3)} dB/m`;
-if(pred.anomaly)reason+=' (Anomaly)';
-if(pred.diagFaultType!=='غير محدد'&&pred.diagFaultType!=='STABLE')reason+=` (${translateFaultType(pred.diagFaultType)})`;
-if(pred.reasoning)reason+=` — ${pred.reasoning}`;
-}else if(cat==='مراقبة')reason=t('monitor');
-else reason=t('stable');
-const surv=pred.survivalProbabilities.map((p,idx)=>`M${idx+1}: ${p}`).join(' | ');
-const locT=`${pred.predictedFiberKm.toFixed(2)} ± ${pred.uncertaintyMeters.toFixed(0)}م`;
-const tag = pred.diagFaultType === 'SPLITTER' ? `<br><span class="badge-group">عطل جماعي</span>` : '';
-allTbody.innerHTML+=`<tr id="row-${sub.id}"><td>${sub.id}</td><td>${sub.groupId}</td><td>${sub.history[sub.history.length-1].toFixed(2)}</td><td>${sub.degradationRate.toFixed(3)}</td><td>${translateFaultType(pred.diagFaultType)}${tag}</td><td>${pred.riskScore.toFixed(1)}</td><td>${pred.confidence}%</td><td>${translateCategory(cat)}</td><td class="${rc}">${st}</td><td>${reason}</td><td class="survival-box">${surv}</td><td>${pred.errorMeters.toFixed(1)}</td><td>${locT}</td></tr>`;
-});
-drawSignalChartManual(subscribers,top5);
-drawROCChartManual(roc.points,roc.auc);
-renderGISMap(subscribers,top5);
-renderLongitudinalChart(subscribers,top5);
-renderKMSection(subscribers);
-document.getElementById('results').style.display='block';
 }
 
 function drawSignalChartManual(subscribers,indices){
@@ -1291,7 +1280,7 @@ const reportHTML=`
 <div style="text-align:center;width:45%;"><p style="font-weight:bold;color:#1e3a8a;margin-bottom:60px;">توقيع التقني</p><p style="border-top:1px solid #0f172a;padding-top:8px;">&nbsp;</p></div>
 <div style="text-align:center;width:45%;"><p style="font-weight:bold;color:#1e3a8a;margin-bottom:60px;">توقيع المشرف</p><p style="border-top:1px solid #0f172a;padding-top:8px;">&nbsp;</p></div>
 </div>
-<div style="margin-top:30px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:15px;">FiberPulse v2.2 (Ultimate Enterprise) — ITU-T G.984 + RCA Logic</div>
+<div style="margin-top:30px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:15px;">FiberPulse v2.3 (Debug Edition) — ITU-T G.984</div>
 </div>`;
 const tmp=document.createElement('div');
 tmp.style.cssText='position:fixed;top:-99999px;left:0;width:794px;background:white;z-index:-9999;';
@@ -1354,7 +1343,7 @@ if(savedSeed)document.getElementById('seedInput').value=savedSeed;
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(e=>console.log('SW failed',e))})}
 }
 init();
-console.log('🫀 FiberPulse v2.2.0 Ultimate loaded — PON Tree RCA + Accurate Diagnostic Localization');
+console.log('🫀 FiberPulse v2.3 Debug Edition loaded');
 </script>
 </body>
 </html>
