@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>FiberPulse — FTTH Predictive Engine</title>
 <link rel="manifest" href="manifest.json" />
 <meta name="theme-color" content="#00acc1" />
@@ -74,7 +77,7 @@ canvas{background:transparent;display:block;max-width:100%}
 .highlight-row{background:#fff9c4 !important}
 .nav-btns{display:flex;gap:5px;margin-top:8px}
 .nav-btn{background:#1e3a8a;color:white;border:none;border-radius:6px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer}
-.section-title{color:#1e3a8a;font-size:17px;font-weight:700;border-right:5px solid #00acc1;padding-right:12px;margin:20px 0 12px 0}
+.section-title{color:#1e3a8a;font-size:17px;font-weight:700;border-inline-start:5px solid #00acc1;padding-inline-start:12px;margin:20px 0 12px 0}
 .badge-group{display:inline-block;background:#8b5cf6;color:white;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold;margin-top:4px;}
 </style>
 </head>
@@ -138,7 +141,7 @@ canvas{background:transparent;display:block;max-width:100%}
 <div class="section-title" data-i18n="roc_title">📉 ROC Curve</div>
 <div class="chart-container"><canvas id="rocChart" width="500" height="300"></canvas></div>
 <div class="section-title" data-i18n="all_subs_title">📋 All Subscribers</div>
-<input type="text" id="subSearch" placeholder="🔍 بحث برقم المشترك..." oninput="filterSubscribers(this.value)" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #cbd5e1;font-family:inherit;">
+<input type="text" id="subSearch" data-i18n-placeholder="search_subscriber" placeholder="🔍 بحث برقم المشترك..." oninput="filterSubscribers(this.value)" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #cbd5e1;font-family:inherit;">
 <div style="max-height:400px;overflow-y:auto;"><table><thead id="allSubsHead"></thead><tbody id="allSubscribersTbody"></tbody></table></div>
 </div>
 </div>
@@ -173,14 +176,37 @@ arpu_dzd:2500,
 prediction_prevent_pct:0.65
 };
 
+const GPON_ALARM_SEVERITY={
+LOS:{level:'critical',ar:'فقدان الإشارة',weight:100},
+DyingGasp:{level:'high',ar:'انقطاع طاقة ONT',weight:70},
+LOF:{level:'high',ar:'فقدان الإطار',weight:65},
+LOM:{level:'medium',ar:'فقدان الإدارة',weight:45},
+LOAM:{level:'high',ar:'فقدان قناة OMCI',weight:60}
+};
+
+const MAX_CSV_FILE_SIZE=2*1024*1024;
+const MAX_SOR_FILE_SIZE=5*1024*1024;
+const MAX_ROWS=2000;
+const MAX_ALARMS_ROWS=5000;
+const REQUIRED_SUBSCRIBER_HEADERS=['subscriber_id','month_1','month_2','month_3','month_4','month_5','month_6','month_7','month_8','actual_failure'];
+const REQUIRED_ALARM_HEADERS=['ont_id','alarm_time','alarm_code','severity'];
+
 const translations={
-ar:{subtitle:'محرك التنبؤ الوقائي لأعطال FTTH/GPON',run_sim:'▶️ تشغيل المحاكاة',load_repo:'📥 بيانات المستودع',upload_csv:'📂 تحميل CSV',compare:'🔁 اختبار 20 بذرة',export_csv:'📥 تصدير CSV',print_pdf:'📄 تقرير PDF',seed_label:'البذرة:',seed_hint:'نفس البذرة = نفس النتائج',analysis_title:'📊 نتائج التحليل',pon_title:'📍 تحليل العطل الجماعي (طوبولوجيا PON)',top5_title:'أخطر 5 مشتركين',signal_chart_title:'📈 منحنيات تدهور الإشارة',roc_title:'📉 منحنى ROC',all_subs_title:'📋 جميع المشتركين',subscriber:'المشترك',group:'المجموعة',last_rx:'آخر Rx',degradation:'التدهور',predicted_month:'الشهر المتوقع',cause:'السبب المحتمل',risk_score:'مؤشر الخطورة',confidence:'الثقة',category:'التصنيف',actual_state:'الحالة الفعلية',reason:'سبب الخطورة',survival:'تحليل البقاء',stable:'مستقر',monitor:'مراقبة',danger:'خطر',critical:'حرج',will_fail:'⚠️ سيتعطل',is_stable:'✅ مستقر',source_sim:'محاكاة افتراضية (Synthetic)',source_csv:'ملف CSV خارجي',summary_text:'من بين {total} مشترك، تم تصنيف {risk} كحالات خطر/حرج. القيمة الفعلية كانت {actual} عطل حقيقي. الإنذارات الصحيحة: {tp}، الكاذبة: {fp}.',no_pon_risk:'لا توجد أعطال جماعية، الشبكة الرئيسية مستقرة',months_unit:'شهر',more_than_year:'أكثر من سنة',fault_contamination:'تلوث موصل',fault_macrobend:'انحناء حاد',fault_break:'كسر ليفي',fault_splice:'لحام رديء',fault_stable:'مستقر',fault_splitter:'عطل جماعي (Splitter)',undefined:'غير محدد',threshold_label:'عتبة الخطر:',navigate_google:'Google Maps',navigate_waze:'Waze',location_error:'عدم اليقين (المسافة)',predicted_location:'نطاق العطل المتوقع'},
-fr:{subtitle:'Moteur prédictif de pannes FTTH/GPON',run_sim:'▶️ Lancer la simulation',load_repo:'📥 Données du dépôt',upload_csv:'📂 Charger CSV',compare:'🔁 Tester 20 graines',export_csv:'📥 Exporter CSV',print_pdf:'📄 Rapport PDF',seed_label:'Graine :',seed_hint:'Même graine = mêmes résultats',analysis_title:'📊 Résultats',pon_title:'📍 Analyse des Pannes Collectives (PON)',top5_title:'Top 5 abonnés',signal_chart_title:'📈 Courbes de dégradation',roc_title:'📉 Courbe ROC',all_subs_title:'📋 Tous les abonnés',subscriber:'Abonné',group:'Groupe',last_rx:'Dernier Rx',degradation:'Dégradation',predicted_month:'Mois prévu',cause:'Cause probable',risk_score:'Score risque',confidence:'Confiance',category:'Catégorie',actual_state:'État réel',reason:'Raison',survival:'Survie',stable:'Stable',monitor:'Surveillance',danger:'Danger',critical:'Critique',will_fail:'⚠️ Panne prévue',is_stable:'✅ Stable',source_sim:'Simulation',source_csv:'CSV',summary_text:'Parmi {total}, {risk} à risque. Réel: {actual}. TP: {tp}, FP: {fp}.',no_pon_risk:'Aucune panne collective détectée',months_unit:'mois',more_than_year:'Plus d\'un an',fault_contamination:'Contamination',fault_macrobend:'Macrocourbure',fault_break:'Rupture',fault_splice:'Épissure',fault_stable:'Stable',fault_splitter:'Panne collective (Splitter)',undefined:'Indéfini',threshold_label:'Seuil:',navigate_google:'Google Maps',navigate_waze:'Waze',location_error:'Incertitude (Distance)',predicted_location:'Zone de panne estimée'},
-en:{subtitle:'FTTH/GPON Predictive Fault Engine',run_sim:'▶️ Run Simulation',load_repo:'📥 Load Repository Data',upload_csv:'📂 Upload CSV',compare:'🔁 Test 20 Seeds',export_csv:'📥 Export CSV',print_pdf:'📄 PDF Report',seed_label:'Seed:',seed_hint:'Same seed = same results',analysis_title:'📊 Analysis Results',pon_title:'📍 Collective Fault Analysis (PON Tree)',top5_title:'Top 5 Subscribers',signal_chart_title:'📈 Signal Degradation Curves',roc_title:'📉 ROC Curve',all_subs_title:'📋 All Subscribers',subscriber:'Subscriber',group:'Group',last_rx:'Last Rx',degradation:'Degradation',predicted_month:'Predicted Month',cause:'Probable Cause',risk_score:'Risk Score',confidence:'Confidence',category:'Category',actual_state:'Actual State',reason:'Risk Reason',survival:'Survival',stable:'Stable',monitor:'Monitor',danger:'Danger',critical:'Critical',will_fail:'⚠️ Will Fail',is_stable:'✅ Stable',source_sim:'Simulation',source_csv:'CSV',summary_text:'Of {total}, {risk} at risk. Actual: {actual}. TP: {tp}, FP: {fp}.',no_pon_risk:'No collective faults detected',months_unit:'months',more_than_year:'More than a year',fault_contamination:'Contamination',fault_macrobend:'Macrobend',fault_break:'Fiber Break',fault_splice:'Bad Splice',fault_stable:'Stable',fault_splitter:'Collective Fault (Splitter)',undefined:'Undefined',threshold_label:'Threshold:',navigate_google:'Google Maps',navigate_waze:'Waze',location_error:'Uncertainty (Distance)',predicted_location:'Estimated Fault Zone'}
+ar:{subtitle:'محرك التنبؤ الوقائي لأعطال FTTH/GPON',run_sim:'▶️ تشغيل المحاكاة',load_repo:'📥 بيانات المستودع',upload_csv:'📂 تحميل CSV',compare:'🔁 اختبار 20 بذرة',export_csv:'📥 تصدير CSV',print_pdf:'📄 تقرير PDF',seed_label:'البذرة:',seed_hint:'نفس البذرة = نفس النتائج',analysis_title:'📊 نتائج التحليل',pon_title:'📍 تحليل العطل الجماعي (طوبولوجيا PON)',top5_title:'أخطر 5 مشتركين',signal_chart_title:'📈 منحنيات تدهور الإشارة',roc_title:'📉 منحنى ROC',all_subs_title:'📋 جميع المشتركين',search_subscriber:'🔍 بحث برقم المشترك...',subscriber:'المشترك',group:'المجموعة',last_rx:'آخر Rx',degradation:'التدهور',predicted_month:'الشهر المتوقع',cause:'السبب المحتمل',risk_score:'مؤشر الخطورة',confidence:'الثقة',category:'التصنيف',actual_state:'الحالة الفعلية',reason:'سبب الخطورة',survival:'تحليل البقاء',stable:'مستقر',monitor:'مراقبة',danger:'خطر',critical:'حرج',will_fail:'⚠️ سيتعطل',is_stable:'✅ مستقر',source_sim:'محاكاة افتراضية (Synthetic)',source_csv:'ملف CSV خارجي',summary_text:'من بين {total} مشترك، تم تصنيف {risk} كحالات خطر/حرج. القيمة الفعلية كانت {actual} عطل حقيقي. الإنذارات الصحيحة: {tp}، الكاذبة: {fp}.',no_pon_risk:'لا توجد أعطال جماعية، الشبكة الرئيسية مستقرة',months_unit:'شهر',more_than_year:'أكثر من سنة',fault_contamination:'تلوث موصل',fault_macrobend:'انحناء حاد',fault_break:'كسر ليفي',fault_splice:'لحام رديء',fault_stable:'مستقر',fault_splitter:'عطل جماعي (Splitter)',undefined:'غير محدد',threshold_label:'عتبة الخطر:',navigate_google:'Google Maps',navigate_waze:'Waze',location_error:'عدم اليقين (المسافة)',predicted_location:'نطاق العطل المتوقع'},
+fr:{subtitle:'Moteur prédictif de pannes FTTH/GPON',run_sim:'▶️ Lancer la simulation',load_repo:'📥 Données du dépôt',upload_csv:'📂 Charger CSV',compare:'🔁 Tester 20 graines',export_csv:'📥 Exporter CSV',print_pdf:'📄 Rapport PDF',seed_label:'Graine :',seed_hint:'Même graine = mêmes résultats',analysis_title:'📊 Résultats',pon_title:'📍 Analyse des Pannes Collectives (PON)',top5_title:'Top 5 abonnés',signal_chart_title:'📈 Courbes de dégradation',roc_title:'📉 Courbe ROC',all_subs_title:'📋 Tous les abonnés',search_subscriber:'🔍 Rechercher un abonné...',subscriber:'Abonné',group:'Groupe',last_rx:'Dernier Rx',degradation:'Dégradation',predicted_month:'Mois prévu',cause:'Cause probable',risk_score:'Score risque',confidence:'Confiance',category:'Catégorie',actual_state:'État réel',reason:'Raison',survival:'Survie',stable:'Stable',monitor:'Surveillance',danger:'Danger',critical:'Critique',will_fail:'⚠️ Panne prévue',is_stable:'✅ Stable',source_sim:'Simulation',source_csv:'CSV',summary_text:'Parmi {total}, {risk} à risque. Réel: {actual}. TP: {tp}, FP: {fp}.',no_pon_risk:'Aucune panne collective détectée',months_unit:'mois',more_than_year:'Plus d\'un an',fault_contamination:'Contamination',fault_macrobend:'Macrocourbure',fault_break:'Rupture',fault_splice:'Épissure',fault_stable:'Stable',fault_splitter:'Panne collective (Splitter)',undefined:'Indéfini',threshold_label:'Seuil:',navigate_google:'Google Maps',navigate_waze:'Waze',location_error:'Incertitude (Distance)',predicted_location:'Zone de panne estimée'},
+en:{subtitle:'FTTH/GPON Predictive Fault Engine',run_sim:'▶️ Run Simulation',load_repo:'📥 Load Repository Data',upload_csv:'📂 Upload CSV',compare:'🔁 Test 20 Seeds',export_csv:'📥 Export CSV',print_pdf:'📄 PDF Report',seed_label:'Seed:',seed_hint:'Same seed = same results',analysis_title:'📊 Analysis Results',pon_title:'📍 Collective Fault Analysis (PON Tree)',top5_title:'Top 5 Subscribers',signal_chart_title:'📈 Signal Degradation Curves',roc_title:'📉 ROC Curve',all_subs_title:'📋 All Subscribers',search_subscriber:'🔍 Search subscriber ID...',subscriber:'Subscriber',group:'Group',last_rx:'Last Rx',degradation:'Degradation',predicted_month:'Predicted Month',cause:'Probable Cause',risk_score:'Risk Score',confidence:'Confidence',category:'Category',actual_state:'Actual State',reason:'Risk Reason',survival:'Survival',stable:'Stable',monitor:'Monitor',danger:'Danger',critical:'Critical',will_fail:'⚠️ Will Fail',is_stable:'✅ Stable',source_sim:'Simulation',source_csv:'CSV',summary_text:'Of {total}, {risk} at risk. Actual: {actual}. TP: {tp}, FP: {fp}.',no_pon_risk:'No collective faults detected',months_unit:'months',more_than_year:'More than a year',fault_contamination:'Contamination',fault_macrobend:'Macrobend',fault_break:'Fiber Break',fault_splice:'Bad Splice',fault_stable:'Stable',fault_splitter:'Collective Fault (Splitter)',undefined:'Undefined',threshold_label:'Threshold:',navigate_google:'Google Maps',navigate_waze:'Waze',location_error:'Uncertainty (Distance)',predicted_location:'Estimated Fault Zone'}
 };
 
 let currentLang=localStorage.getItem('fiberpulse_lang')||'ar';
-function setLanguage(lang){currentLang=lang;localStorage.setItem('fiberpulse_lang',lang);document.getElementById('html-root').lang=lang;document.getElementById('html-root').dir=(lang==='ar')?'rtl':'ltr';document.querySelectorAll('.lang-btn').forEach(btn=>{btn.classList.toggle('active',btn.getAttribute('data-lang')===lang)});document.querySelectorAll('[data-i18n]').forEach(el=>{const key=el.getAttribute('data-i18n');if(translations[lang]&&translations[lang][key])el.textContent=translations[lang][key]});buildTableHeaders();if(window.lastResults)processSubscribers(window.lastResults.subscribers)}
+const appState={dataSource:'simulation',lastResults:null,lastOTDR:null};
+
+function escapeHTML(value){
+return String(value??'').replace(/[&<>"'`]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[ch]));
+}
+function toFiniteNumber(v,fallback=0){const n=Number(v);return Number.isFinite(n)?n:fallback}
+function safePercent(v){return Number.isFinite(v)?v:0}
+
+function setLanguage(lang){currentLang=translations[lang]?lang:'ar';localStorage.setItem('fiberpulse_lang',currentLang);document.getElementById('html-root').lang=currentLang;document.getElementById('html-root').dir=(currentLang==='ar')?'rtl':'ltr';document.querySelectorAll('.lang-btn').forEach(btn=>{btn.classList.toggle('active',btn.getAttribute('data-lang')===currentLang)});document.querySelectorAll('[data-i18n]').forEach(el=>{const key=el.getAttribute('data-i18n');if(translations[currentLang]&&translations[currentLang][key])el.textContent=translations[currentLang][key]});document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{const key=el.getAttribute('data-i18n-placeholder');if(translations[currentLang]&&translations[currentLang][key])el.setAttribute('placeholder',translations[currentLang][key])});buildTableHeaders();if(appState.lastResults)processSubscribers(appState.lastResults.subscribers)}
 function t(key){return translations[currentLang][key]||key}
 
 function buildTableHeaders(){
@@ -323,32 +349,81 @@ subscribers.push({id:i,groupId,history,actualRx:lastRx,actualFailure:futureFailu
 return subscribers;
 }
 
-function handleCSVFile(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=(e)=>processCSVData(e.target.result);reader.readAsText(file);event.target.value=''}
-function loadRepositoryData(){const subscribers=generateRepositorySubscribers(123);window.dataSource='csv';processSubscribers(subscribers)}
+function detectDelimiter(headerLine){
+const commaCount=(headerLine.match(/,/g)||[]).length;
+const semicolonCount=(headerLine.match(/;/g)||[]).length;
+return semicolonCount>commaCount?';':',';
+}
+function parseCSVRows(text,{maxRows=MAX_ROWS}={}){
+if(typeof text!=='string')throw new Error('ملف CSV غير صالح');
+const cleaned=text.replace(/^\uFEFF/,'');
+const delimiter=detectDelimiter(cleaned.split(/\r\n|\n|\r/,1)[0]||'');
+const rows=[];let row=[];let field='';let inQuotes=false;
+for(let i=0;i<cleaned.length;i++){
+const ch=cleaned[i];
+if(ch==='"'){
+if(inQuotes&&cleaned[i+1]==='"'){field+='"';i++;continue}
+inQuotes=!inQuotes;continue;
+}
+if(!inQuotes&&ch===delimiter){row.push(field);field='';continue}
+if(!inQuotes&&(ch==='\n'||ch==='\r')){
+if(ch==='\r'&&cleaned[i+1]==='\n')i++;
+row.push(field);field='';
+if(row.some(c=>String(c).trim()!==''))rows.push(row.map(c=>String(c).trim()));
+row=[];
+if(rows.length>maxRows+1)throw new Error(`عدد الصفوف يتجاوز الحد (${maxRows})`);
+continue;
+}
+field+=ch;
+}
+if(inQuotes)throw new Error('CSV غير صالح: علامات اقتباس غير مكتملة');
+row.push(field);
+if(row.some(c=>String(c).trim()!==''))rows.push(row.map(c=>String(c).trim()));
+if(rows.length<2)throw new Error('CSV فارغ أو لا يحتوي بيانات');
+return{rows,delimiter};
+}
+function normalizeHeaderMap(headers){
+const normalized=headers.map(h=>h.trim().toLowerCase());
+const map={};
+normalized.forEach((h,i)=>{if(!(h in map))map[h]=i});
+return map;
+}
+function parseFiniteField(value,name,{min=-Infinity,max=Infinity}={}){
+const n=Number(value);
+if(!Number.isFinite(n))throw new Error(`قيمة غير رقمية في ${name}`);
+if(n<min||n>max)throw new Error(`قيمة ${name} خارج النطاق`);
+return n;
+}
+function handleCSVFile(event){const file=event.target.files[0];if(!file)return;if(file.size>MAX_CSV_FILE_SIZE){alert(`❌ الملف كبير جداً (الحد ${Math.round(MAX_CSV_FILE_SIZE/1024)}KB)`);event.target.value='';return}const reader=new FileReader();reader.onload=(e)=>{try{processCSVData(e.target.result)}catch(err){alert('❌ '+err.message)}};reader.readAsText(file);event.target.value=''}
+function loadRepositoryData(){const subscribers=generateRepositorySubscribers(123);appState.dataSource='csv';processSubscribers(subscribers)}
 
 function processCSVData(text){
-const lines=text.trim().replace(/\r\n?/g,'\n').split('\n');
-if(lines.length<2){alert('Empty file');return}
-const headers=lines[0].split(',').map(h=>h.trim());
-const required=['subscriber_id','month_1','month_2','month_3','month_4','month_5','month_6','month_7','month_8','actual_failure'];
-const missing=required.filter(r=>!headers.includes(r));
-if(missing.length>0){alert('Missing columns: '+missing.join(', '));return}
+const {rows}=parseCSVRows(text,{maxRows:MAX_ROWS});
+const headers=rows[0];
+const map=normalizeHeaderMap(headers);
+const missing=REQUIRED_SUBSCRIBER_HEADERS.filter(h=>!(h in map));
+if(missing.length>0)throw new Error('Missing columns: '+missing.join(', '));
 const subscribers=[];
-for(let i=1;i<lines.length;i++){
-const cols=lines[i].split(',').map(v=>v.trim());
+for(let i=1;i<rows.length;i++){
+const cols=rows[i];
 if(cols.length<headers.length)continue;
-const id=parseInt(cols[headers.indexOf('subscriber_id')]);
+const id=parseFiniteField(cols[map.subscriber_id],'subscriber_id',{min:1,max:1000000});
 const history=[];
-for(let m=1;m<=MONTHS_HISTORY;m++)history.push(parseFloat(cols[headers.indexOf('month_'+m)]));
-const actualFailure=parseInt(cols[headers.indexOf('actual_failure')])===1;
-const fiberLengthKm=headers.includes('fiber_length_km')?(parseFloat(cols[headers.indexOf('fiber_length_km')])||5):5;
-const helixFactor=headers.includes('helix_factor')?(parseFloat(cols[headers.indexOf('helix_factor')])||1.04):1.04;
-const actualFaultPositionPct=headers.includes('fault_position_pct')?(parseFloat(cols[headers.indexOf('fault_position_pct')])||0.5):0.5;
-const splitterRatio=headers.includes('splitter_ratio')?cols[headers.indexOf('splitter_ratio')]:'1:32';
-subscribers.push({id,groupId:'غير محدد',history,actualRx:history[history.length-1],actualFailure,degradationRate:0,faultType:'غير محدد',fiberLengthKm,helixFactor,oltCoords:[36.7538,3.0588],onuCoords:[36.7820,3.0850],actualFaultPositionPct,splitterRatio,oltClass:'B+',wilaya:'الجزائر'});
+for(let m=1;m<=MONTHS_HISTORY;m++)history.push(parseFiniteField(cols[map['month_'+m]],`month_${m}`,{min:-60,max:10}));
+const actualFailureField=String(cols[map.actual_failure]??'').trim();
+if(!/^(0|1|true|false)$/i.test(actualFailureField))throw new Error('actual_failure يجب أن يكون 0 أو 1');
+const actualFailure=/^(1|true)$/i.test(actualFailureField);
+const fiberLengthKm=('fiber_length_km' in map)?parseFiniteField(cols[map.fiber_length_km],'fiber_length_km',{min:0.05,max:100}):5;
+const helixFactor=('helix_factor' in map)?parseFiniteField(cols[map.helix_factor],'helix_factor',{min:1,max:2}):1.04;
+const actualFaultPositionPct=('fault_position_pct' in map)?parseFiniteField(cols[map.fault_position_pct],'fault_position_pct',{min:0,max:1}):0.5;
+const splitterRatio=('splitter_ratio' in map&&SPLITTER_LOSS_DB[cols[map.splitter_ratio]])?cols[map.splitter_ratio]:'1:32';
+const groupId=('group_id' in map&&cols[map.group_id])?escapeHTML(cols[map.group_id]).slice(0,40):'غير محدد';
+const wilaya=('wilaya' in map&&cols[map.wilaya])?escapeHTML(cols[map.wilaya]).slice(0,60):'الجزائر';
+subscribers.push({id,groupId,history,actualRx:history[history.length-1],actualFailure,degradationRate:0,faultType:'غير محدد',fiberLengthKm,helixFactor,oltCoords:[36.7538,3.0588],onuCoords:[36.7820,3.0850],actualFaultPositionPct,splitterRatio,oltClass:'B+',wilaya});
 }
-subscribers.forEach(sub=>{const first=sub.history[0],last=sub.history[sub.history.length-1];sub.degradationRate=(first-last)/(MONTHS_HISTORY-1);sub.faultType=determineRootCause(sub)});
-window.dataSource='csv';
+if(subscribers.length===0)throw new Error('لا توجد صفوف صالحة بعد التحقق');
+subscribers.forEach(sub=>{const first=sub.history[0],last=sub.history[sub.history.length-1];sub.degradationRate=toFiniteNumber((first-last)/(MONTHS_HISTORY-1),0);sub.faultType=determineRootCause(sub)});
+appState.dataSource='csv';
 processSubscribers(subscribers);
 }
 
@@ -492,6 +567,34 @@ return Math.min(44,s);
 function translateCategory(cat){const map={'مستقر':'stable','مراقبة':'monitor','خطر':'danger','حرج':'critical'};return t(map[cat]||'stable')}
 function isPositiveRisk(category){return category==='خطر'||category==='حرج'}
 
+function preparePredictions(subscribers){
+subscribers.forEach(sub=>{sub.diagnosedFaultType=determineRootCause(sub)});
+const predictions=subscribers.map(sub=>predictFailureV2(sub));
+const categories=predictions.map(p=>classifyRisk(p));
+predictions.forEach((p,i)=>{p.riskScore=alignScoreWithCategory(categories[i],p.riskScore)});
+const groupRiskCounts={};
+subscribers.forEach((sub,i)=>{if(!groupRiskCounts[sub.groupId])groupRiskCounts[sub.groupId]=0;if(isPositiveRisk(categories[i]))groupRiskCounts[sub.groupId]++});
+predictions.forEach((pred,i)=>{
+const sub=subscribers[i];
+if(isPositiveRisk(categories[i])&&groupRiskCounts[sub.groupId]>=3){
+pred.reasoning=(pred.reasoning?pred.reasoning+' | ':'')+'⚠️ عطل جماعي (Splitter)';
+pred.diagFaultType='SPLITTER';
+pred.predictedFaultPct=0.85;
+pred.predictedFiberKm=pred.predictedFaultPct*sub.fiberLengthKm;
+pred.predictedCableKm=pred.predictedFiberKm/sub.helixFactor;
+pred.errorMeters=Math.abs(pred.predictedFiberKm-(sub.actualFaultPositionPct*sub.fiberLengthKm))*1000;
+pred.uncertaintyMeters=50;
+}
+pred.predictedMonths=Number.isFinite(pred.predictedMonths)?Math.max(0,pred.predictedMonths):Infinity;
+pred.errorMeters=toFiniteNumber(pred.errorMeters,0);
+pred.uncertaintyMeters=Math.max(0,toFiniteNumber(pred.uncertaintyMeters,0));
+pred.riskScore=Math.max(0,Math.min(100,toFiniteNumber(pred.riskScore,0)));
+pred.confidence=Math.max(0,Math.min(100,toFiniteNumber(pred.confidence,0)));
+pred.survivalProbabilities=(pred.survivalProbabilities||[]).map(v=>String(toFiniteNumber(v,0).toFixed(2)));
+});
+return{predictions,categories,groupRiskCounts};
+}
+
 function computeMetrics(subscribers,predictions,categories){
 let tp=0,fp=0,tn=0,fn=0;
 subscribers.forEach((sub,i)=>{
@@ -504,34 +607,37 @@ else if(actual&&!pred)fn++;
 });
 const precision=tp/(tp+fp)||0,recall=tp/(tp+fn)||0,specificity=tn/(tn+fp)||0;
 const f1=2*(precision*recall)/(precision+recall)||0;
-const accuracy=(tp+tn)/(tp+tn+fp+fn);
+const total=(tp+tn+fp+fn);
+const accuracy=total>0?(tp+tn)/total:0;
 const mccDenom=Math.sqrt((tp+fp)*(tp+fn)*(tn+fp)*(tn+fn));
 const mcc=mccDenom>0?((tp*tn-fp*fn)/mccDenom):0;
-return{tp,fp,tn,fn,precision,recall,specificity,f1,accuracy,mcc};
+return{tp,fp,tn,fn,precision:toFiniteNumber(precision,0),recall:toFiniteNumber(recall,0),specificity:toFiniteNumber(specificity,0),f1:toFiniteNumber(f1,0),accuracy:toFiniteNumber(accuracy,0),mcc:toFiniteNumber(mcc,0)};
 }
 
 function computeROC(subscribers,predictions){
+if(subscribers.length===0)return{points:[[0,0]],auc:null,prPoints:[[0,1]],prAuc:null,label:'No samples'};
 const sorted=subscribers.map((_,i)=>i).sort((a,b)=>predictions[b].riskScore-predictions[a].riskScore);
 let tp=0,fp=0;
 const totalPos=subscribers.filter(s=>s.actualFailure).length;
 const totalNeg=subscribers.length-totalPos;
+if(totalPos===0||totalNeg===0)return{points:[[0,0],[1,1]],auc:null,prPoints:[[0,1]],prAuc:null,label:totalPos===0?'No positive labels':'No negative labels'};
 const points=[[0,0]],prPoints=[[0,1]];
 for(const idx of sorted){
 if(subscribers[idx].actualFailure)tp++;else fp++;
-points.push([fp/totalNeg,tp/totalPos]);
-prPoints.push([tp/totalPos,tp/(tp+fp)]);
+points.push([toFiniteNumber(fp/totalNeg,0),toFiniteNumber(tp/totalPos,0)]);
+prPoints.push([toFiniteNumber(tp/totalPos,0),toFiniteNumber(tp/(tp+fp),1)]);
 }
 let auc=0;
 for(let i=1;i<points.length;i++){const[x1,y1]=points[i-1],[x2,y2]=points[i];auc+=(x2-x1)*(y1+y2)/2}
 let prAuc=0;
 for(let i=1;i<prPoints.length;i++){const r1=prPoints[i-1][0],p1=prPoints[i-1][1],r2=prPoints[i][0],p2=prPoints[i][1];prAuc+=(r2-r1)*(p1+p2)/2}
-return{points,auc,prPoints,prAuc};
+return{points,auc:toFiniteNumber(auc,0),prPoints,prAuc:toFiniteNumber(prAuc,0),label:null};
 }
 
 function computeLocationMetrics(subscribers,predictions,categories){
 let sE=0,sSE=0,c=0;
 subscribers.forEach((sub,i)=>{
-if(isPositiveRisk(categories[i])&&sub.actualFailure){sE+=predictions[i].errorMeters;sSE+=predictions[i].errorMeters**2;c++}
+if(isPositiveRisk(categories[i])&&sub.actualFailure&&Number.isFinite(predictions[i].errorMeters)){sE+=predictions[i].errorMeters;sSE+=predictions[i].errorMeters**2;c++}
 });
 return{mae:c>0?sE/c:0,rmse:c>0?Math.sqrt(sSE/c):0,count:c};
 }
@@ -541,20 +647,49 @@ const url=type==='google'?`https://www.google.com/maps/dir/?api=1&destination=${
 if(url)window.open(url,'_blank');
 }
 
+function createPopupContent(sub,pred,category,faultLat,faultLng){
+const wrapper=document.createElement('div');
+const title=document.createElement('b');
+title.textContent=`${t('subscriber')} ${sub.id}`;
+wrapper.appendChild(title);
+wrapper.appendChild(document.createElement('br'));
+wrapper.append(`📍 ${sub.wilaya||''}`);
+wrapper.appendChild(document.createElement('br'));
+wrapper.append(`${t('last_rx')}: ${toFiniteNumber(sub.history[sub.history.length-1],0).toFixed(2)} dBm`);
+wrapper.appendChild(document.createElement('br'));
+wrapper.append(`${t('category')}: ${translateCategory(category)}`);
+const navDiv=document.createElement('div');
+navDiv.className='nav-btns';
+const googleBtn=document.createElement('button');
+googleBtn.className='nav-btn';
+googleBtn.type='button';
+googleBtn.textContent='Google';
+googleBtn.addEventListener('click',()=>openNavigation(faultLat,faultLng,'google'));
+const wazeBtn=document.createElement('button');
+wazeBtn.className='nav-btn';
+wazeBtn.type='button';
+wazeBtn.textContent='Waze';
+wazeBtn.addEventListener('click',()=>openNavigation(faultLat,faultLng,'waze'));
+navDiv.append(googleBtn,wazeBtn);
+wrapper.appendChild(navDiv);
+return wrapper;
+}
+
 function renderGISMap(subscribers,topIndices){
 const container=document.getElementById('gisMap');
 if(!container||typeof L==='undefined')return;
-if(gisMapInstance)gisMapInstance.remove();
+if(gisMapInstance){gisMapInstance.off();gisMapInstance.remove();gisMapInstance=null}
+container.textContent='';
 const centerLat=subscribers.length>0?subscribers[0].oltCoords[0]:33.6831;
 const centerLng=subscribers.length>0?subscribers[0].oltCoords[1]:1.0193;
 gisMapInstance=L.map(container).setView([centerLat,centerLng],12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(gisMapInstance);
 topIndices.forEach(idx=>{
-const sub=subscribers[idx],pred=window.lastResults.predictions[idx];
+const sub=subscribers[idx],pred=appState.lastResults.predictions[idx];
 const faultLat=sub.oltCoords[0]+pred.predictedFaultPct*(sub.onuCoords[0]-sub.oltCoords[0]);
 const faultLng=sub.oltCoords[1]+pred.predictedFaultPct*(sub.onuCoords[1]-sub.oltCoords[1]);
 const m=L.circleMarker([faultLat,faultLng],{radius:7,color:'#d81b60',fillColor:'#f48fb1',fillOpacity:0.9}).addTo(gisMapInstance);
-m.bindPopup(`<b>${t('subscriber')} ${sub.id}</b><br>📍 ${sub.wilaya||''}<br>${t('last_rx')}: ${sub.history[sub.history.length-1].toFixed(2)} dBm<br>${t('category')}: ${translateCategory(window.lastResults.categories[idx])}<br><div class="nav-btns"><button class="nav-btn" onclick="openNavigation(${faultLat},${faultLng},'google')">Google</button><button class="nav-btn" onclick="openNavigation(${faultLat},${faultLng},'waze')">Waze</button></div>`);
+m.bindPopup(createPopupContent(sub,pred,appState.lastResults.categories[idx],faultLat,faultLng));
 m.on('click',()=>{const r=document.getElementById(`row-${sub.id}`);if(r){document.querySelectorAll('#allSubscribersTbody tr').forEach(tr=>tr.classList.remove('highlight-row'));r.classList.add('highlight-row');r.scrollIntoView({behavior:'smooth',block:'center'})}});
 L.polyline([sub.oltCoords,sub.onuCoords],{color:'#00acc1',weight:2,dashArray:'4 4'}).addTo(gisMapInstance);
 });
@@ -569,7 +704,7 @@ ctx.beginPath();ctx.moveTo(pad,lineY);ctx.lineTo(W-pad,lineY);ctx.stroke();
 ctx.fillStyle='#0f172a';ctx.font='10px Segoe UI';ctx.textAlign='center';
 ctx.fillText('OLT',pad,lineY-10);ctx.fillText('ONU',W-pad,lineY-10);
 topIndices.forEach(idx=>{
-const sub=subscribers[idx],pred=window.lastResults.predictions[idx];
+const sub=subscribers[idx],pred=appState.lastResults.predictions[idx];
 const x=pad+pred.predictedFaultPct*(W-2*pad);
 ctx.fillStyle='#d81b60';ctx.beginPath();ctx.arc(x,lineY,5,0,Math.PI*2);ctx.fill();
 ctx.fillStyle='#0f172a';ctx.font='9px Segoe UI';
@@ -578,70 +713,81 @@ ctx.fillText('Sub '+sub.id,x,lineY+20);
 }
 
 function parseSORFile(arrayBuffer){
+if(!(arrayBuffer instanceof ArrayBuffer))throw new Error('بيانات OTDR غير صالحة');
+if(arrayBuffer.byteLength<16)throw new Error('ملف SOR قصير جداً');
+if(arrayBuffer.byteLength>MAX_SOR_FILE_SIZE)throw new Error('ملف SOR كبير جداً');
 const view=new DataView(arrayBuffer),decoder=new TextDecoder('ascii');
 const sig=String.fromCharCode(view.getUint8(0),view.getUint8(1),view.getUint8(2));
 if(sig!=='Map')throw new Error('ليس ملف SOR صالح');
-let offset=6;const blocks={};
-while(offset+14<=arrayBuffer.byteLength){
+let offset=6,blockCount=0;const blocks={};
+while(offset+14<=arrayBuffer.byteLength&&blockCount<256){
 const nameBytes=new Uint8Array(arrayBuffer,offset,8);
 const name=decoder.decode(nameBytes).replace(/\0/g,'').trim();
-if(!name)break;
 const size=view.getUint32(offset+10,true);
-if(offset+14+size>arrayBuffer.byteLength)break;
-blocks[name]={size,data:new Uint8Array(arrayBuffer,offset+14,size)};
+if(!name)break;
+if(!Number.isFinite(size)||size>MAX_SOR_FILE_SIZE)throw new Error('حجم بلوك SOR غير صالح');
+if(offset+14+size>arrayBuffer.byteLength)throw new Error('حدود بلوكات SOR غير صالحة');
+if(name==='KeyEvents'||name==='FxdParams')blocks[name]={size,data:new Uint8Array(arrayBuffer,offset+14,size)};
 offset+=14+size;
+blockCount++;
 }
 const events=[];
 if(blocks.KeyEvents&&blocks.KeyEvents.size>=4){
 const dv=new DataView(blocks.KeyEvents.data.buffer,blocks.KeyEvents.data.byteOffset,blocks.KeyEvents.size);
-const count=dv.getUint16(0,true),SCALE=1e-4;
+const count=Math.min(dv.getUint16(0,true),5000),SCALE=1e-4;
 let p=2;
-for(let i=0;i<count&&p+20<=blocks.KeyEvents.size;i++){
+for(let i=0;i<count;i++){
+if(p+20>blocks.KeyEvents.size)break;
 const n=dv.getUint16(p,true);p+=2;
-const distance_m=dv.getUint32(p,true)*SCALE;p+=4;
-const slope_dB=dv.getInt16(p,true)/1000;p+=2;
-const spliceLoss=dv.getInt16(p,true)/1000;p+=2;
-const refl=dv.getInt32(p,true)/1000;p+=4;
+const distance_m=toFiniteNumber(dv.getUint32(p,true)*SCALE,0);p+=4;
+const slope_dB=toFiniteNumber(dv.getInt16(p,true)/1000,0);p+=2;
+const spliceLossRaw=toFiniteNumber(dv.getInt16(p,true)/1000,0);p+=2;
+const refl=toFiniteNumber(dv.getInt32(p,true)/1000,-99);p+=4;
 const eof=dv.getUint16(p,true);p+=2;
-const et=dv.getUint16(p,true);p+=2;p+=2;
-events.push({n,distance_m,distance_km:distance_m/1000,slope_dB_km:slope_dB,splice_loss_dB:Math.abs(spliceLoss),reflectance_dB:refl,isEndOfFiber:eof===1,type:classifyOTDREvent(spliceLoss,refl,eof)});
+p+=2;p+=2;
+if(!Number.isFinite(distance_m)||distance_m<0)continue;
+const spliceLoss=Math.abs(spliceLossRaw);
+events.push({n,distance_m,distance_km:distance_m/1000,slope_dB_km:slope_dB,splice_loss_dB:spliceLoss,reflectance_dB:refl,isEndOfFiber:eof===1,type:classifyOTDREvent(spliceLoss,refl,eof)});
 }
 }
+if(events.length===0)throw new Error('لا توجد أحداث OTDR صالحة');
 const info={wavelength_nm:1550,pulse_ns:100};
 if(blocks.FxdParams&&blocks.FxdParams.size>=18){
 const dv=new DataView(blocks.FxdParams.data.buffer,blocks.FxdParams.data.byteOffset,blocks.FxdParams.size);
-info.wavelength_nm=dv.getUint16(0,true)/10;info.pulse_ns=dv.getUint16(6,true)/1000;
+info.wavelength_nm=toFiniteNumber(dv.getUint16(0,true)/10,1550);
+info.pulse_ns=toFiniteNumber(dv.getUint16(6,true)/1000,100);
 }
 return{events,info};
 }
 
 function classifyOTDREvent(loss,refl,isEnd){
 if(isEnd===1)return'END_OF_FIBER';
-if(refl>-40&&loss<0.3)return'CONNECTOR';
+if(loss>=3||refl>-20)return'BREAK_OR_DIRTY';
+if(loss>=1.5&&refl<-55)return'MACROBEND';
+if(loss>=0.5)return'SPLICE_BAD';
+if(refl>-45&&loss<0.5)return'CONNECTOR';
 if(refl<-50&&loss<0.3)return'SPLICE_GOOD';
-if(refl<-50&&loss>0.5)return'SPLICE_BAD';
-if(refl<-60&&loss>1.5)return'MACROBEND';
-if(refl>-20)return'BREAK_OR_DIRTY';
 return'UNKNOWN';
 }
 
 function handleOTDRUpload(event){
 const file=event.target.files[0];if(!file)return;
+if(file.size>MAX_SOR_FILE_SIZE){alert(`❌ ملف OTDR كبير جداً (الحد ${Math.round(MAX_SOR_FILE_SIZE/1024)}KB)`);event.target.value='';return}
 const reader=new FileReader();
 reader.onload=(e)=>{
 try{
 const trace=parseSORFile(e.target.result);
-if(trace.events.length===0)throw new Error('لا توجد أحداث');
-const worst=[...trace.events].filter(ev=>!ev.isEndOfFiber).sort((a,b)=>b.splice_loss_dB-a.splice_loss_dB)[0];
+const severity={BREAK_OR_DIRTY:5,MACROBEND:4,SPLICE_BAD:3,CONNECTOR:2,SPLICE_GOOD:1,UNKNOWN:0};
+const worst=[...trace.events].filter(ev=>!ev.isEndOfFiber).sort((a,b)=>(severity[b.type]-severity[a.type])||(b.splice_loss_dB-a.splice_loss_dB))[0];
 const last=trace.events[trace.events.length-1];
-window.lastOTDR={trace,faultDistance_m:worst?worst.distance_m:last.distance_m,faultType:worst?worst.type:'UNKNOWN',faultLoss_dB:worst?worst.splice_loss_dB:0};
+appState.lastOTDR={trace,faultDistance_m:worst?worst.distance_m:last.distance_m,faultType:worst?worst.type:'UNKNOWN',faultLoss_dB:worst?worst.splice_loss_dB:0};
 renderOTDRTrace(trace);
-document.getElementById('otdrInfo').innerHTML=`✅ ${trace.events.length} حدث | آخر نقطة: ${last.distance_km.toFixed(3)} km | 🔴 أسوأ: ${(worst?.splice_loss_dB||0).toFixed(2)} dB @ ${(worst?.distance_m||0).toFixed(1)} m`;
-if(window.lastResults){
-window.lastResults.subscribers.forEach(sub=>{sub.actualFaultPositionPct=Math.min(1,window.lastOTDR.faultDistance_m/(sub.fiberLengthKm*1000))});
-const loc=computeLocationMetrics(window.lastResults.subscribers,window.lastResults.predictions,window.lastResults.categories);
-window.lastResults.loc=loc;
-alert(`🎯 OTDR محدّث\n\n📏 الموقع: ${window.lastOTDR.faultDistance_m.toFixed(1)} m\n🔍 النوع: ${window.lastOTDR.faultType}\n📉 MAE: ${loc.mae.toFixed(1)} m`);
+document.getElementById('otdrInfo').textContent=`✅ ${trace.events.length} حدث | آخر نقطة: ${last.distance_km.toFixed(3)} km | 🔴 أسوأ: ${(worst?.splice_loss_dB||0).toFixed(2)} dB @ ${(worst?.distance_m||0).toFixed(1)} m`;
+if(appState.lastResults){
+appState.lastResults.subscribers.forEach(sub=>{sub.actualFaultPositionPct=Math.min(1,appState.lastOTDR.faultDistance_m/(sub.fiberLengthKm*1000))});
+const loc=computeLocationMetrics(appState.lastResults.subscribers,appState.lastResults.predictions,appState.lastResults.categories);
+appState.lastResults.loc=loc;
+alert(`🎯 OTDR محدّث\n\n📏 الموقع: ${appState.lastOTDR.faultDistance_m.toFixed(1)} m\n🔍 النوع: ${appState.lastOTDR.faultType}\n📉 MAE: ${loc.mae.toFixed(1)} m`);
 }
 }catch(err){alert('❌ '+err.message)}
 };
@@ -657,14 +803,15 @@ ctx.strokeStyle='#94a3b8';ctx.beginPath();ctx.moveTo(pad,pad);ctx.lineTo(pad,H-p
 ctx.fillStyle='#1e3a8a';ctx.font='bold 13px Tajawal';ctx.textAlign='center';
 ctx.fillText(`OTDR @ ${trace.info.wavelength_nm}nm`,W/2,22);
 const maxDist=trace.events[trace.events.length-1]?.distance_km||1;
+const safeMaxDist=maxDist>0?maxDist:1;
 ctx.fillStyle='#64748b';ctx.font='10px Tajawal';
-for(let km=0;km<=maxDist;km+=Math.max(0.5,maxDist/8)){const x=pad+(km/maxDist)*cW;ctx.fillText(km.toFixed(1),x,H-pad+15)}
+for(let km=0;km<=safeMaxDist;km+=Math.max(0.5,safeMaxDist/8)){const x=pad+(km/safeMaxDist)*cW;ctx.fillText(km.toFixed(1),x,H-pad+15)}
 const colors={CONNECTOR:'#00acc1',SPLICE_GOOD:'#43a047',SPLICE_BAD:'#fb8c00',MACROBEND:'#d81b60',BREAK_OR_DIRTY:'#dc2626',END_OF_FIBER:'#1e3a8a',UNKNOWN:'#666'};
 ctx.strokeStyle='#00acc1';ctx.lineWidth=2;ctx.beginPath();let cum=0;
-trace.events.forEach((ev,i)=>{const x=pad+(ev.distance_km/maxDist)*cW,y=pad+Math.min(cH*0.9,cum*8);if(i===0)ctx.moveTo(pad,pad);ctx.lineTo(x,y);cum+=ev.splice_loss_dB});
+trace.events.forEach((ev,i)=>{const x=pad+(ev.distance_km/safeMaxDist)*cW,y=pad+Math.min(cH*0.9,cum*8);if(i===0)ctx.moveTo(pad,pad);ctx.lineTo(x,y);cum+=ev.splice_loss_dB});
 ctx.stroke();
 trace.events.forEach(ev=>{
-const x=pad+(ev.distance_km/maxDist)*cW,y=pad+cH*0.5;
+const x=pad+(ev.distance_km/safeMaxDist)*cW,y=pad+cH*0.5;
 ctx.fillStyle=colors[ev.type]||'#666';ctx.beginPath();ctx.arc(x,y,ev.splice_loss_dB>1?7:4,0,Math.PI*2);ctx.fill();
 if(ev.splice_loss_dB>0.3&&!ev.isEndOfFiber){ctx.fillStyle='#0f172a';ctx.font='bold 9px Tajawal';ctx.textAlign='center';ctx.fillText(ev.splice_loss_dB.toFixed(1)+'dB',x,y-12)}
 });
@@ -798,7 +945,7 @@ const f=curve.reduce((s,p)=>s+p.failures,0);
 if(f>maxF){maxF=f;bestGroup=gid}
 }
 if(!bestGroup||!curves[bestGroup]||curves[bestGroup].length<2){
-document.getElementById('kmInfo').innerHTML='لا توجد بيانات كافية لعرض المنحنى';
+document.getElementById('kmInfo').textContent='لا توجد بيانات كافية لعرض المنحنى';
 return;
 }
 drawKMSurvivalChart(curves[bestGroup]);
@@ -806,21 +953,25 @@ const gSubs=subscribers.filter(s=>String(s.groupId)===String(bestGroup));
 const gF=gSubs.filter(s=>s.actualFailure).length;
 const gC=gSubs.length-gF;
 const t50=curves[bestGroup].find(p=>p.survival<=0.5);
-document.getElementById('kmInfo').innerHTML=`المجموعة PON ${bestGroup} (الأعلى مخاطرة) — ${gF} عطل / ${gC} رقابة | ${t50?`الوسيط: ${t50.time} أشهر`:'الوسيط > 8 أشهر'}`;
+document.getElementById('kmInfo').textContent=`المجموعة PON ${bestGroup} (الأعلى مخاطرة) — ${gF} عطل / ${gC} رقابة | ${t50?`الوسيط: ${t50.time} أشهر`:'الوسيط > 8 أشهر'}`;
 }
 
 function importAlarmsCSV(csvText){
-const lines=csvText.trim().replace(/\r\n?/g,'\n').split('\n');
-const headers=lines[0].split(',').map(h=>h.trim().toLowerCase());
+const {rows}=parseCSVRows(csvText,{maxRows:MAX_ALARMS_ROWS});
+const headers=rows[0].map(h=>h.trim().toLowerCase());
+const map=normalizeHeaderMap(headers);
+const missing=REQUIRED_ALARM_HEADERS.filter(h=>!(h in map));
+if(missing.length>0)throw new Error('Missing alarm columns: '+missing.join(', '));
 const alarms=[];
-for(let i=1;i<lines.length;i++){
-const cols=lines[i].split(',').map(c=>c.trim());
-if(cols.length<4)continue;
-const ontId=parseInt(cols[headers.indexOf('ont_id')]);
-if(isNaN(ontId))continue;
-const alarmTime=new Date(cols[headers.indexOf('alarm_time')]);
-const alarmCode=cols[headers.indexOf('alarm_code')];
-const severity=cols[headers.indexOf('severity')]||'unknown';
+for(let i=1;i<rows.length;i++){
+const cols=rows[i];
+if(cols.length<headers.length)continue;
+const ontId=parseFiniteField(cols[map.ont_id],'ont_id',{min:1,max:1000000});
+const alarmTime=new Date(cols[map.alarm_time]);
+if(Number.isNaN(alarmTime.getTime()))throw new Error('تاريخ إنذار غير صالح');
+const alarmCode=String(cols[map.alarm_code]||'').trim();
+if(!alarmCode)continue;
+const severity=String(cols[map.severity]||'unknown').toLowerCase();
 const meta=GPON_ALARM_SEVERITY[alarmCode]||{level:'info',ar:alarmCode,weight:10};
 alarms.push({ontId,alarmTime,alarmCode,nmsSeverity:severity,ourSeverity:meta.level,arabicName:meta.ar,weight:meta.weight});
 }
@@ -860,22 +1011,23 @@ return p;
 
 function renderAlarmPatterns(p){
 let h='';
-if(p.ponsWideOutage.length>0)h+=`<div style="background:#fee2e2;padding:12px;border-right:4px solid #dc2626;border-radius:8px;margin-bottom:12px;"><h4 style="color:#7f1d1d;margin:0 0 8px;">🚨 انقطاعات PON (${p.ponsWideOutage.length})</h4>${p.ponsWideOutage.map(x=>`<div style="margin:6px 0;font-size:13px;"><b>PON ${x.groupId}</b> — ${x.affectedCount} مشترك<br><span style="color:#991b1b;">${x.diagnosis}</span></div>`).join('')}</div>`;
-if(p.flappingONT.length>0)h+=`<div style="background:#fed7aa;padding:12px;border-right:4px solid #fb8c00;border-radius:8px;margin-bottom:12px;"><h4 style="color:#7c2d12;margin:0 0 8px;">⚡ ONTs تعيد التشغيل (${p.flappingONT.length})</h4>${p.flappingONT.map(x=>`<div style="margin:6px 0;font-size:13px;"><b>ONT ${x.ontId}</b> — ${x.count} مرة<br><span style="color:#9a3412;">${x.diagnosis}</span></div>`).join('')}</div>`;
-if(p.chronicONT.length>0)h+=`<div style="background:#fef3c7;padding:12px;border-right:4px solid #eab308;border-radius:8px;"><h4 style="color:#713f12;margin:0 0 8px;">🔧 ONTs مزمنة (${p.chronicONT.length})</h4>${p.chronicONT.map(x=>`<div style="margin:6px 0;font-size:13px;"><b>ONT ${x.ontId}</b> — ${x.alarmCount} إنذار<br><span style="color:#854d0e;">${x.diagnosis}</span></div>`).join('')}</div>`;
+if(p.ponsWideOutage.length>0)h+=`<div style="background:#fee2e2;padding:12px;border-inline-start:4px solid #dc2626;border-radius:8px;margin-bottom:12px;"><h4 style="color:#7f1d1d;margin:0 0 8px;">🚨 انقطاعات PON (${p.ponsWideOutage.length})</h4>${p.ponsWideOutage.map(x=>`<div style="margin:6px 0;font-size:13px;"><b>PON ${escapeHTML(x.groupId)}</b> — ${escapeHTML(x.affectedCount)} مشترك<br><span style="color:#991b1b;">${escapeHTML(x.diagnosis)}</span></div>`).join('')}</div>`;
+if(p.flappingONT.length>0)h+=`<div style="background:#fed7aa;padding:12px;border-inline-start:4px solid #fb8c00;border-radius:8px;margin-bottom:12px;"><h4 style="color:#7c2d12;margin:0 0 8px;">⚡ ONTs تعيد التشغيل (${p.flappingONT.length})</h4>${p.flappingONT.map(x=>`<div style="margin:6px 0;font-size:13px;"><b>ONT ${escapeHTML(x.ontId)}</b> — ${escapeHTML(x.count)} مرة<br><span style="color:#9a3412;">${escapeHTML(x.diagnosis)}</span></div>`).join('')}</div>`;
+if(p.chronicONT.length>0)h+=`<div style="background:#fef3c7;padding:12px;border-inline-start:4px solid #eab308;border-radius:8px;"><h4 style="color:#713f12;margin:0 0 8px;">🔧 ONTs مزمنة (${p.chronicONT.length})</h4>${p.chronicONT.map(x=>`<div style="margin:6px 0;font-size:13px;"><b>ONT ${escapeHTML(x.ontId)}</b> — ${escapeHTML(x.alarmCount)} إنذار<br><span style="color:#854d0e;">${escapeHTML(x.diagnosis)}</span></div>`).join('')}</div>`;
 return h||'<div style="color:#16a34a;padding:10px;background:#f0fdf4;border-radius:8px;">✅ لا توجد أنماط</div>';
 }
 
 function handleAlarmsCSV(event){
 const file=event.target.files[0];if(!file)return;
+if(file.size>MAX_CSV_FILE_SIZE){alert(`❌ الملف كبير جداً (الحد ${Math.round(MAX_CSV_FILE_SIZE/1024)}KB)`);event.target.value='';return}
 const reader=new FileReader();
 reader.onload=(e)=>{
 try{
 const alarms=importAlarmsCSV(e.target.result);
 if(alarms.length===0)throw new Error('لا توجد إنذارات صالحة');
-if(!window.lastResults){alert('⚠️ شغّل التحليل أولاً');return}
-const patterns=correlateAlarms(alarms,window.lastResults.subscribers);
-window.lastResults.alarmPatterns=patterns;
+if(!appState.lastResults){alert('⚠️ شغّل التحليل أولاً');return}
+const patterns=correlateAlarms(alarms,appState.lastResults.subscribers);
+appState.lastResults.alarmPatterns=patterns;
 const c=document.getElementById('alarmPatternsContainer');
 c.className='card';
 c.innerHTML=`<div class="section-title">📡 تحليل إنذارات GPON (${alarms.length})</div>${renderAlarmPatterns(patterns)}`;
@@ -956,37 +1108,19 @@ document.getElementById('slaSection').innerHTML=`
 
 function processSubscribers(subscribers){
     try {
-        subscribers.forEach(sub=>{ sub.diagnosedFaultType = determineRootCause(sub); });
-
-        const predictions = subscribers.map(sub => predictFailureV2(sub));
-        const categories = predictions.map(p => classifyRisk(p));
-        predictions.forEach((p, i) => { p.riskScore = alignScoreWithCategory(categories[i], p.riskScore) });
-
-        const groupRiskCounts = {};
-        subscribers.forEach((sub, i) => {
-            if (!groupRiskCounts[sub.groupId]) groupRiskCounts[sub.groupId] = 0;
-            if (isPositiveRisk(categories[i])) groupRiskCounts[sub.groupId]++;
-        });
-
-        predictions.forEach((pred, i) => {
-            const sub = subscribers[i];
-            if (isPositiveRisk(categories[i]) && groupRiskCounts[sub.groupId] >= 3) {
-                pred.reasoning = (pred.reasoning ? pred.reasoning + ' | ' : '') + '⚠️ عطل جماعي (Splitter)';
-                pred.diagFaultType = 'SPLITTER'; 
-                pred.predictedFaultPct = 0.85; 
-                pred.predictedFiberKm = pred.predictedFaultPct * sub.fiberLengthKm;
-                pred.predictedCableKm = pred.predictedFiberKm / sub.helixFactor;
-                pred.errorMeters = Math.abs(pred.predictedFiberKm - (sub.actualFaultPositionPct * sub.fiberLengthKm)) * 1000;
-                pred.uncertaintyMeters = 50; // واقعي للعلبة
-            }
-        });
+        const {predictions,categories,groupRiskCounts}=preparePredictions(subscribers);
 
         const metrics=computeMetrics(subscribers,predictions,categories);
         const roc=computeROC(subscribers,predictions);
         const loc=computeLocationMetrics(subscribers,predictions,categories);
-        window.lastResults={subscribers,predictions,categories,metrics,roc,loc};
-        const source=window.dataSource==='csv'?t('source_csv'):t('source_sim');
-        document.getElementById('dataSourceBadge').innerHTML=`<span style="display:inline-block;padding:6px 16px;border-radius:20px;font-weight:700;font-size:13px;background:${window.dataSource==='csv'?'#fef3c7':'#dbeafe'};color:${window.dataSource==='csv'?'#92400e':'#1e40af'};border:1px solid ${window.dataSource==='csv'?'#fbbf24':'#3b82f6'}">${source}</span>`;
+        appState.lastResults={subscribers,predictions,categories,metrics,roc,loc};
+        const source=appState.dataSource==='csv'?t('source_csv'):t('source_sim');
+        const sourceBadge=document.getElementById('dataSourceBadge');
+        sourceBadge.textContent='';
+        const sourceSpan=document.createElement('span');
+        sourceSpan.style.cssText=`display:inline-block;padding:6px 16px;border-radius:20px;font-weight:700;font-size:13px;background:${appState.dataSource==='csv'?'#fef3c7':'#dbeafe'};color:${appState.dataSource==='csv'?'#92400e':'#1e40af'};border:1px solid ${appState.dataSource==='csv'?'#fbbf24':'#3b82f6'}`;
+        sourceSpan.textContent=source;
+        sourceBadge.appendChild(sourceSpan);
         renderROISection(metrics,subscribers);
         renderSLASection(metrics,subscribers);
 
@@ -998,10 +1132,10 @@ function processSubscribers(subscribers){
         <div class="metric-card"><div class="value">${(metrics.specificity*100).toFixed(1)}%</div><div class="label">Specificity</div></div>
         <div class="metric-card"><div class="value">${(metrics.f1*100).toFixed(1)}%</div><div class="label">F1-Score</div></div>
         <div class="metric-card"><div class="value">${(metrics.accuracy*100).toFixed(1)}%</div><div class="label">Accuracy</div></div>
-        <div class="metric-card"><div class="value">${(roc.auc*100).toFixed(1)}%</div><div class="label">AUC</div></div>
-        <div class="metric-card"><div class="value">${(roc.prAuc*100).toFixed(1)}%</div><div class="label">PR-AUC</div></div>
+        <div class="metric-card"><div class="value">${roc.auc===null?'N/A':(roc.auc*100).toFixed(1)+'%'}</div><div class="label">AUC</div></div>
+        <div class="metric-card"><div class="value">${roc.prAuc===null?'N/A':(roc.prAuc*100).toFixed(1)+'%'}</div><div class="label">PR-AUC</div></div>
         <div class="metric-card"><div class="value">${metrics.mcc.toFixed(3)}</div><div class="label">MCC</div></div>`;
-        document.getElementById('summary').innerHTML=t('summary_text').replace('{total}',subscribers.length).replace('{risk}',metrics.tp+metrics.fp).replace('{actual}',metrics.tp+metrics.fn).replace('{tp}',metrics.tp).replace('{fp}',metrics.fp);
+        document.getElementById('summary').textContent=t('summary_text').replace('{total}',subscribers.length).replace('{risk}',metrics.tp+metrics.fp).replace('{actual}',metrics.tp+metrics.fn).replace('{tp}',metrics.tp).replace('{fp}',metrics.fp);
         document.getElementById('confusionMatrix').innerHTML=`
         <div class="confusion-card tp"><div class="value" style="color:#16a34a;">${metrics.tp}</div><div class="label">True Positives (TP)</div></div>
         <div class="confusion-card fp"><div class="value" style="color:#fb923c;">${metrics.fp}</div><div class="label">False Positives (FP)</div></div>
@@ -1025,7 +1159,7 @@ function processSubscribers(subscribers){
         for(let g=1;g<=NUMBER_OF_PON_GROUPS;g++){
             if(groupRiskCounts[g] >= 3){
                 collectiveFaultsFound = true;
-                gs+=`<div style="background:#fef2f2;border-right:4px solid #dc2626;padding:10px;margin-bottom:8px;border-radius:6px;">
+                gs+=`<div style="background:#fef2f2;border-inline-start:4px solid #dc2626;padding:10px;margin-bottom:8px;border-radius:6px;">
                 <b>🚨 المجموعة (PON Group ${g})</b>: تم اكتشاف ${groupRiskCounts[g]} مشتركين متضررين معاً. <br>
                 <span style="color:#b91c1c;font-size:13px;font-weight:bold;">السبب المحتمل: عطل في Splitter أو كابل التوزيع المشترك. يجب إرسال الفرقة إلى الكابينة!</span>
                 </div>`;
@@ -1043,7 +1177,7 @@ function processSubscribers(subscribers){
         const st=sub.actualFailure?t('will_fail'):t('is_stable');
         const rc=sub.actualFailure?'alert':(cat==='حرج'?'critical':cat==='خطر'?'warn':cat==='مراقبة'?'monitor':'safe');
         const tag = pred.diagFaultType === 'SPLITTER' ? `<br><span class="badge-group">عطل جماعي</span>` : '';
-        topTbody.innerHTML+=`<tr id="toprow-${sub.id}"><td>${sub.id}</td><td>${sub.groupId}</td><td>${sub.history[sub.history.length-1].toFixed(2)}</td><td>${sub.degradationRate.toFixed(3)}</td><td>${pt}</td><td>${translateFaultType(pred.diagFaultType)}${tag}</td><td>${pred.riskScore.toFixed(1)}</td><td>${pred.confidence}%</td><td>${translateCategory(cat)}</td><td class="${rc}">${st}</td></tr>`;
+        topTbody.innerHTML+=`<tr id="toprow-${escapeHTML(sub.id)}"><td>${escapeHTML(sub.id)}</td><td>${escapeHTML(sub.groupId)}</td><td>${toFiniteNumber(sub.history[sub.history.length-1],0).toFixed(2)}</td><td>${toFiniteNumber(sub.degradationRate,0).toFixed(3)}</td><td>${escapeHTML(pt)}</td><td>${escapeHTML(translateFaultType(pred.diagFaultType))}${tag}</td><td>${toFiniteNumber(pred.riskScore,0).toFixed(1)}</td><td>${toFiniteNumber(pred.confidence,0)}%</td><td>${escapeHTML(translateCategory(cat))}</td><td class="${rc}">${escapeHTML(st)}</td></tr>`;
         });
 
         const allTbody=document.getElementById('allSubscribersTbody');
@@ -1055,7 +1189,7 @@ function processSubscribers(subscribers){
         const rc=sub.actualFailure?'alert':(cat==='حرج'?'critical':cat==='خطر'?'warn':cat==='مراقبة'?'monitor':'safe');
         let reason='';
         if(isPositiveRisk(cat)){
-        reason=`Deg ${Math.abs(pred.slope).toFixed(3)} dB/m`;
+        reason=`Deg ${toFiniteNumber(Math.abs(pred.slope),0).toFixed(3)} dB/m`;
         if(pred.anomaly)reason+=' (Anomaly)';
         if(pred.diagFaultType!=='غير محدد'&&pred.diagFaultType!=='STABLE')reason+=` (${translateFaultType(pred.diagFaultType)})`;
         if(pred.reasoning)reason+=` — ${pred.reasoning}`;
@@ -1076,7 +1210,7 @@ function processSubscribers(subscribers){
         }
         
         const tag = pred.diagFaultType === 'SPLITTER' ? `<br><span class="badge-group">عطل جماعي</span>` : '';
-        allTbody.innerHTML+=`<tr id="row-${sub.id}"><td>${sub.id}</td><td>${sub.groupId}</td><td>${sub.history[sub.history.length-1].toFixed(2)}</td><td>${sub.degradationRate.toFixed(3)}</td><td>${translateFaultType(pred.diagFaultType)}${tag}</td><td>${pred.riskScore.toFixed(1)}</td><td>${pred.confidence}%</td><td>${translateCategory(cat)}</td><td class="${rc}">${st}</td><td>${reason}</td><td class="survival-box">${surv}</td><td style="color:#d81b60; font-weight:bold;">${pred.uncertaintyMeters.toFixed(0)}m ±</td><td><b>${displayLocation}</b></td></tr>`;
+        allTbody.innerHTML+=`<tr id="row-${escapeHTML(sub.id)}"><td>${escapeHTML(sub.id)}</td><td>${escapeHTML(sub.groupId)}</td><td>${toFiniteNumber(sub.history[sub.history.length-1],0).toFixed(2)}</td><td>${toFiniteNumber(sub.degradationRate,0).toFixed(3)}</td><td>${escapeHTML(translateFaultType(pred.diagFaultType))}${tag}</td><td>${toFiniteNumber(pred.riskScore,0).toFixed(1)}</td><td>${toFiniteNumber(pred.confidence,0)}%</td><td>${escapeHTML(translateCategory(cat))}</td><td class="${rc}">${escapeHTML(st)}</td><td>${escapeHTML(reason)}</td><td class="survival-box">${escapeHTML(surv)}</td><td style="color:#d81b60; font-weight:bold;">${toFiniteNumber(pred.uncertaintyMeters,0).toFixed(0)}m ±</td><td><b>${escapeHTML(displayLocation)}</b></td></tr>`;
         });
         
         drawSignalChartManual(subscribers,top5);
@@ -1092,10 +1226,10 @@ function processSubscribers(subscribers){
         document.getElementById('results').innerHTML = `
         <div style="background:#fee2e2; border: 3px solid #dc2626; padding: 25px; border-radius:12px; color:#991b1b; text-align:left; direction:ltr; font-family:monospace;">
             <h2 style="color:#7f1d1d; margin-bottom:15px;">🚨 System Crash Detected! (JavaScript Error)</h2>
-            <p style="font-size:16px;"><b>Message:</b> ${error.message}</p>
+            <p style="font-size:16px;"><b>Message:</b> ${escapeHTML(error.message)}</p>
             <hr style="border-color:#fca5a5; margin:15px 0;">
             <p style="font-size:14px; font-weight:bold;">Stack Trace:</p>
-            <pre style="font-size:12px; white-space:pre-wrap; word-break:break-word; background:#fff; padding:10px; border-radius:6px; border:1px solid #f87171;">${error.stack}</pre>
+            <pre style="font-size:12px; white-space:pre-wrap; word-break:break-word; background:#fff; padding:10px; border-radius:6px; border:1px solid #f87171;">${escapeHTML(error.stack||'')}</pre>
         </div>`;
         console.error("FiberPulse Crash:", error);
     }
@@ -1114,18 +1248,19 @@ ctx.fillText(t('months_unit'),W/2,H-10);
 ctx.save();ctx.translate(20,H/2);ctx.rotate(-Math.PI/2);ctx.fillText('Rx Power',0,0);ctx.restore();
 const av=indices.flatMap(i=>subscribers[i].history);
 const mx=Math.max(...av)+1,mn=Math.min(...av)-1;
+const range=(mx-mn)||1;
 const cols=['#00acc1','#8e24aa','#43a047','#fb8c00','#d81b60'];
 indices.forEach((idx,k)=>{
 const sub=subscribers[idx],color=cols[k%cols.length];
 ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.beginPath();
 for(let m=0;m<sub.history.length;m++){
 const x=pad+(m/(MONTHS_HISTORY-1))*cW;
-const y=pad+((mx-sub.history[m])/(mx-mn))*cH;
+const y=pad+((mx-sub.history[m])/range)*cH;
 if(m===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
 }
 ctx.stroke();
 });
-const yC=pad+((mx-CRITICAL_THRESHOLD)/(mx-mn))*cH;
+const yC=pad+((mx-CRITICAL_THRESHOLD)/range)*cH;
 ctx.strokeStyle='#ef4444';ctx.setLineDash([6,4]);ctx.lineWidth=2;
 ctx.beginPath();ctx.moveTo(pad,yC);ctx.lineTo(W-pad,yC);ctx.stroke();
 ctx.setLineDash([]);
@@ -1154,14 +1289,14 @@ if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
 });
 ctx.stroke();
 ctx.fillStyle='#00acc1';ctx.font='bold 16px Segoe UI';ctx.textAlign='center';
-ctx.fillText('AUC = '+auc.toFixed(3),W/2,30);
+ctx.fillText(`AUC = ${auc===null?'N/A':auc.toFixed(3)}`,W/2,30);
 }
 
 function runPrediction(){
 const s=parseInt(document.getElementById('seedInput').value,10)||42;
 localStorage.setItem('fiberpulse_seed',s);
 const rand=mulberry32(s);
-window.dataSource='simulation';
+appState.dataSource='simulation';
 processSubscribers(generateSubscribers(rand));
 }
 
@@ -1172,43 +1307,57 @@ const results=[];
 seeds.forEach(seed=>{
 const rand=mulberry32(seed);
 const subs=generateSubscribers(rand);
-const preds=subs.map(s=>predictFailureV2(s));
-const cats=preds.map(p=>classifyRisk(p));
-preds.forEach((p,i)=>{p.riskScore=alignScoreWithCategory(cats[i],p.riskScore)});
-const m=computeMetrics(subs,preds,cats);
-const r=computeROC(subs,preds);
+const {predictions,categories}=preparePredictions(subs);
+const m=computeMetrics(subs,predictions,categories);
+const r=computeROC(subs,predictions);
 results.push({precision:m.precision,recall:m.recall,f1:m.f1,auc:r.auc,accuracy:m.accuracy});
 });
-const mean=a=>a.reduce((x,y)=>x+y,0)/a.length;
-const std=a=>{const m=mean(a);return Math.sqrt(a.reduce((x,y)=>x+(y-m)**2,0)/a.length)};
-const p=results.map(r=>r.precision),rc=results.map(r=>r.recall),f=results.map(r=>r.f1),a=results.map(r=>r.auc),ac=results.map(r=>r.accuracy);
+const mean=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+const std=a=>{if(!a.length)return 0;const m=mean(a);return Math.sqrt(a.reduce((x,y)=>x+(y-m)**2,0)/a.length)};
+const p=results.map(r=>r.precision),rc=results.map(r=>r.recall),f=results.map(r=>r.f1),a=results.map(r=>r.auc).filter(v=>v!==null),ac=results.map(r=>r.accuracy);
 alert(`📊 20 Seeds\n\nPrecision: ${(mean(p)*100).toFixed(1)}% ± ${(std(p)*100).toFixed(1)}%\nRecall: ${(mean(rc)*100).toFixed(1)}% ± ${(std(rc)*100).toFixed(1)}%\nF1: ${(mean(f)*100).toFixed(1)}% ± ${(std(f)*100).toFixed(1)}%\nAUC: ${(mean(a)*100).toFixed(1)}% ± ${(std(a)*100).toFixed(1)}%\nAcc: ${(mean(ac)*100).toFixed(1)}% ± ${(std(ac)*100).toFixed(1)}%`);
 }
 
 function exportCSV(){
-if(!window.lastResults){alert('شغّل التحليل أولاً');return}
-const{subscribers,predictions,categories}=window.lastResults;
+if(!appState.lastResults){alert('شغّل التحليل أولاً');return}
+const{subscribers,predictions,categories}=appState.lastResults;
+const csvEscape=v=>`"${String(v??'').replace(/"/g,'""')}"`;
 let csv='subscriber,group,wilaya,last_rx,degradation,cause,risk_score,confidence,category,actual_state,survival,predicted_km,cable_km,error_meters,uncertainty_meters,physical_cause,reasoning\n';
 subscribers.forEach((sub,i)=>{
 const pred=predictions[i],cat=categories[i];
 const actual=sub.actualFailure?'failure':'ok';
 const surv=pred.survivalProbabilities.join('|');
-csv+=`${sub.id},${sub.groupId},${sub.wilaya||''},${sub.history[sub.history.length-1].toFixed(2)},${sub.degradationRate.toFixed(3)},${pred.diagFaultType},${pred.riskScore.toFixed(1)},${pred.confidence}%,${cat},${actual},${surv},${pred.predictedFiberKm.toFixed(2)},${pred.predictedCableKm.toFixed(2)},${pred.errorMeters.toFixed(1)},${pred.uncertaintyMeters.toFixed(1)},${pred.physicalCause||''},"${(pred.reasoning||'').replace(/"/g,'')}"\n`;
+csv+=`${csvEscape(sub.id)},${csvEscape(sub.groupId)},${csvEscape(sub.wilaya||'')},${csvEscape(toFiniteNumber(sub.history[sub.history.length-1],0).toFixed(2))},${csvEscape(toFiniteNumber(sub.degradationRate,0).toFixed(3))},${csvEscape(pred.diagFaultType)},${csvEscape(toFiniteNumber(pred.riskScore,0).toFixed(1))},${csvEscape(toFiniteNumber(pred.confidence,0)+'%')},${csvEscape(cat)},${csvEscape(actual)},${csvEscape(surv)},${csvEscape(toFiniteNumber(pred.predictedFiberKm,0).toFixed(2))},${csvEscape(toFiniteNumber(pred.predictedCableKm,0).toFixed(2))},${csvEscape(toFiniteNumber(pred.errorMeters,0).toFixed(1))},${csvEscape(toFiniteNumber(pred.uncertaintyMeters,0).toFixed(1))},${csvEscape(pred.physicalCause||'')},${csvEscape(pred.reasoning||'')}\n`;
 });
 const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
 const link=document.createElement('a');
 link.href=URL.createObjectURL(blob);
 link.download='FiberPulse_Results.csv';
 link.click();
+URL.revokeObjectURL(link.href);
+}
+
+function exportNMSJson(){
+if(!appState.lastResults){alert('شغّل التحليل أولاً');return}
+const{subscribers,predictions,categories}=appState.lastResults;
+const payload={generatedAt:new Date().toISOString(),total:subscribers.length,alerts:subscribers.map((sub,i)=>({subscriberId:sub.id,groupId:sub.groupId,riskCategory:categories[i],riskScore:toFiniteNumber(predictions[i].riskScore,0),predictedFailureMonths:Number.isFinite(predictions[i].predictedMonths)?+predictions[i].predictedMonths.toFixed(2):null,reasoning:predictions[i].reasoning||'',diagnosis:predictions[i].diagFaultType||'STABLE'})).filter(item=>isPositiveRisk(item.riskCategory))};
+const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8;'});
+const link=document.createElement('a');
+link.href=URL.createObjectURL(blob);
+link.download='FiberPulse_NMS_Alerts.json';
+link.click();
+URL.revokeObjectURL(link.href);
 }
 
 async function printReport(){
-if(!window.lastResults){alert('شغّل التحليل أولاً');return}
-const{subscribers,predictions,categories,metrics,roc,loc}=window.lastResults;
+if(!appState.lastResults){alert('شغّل التحليل أولاً');return}
+if(typeof html2canvas==='undefined'||!window.jspdf){alert('مكتبات PDF غير متاحة حالياً');return}
+const{subscribers,predictions,categories,metrics,roc,loc}=appState.lastResults;
 const loading=document.createElement('div');
 loading.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1e3a8a;color:white;padding:15px 30px;border-radius:10px;z-index:99999;font-weight:bold;';
 loading.textContent='⏳ جاري إنشاء PDF...';
 document.body.appendChild(loading);
+let tmp=null;
 try{
 const signalImg=document.getElementById('signalChart').toDataURL('image/png');
 const rocImg=document.getElementById('rocChart').toDataURL('image/png');
@@ -1221,12 +1370,12 @@ let top5Rows='';
 top5.forEach(idx=>{
 const sub=subscribers[idx],pred=predictions[idx],cat=categories[idx];
 const bg=sub.actualFailure?'#fee2e2':'#f8fafc';
-top5Rows+=`<tr style="background:${bg};"><td style="padding:8px;border:1px solid #94a3b8;text-align:center;font-weight:bold;">${sub.id}</td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;">${sub.history[sub.history.length-1].toFixed(2)}</td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;">${sub.degradationRate.toFixed(3)}</td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;">${cat}</td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;color:${sub.actualFailure?'#b91c1c':'#166534'};font-weight:bold;">${sub.actualFailure?'⚠️ سيتعطل':'✅ مستقر'}</td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;">${pred.uncertaintyMeters.toFixed(0)}m ±</td></tr>`;
+top5Rows+=`<tr style="background:${bg};"><td style="padding:8px;border:1px solid #94a3b8;text-align:center;font-weight:bold;">${escapeHTML(sub.id)}</td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;">${toFiniteNumber(sub.history[sub.history.length-1],0).toFixed(2)}</td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;">${toFiniteNumber(sub.degradationRate,0).toFixed(3)}</td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;">${escapeHTML(cat)}</td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;color:${sub.actualFailure?'#b91c1c':'#166534'};font-weight:bold;">${sub.actualFailure?'⚠️ سيتعطل':'✅ مستقر'}</td><td style="padding:8px;border:1px solid #94a3b8;text-align:center;">${toFiniteNumber(pred.uncertaintyMeters,0).toFixed(0)}m ±</td></tr>`;
 });
 let recs='';
 top5.forEach(idx=>{
 const sub=subscribers[idx],pred=predictions[idx];
-recs+=`<div style="margin-bottom:10px;padding:10px;background:white;border-right:4px solid #d81b60;border-radius:4px;"><strong style="color:#1e3a8a;">مشترك ${sub.id} — ${sub.wilaya||''}:</strong> ${translateFaultType(pred.diagFaultType)} — نطاق العطل المتوقع: <b>في نطاق ${pred.uncertaintyMeters.toFixed(0)} متر </b></div>`;
+recs+=`<div style="margin-bottom:10px;padding:10px;background:white;border-inline-start:4px solid #d81b60;border-radius:4px;"><strong style="color:#1e3a8a;">مشترك ${escapeHTML(sub.id)} — ${escapeHTML(sub.wilaya||'')}:</strong> ${escapeHTML(translateFaultType(pred.diagFaultType))} — نطاق العطل المتوقع: <b>في نطاق ${toFiniteNumber(pred.uncertaintyMeters,0).toFixed(0)} متر </b></div>`;
 });
 const preventedFaults=Math.round(metrics.tp*COST_CONFIG.prediction_prevent_pct);
 const totalSavings=preventedFaults*(COST_CONFIG.truck_roll_dzd+COST_CONFIG.sla_penalty_dzd+COST_CONFIG.customer_churn_dzd*0.15);
@@ -1238,12 +1387,12 @@ const reportHTML=`
 <p style="color:#64748b;font-size:16px;margin:5px 0;">تقرير التنبؤ الوقائي — الجمهورية الجزائرية</p>
 <p style="font-size:12px;color:#94a3b8;">التاريخ: ${dateStr}</p>
 </div>
-<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;">1. الملخص التنفيذي</h2>
-<div style="background:#ecfdf5;padding:15px;border-radius:8px;border-right:4px solid #10b981;margin-bottom:20px;">
+<h2 style="color:#1e3a8a;font-size:18px;border-inline-start:5px solid #00acc1;padding-inline-start:12px;">1. الملخص التنفيذي</h2>
+<div style="background:#ecfdf5;padding:15px;border-radius:8px;border-inline-start:4px solid #10b981;margin-bottom:20px;">
 <p style="font-size:14px;">تم تحليل <b>${subscribers.length}</b> مشترك — <b>${metrics.tp+metrics.fp}</b> حالة للمتابعة</p>
 <p style="font-size:20px;font-weight:800;color:#065f46;">💰 وفر صافي: ${netSavings.toLocaleString('fr-DZ')} دج</p>
 </div>
-<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;">2. المقاييس الرئيسية</h2>
+<h2 style="color:#1e3a8a;font-size:18px;border-inline-start:5px solid #00acc1;padding-inline-start:12px;">2. المقاييس الرئيسية</h2>
 <table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12px;">
 <tr style="background:#e0f7fa;color:#006064;font-weight:bold;">
 <td style="padding:8px;border:1px solid #94a3b8;text-align:center;">مشتركين</td>
@@ -1260,10 +1409,10 @@ const reportHTML=`
 <td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;">${(metrics.precision*100).toFixed(1)}%</td>
 <td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;">${(metrics.recall*100).toFixed(1)}%</td>
 <td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;">${(metrics.f1*100).toFixed(1)}%</td>
-<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;">${(roc.auc*100).toFixed(1)}%</td>
+<td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;">${roc.auc===null?'N/A':(roc.auc*100).toFixed(1)+'%'}</td>
 <td style="padding:10px;border:1px solid #94a3b8;text-align:center;font-weight:bold;">${metrics.mcc.toFixed(3)}</td>
 </tr></table>
-<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;">3. أخطر 5 مشتركين</h2>
+<h2 style="color:#1e3a8a;font-size:18px;border-inline-start:5px solid #00acc1;padding-inline-start:12px;">3. أخطر 5 مشتركين</h2>
 <table style="width:100%;border-collapse:collapse;margin-bottom:25px;font-size:11px;">
 <thead><tr style="background:#1e3a8a;color:white;">
 <th style="padding:8px;border:1px solid #94a3b8;">مشترك</th>
@@ -1273,11 +1422,11 @@ const reportHTML=`
 <th style="padding:8px;border:1px solid #94a3b8;">حالة</th>
 <th style="padding:8px;border:1px solid #94a3b8;">نطاق التوقع</th>
 </tr></thead><tbody>${top5Rows}</tbody></table>
-<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;">4. منحنى ROC</h2>
+<h2 style="color:#1e3a8a;font-size:18px;border-inline-start:5px solid #00acc1;padding-inline-start:12px;">4. منحنى ROC</h2>
 <div style="text-align:center;margin-bottom:25px;"><img src="${rocImg}" style="max-width:500px;width:100%;border:1px solid #e2e8f0;border-radius:8px;"/></div>
-<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;">5. منحنيات التدهور</h2>
+<h2 style="color:#1e3a8a;font-size:18px;border-inline-start:5px solid #00acc1;padding-inline-start:12px;">5. منحنيات التدهور</h2>
 <div style="text-align:center;margin-bottom:25px;"><img src="${signalImg}" style="max-width:100%;border:1px solid #e2e8f0;border-radius:8px;"/></div>
-<h2 style="color:#1e3a8a;font-size:18px;border-right:5px solid #00acc1;padding-right:12px;">6. توصيات فنية</h2>
+<h2 style="color:#1e3a8a;font-size:18px;border-inline-start:5px solid #00acc1;padding-inline-start:12px;">6. توصيات فنية</h2>
 <div style="background:#f8fafc;padding:15px;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:25px;">${recs}</div>
 <div style="margin-top:40px;padding-top:20px;border-top:2px dashed #cbd5e1;display:flex;justify-content:space-between;">
 <div style="text-align:center;width:45%;"><p style="font-weight:bold;color:#1e3a8a;margin-bottom:60px;">توقيع التقني</p><p style="border-top:1px solid #0f172a;padding-top:8px;">&nbsp;</p></div>
@@ -1285,7 +1434,7 @@ const reportHTML=`
 </div>
 <div style="margin-top:30px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:15px;">FiberPulse v2.5 — The Reality Update (Telecom Standards)</div>
 </div>`;
-const tmp=document.createElement('div');
+tmp=document.createElement('div');
 tmp.style.cssText='position:fixed;top:-99999px;left:0;width:794px;background:white;z-index:-9999;';
 tmp.innerHTML=reportHTML;
 document.body.appendChild(tmp);
@@ -1322,12 +1471,13 @@ if(p>0)pdf.addPage();
 pdf.addImage(finalImg,'JPEG',0,-p*pdfH,imgW,imgH);
 }
 pdf.save(`FiberPulse_Report_${now.toISOString().split('T')[0]}.pdf`);
-document.body.removeChild(loading);
 alert('✅ تم إنشاء التقرير!');
 }catch(err){
 console.error(err);
-if(document.body.contains(loading))document.body.removeChild(loading);
 alert('خطأ: '+err.message);
+}finally{
+if(tmp&&document.body.contains(tmp))document.body.removeChild(tmp);
+if(document.body.contains(loading))document.body.removeChild(loading);
 }
 }
 
@@ -1343,7 +1493,10 @@ setLanguage(currentLang);
 buildTableHeaders();
 const savedSeed=localStorage.getItem('fiberpulse_seed');
 if(savedSeed)document.getElementById('seedInput').value=savedSeed;
-if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(e=>console.log('SW failed',e))})}
+const action=new URLSearchParams(window.location.search).get('action');
+if(action==='run')runPrediction();
+if(action==='pdf')setTimeout(()=>printReport(),200);
+if('serviceWorker' in navigator){window.addEventListener('load',async()=>{try{await navigator.serviceWorker.register('sw.js')}catch(e){console.warn('SW registration failed:',e)}})}
 }
 init();
 console.log('🫀 FiberPulse v2.5 Reality Update loaded');

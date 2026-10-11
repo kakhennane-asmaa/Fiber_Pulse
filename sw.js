@@ -3,7 +3,7 @@
 // استراتيجية: Network-first للـ HTML + Cache-first للأصول
 // ═══════════════════════════════════════════════════════════════════
 
-const CACHE_VERSION = 'fiberpulse-v1.0.1';
+const CACHE_VERSION = 'fiberpulse-v1.0.2';
 const CACHE_STATIC = CACHE_VERSION + '-static';
 const CACHE_RUNTIME = CACHE_VERSION + '-runtime';
 
@@ -11,22 +11,21 @@ const STATIC_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
+  './sw.js'
 ];
 
 self.addEventListener('install', (event) => {
   console.log('[FiberPulse SW] Installing', CACHE_VERSION);
   event.waitUntil(
     caches.open(CACHE_STATIC).then((cache) => {
-      return Promise.all(
-        STATIC_ASSETS.map((url) =>
-          cache.add(url).catch((err) => console.warn('[SW] Failed:', url, err))
-        )
-      );
+      return Promise.all(STATIC_ASSETS.map(async (url) => {
+        try {
+          const request = new Request(url, { cache: 'reload' });
+          await cache.add(request);
+        } catch (err) {
+          console.warn('[SW] Failed:', url, err);
+        }
+      }));
     }).then(() => self.skipWaiting())
   );
 });
@@ -52,35 +51,37 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+  const isSameOrigin = url.origin === self.location.origin;
 
-  if (request.mode === 'navigate' || url.pathname.endsWith('.html')) {
+  if (request.mode === 'navigate' || (isSameOrigin && url.pathname.endsWith('.html'))) {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_STATIC).then((cache) => cache.put(request, clone));
+          if (response && response.ok && isSameOrigin) {
+            const clone = response.clone();
+            caches.open(CACHE_STATIC).then((cache) => cache.put(request, clone));
+          }
           return response;
         })
-        .catch(() =>
-          caches.match(request).then((r) => r || caches.match('./index.html'))
-        )
+        .catch(async () => (await caches.match(request)) || (await caches.match('./index.html')) || new Response('<h1>Offline</h1>', { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8' } }))
     );
     return;
   }
 
   event.respondWith(
-    caches.match(request).then((cached) => {
+    caches.match(request).then(async (cached) => {
       if (cached) return cached;
       return fetch(request)
         .then((response) => {
-          if (!response || response.status !== 200 || response.type === 'opaque') {
+          if (!response || response.status !== 200 || response.type === 'opaque' || !isSameOrigin) {
             return response;
           }
           const clone = response.clone();
           caches.open(CACHE_RUNTIME).then((cache) => cache.put(request, clone));
           return response;
         })
-        .catch(() => cached);
+        .catch(() => cached || new Response('', { status: 504, statusText: 'Offline' }));
     })
   );
 });
