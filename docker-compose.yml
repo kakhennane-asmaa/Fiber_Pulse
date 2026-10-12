@@ -1,0 +1,62 @@
+# FiberPulse Production — Docker Compose
+# تشغيل كل الخدمات: docker-compose up -d
+
+version: '3.9'
+
+services:
+
+  # ─── TimescaleDB (PostgreSQL + Time-Series) ──────────────────────────
+  db:
+    image: timescale/timescaledb:latest-pg15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       fiberpulse
+      POSTGRES_USER:     fiberpulse
+      POSTGRES_PASSWORD: changeme_in_production
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fiberpulse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Redis (Cache + Real-time pub/sub) ──────────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+
+  # ─── FastAPI Backend ─────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://fiberpulse:changeme_in_production@db:5432/fiberpulse
+      REDIS_URL:    redis://redis:6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend/models:/app/models    # نموذج LSTM محفوظ
+      - ./backend:/app                  # كود Python
+    command: >
+      uvicorn main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+
+volumes:
+  pgdata:
