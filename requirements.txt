@@ -1,0 +1,29 @@
+# FiberPulse Production — Python Dependencies
+
+# Web Framework
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+python-multipart==0.0.9
+aiofiles==23.2.1
+
+# Database
+sqlalchemy==2.0.30
+psycopg2-binary==2.9.9
+
+# Cache & Real-time
+redis==5.0.4
+
+# ML Core
+tensorflow==2.16.1
+scikit-learn==1.4.2
+numpy==1.26.4
+pandas==2.2.2
+joblib==1.4.2
+
+# XAI (Explainability)
+shap==0.45.1
+
+# Validation & Security
+pydantic==2.7.1
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
